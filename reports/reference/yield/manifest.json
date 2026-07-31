@@ -1,0 +1,58 @@
+{
+  "schema_version": "semiyield-experiment-v1",
+  "created_at": "2026-07-31T02:33:30.606705+00:00",
+  "config": {
+    "models": [
+      "dummy",
+      "logistic",
+      "catboost"
+    ],
+    "folds": 3,
+    "repeats": 1,
+    "calibration_folds": 3,
+    "inspection_budget": 0.1,
+    "missed_cost": 10.0,
+    "review_cost": 1.0,
+    "random_state": 42
+  },
+  "dataset": {
+    "schema_version": "secom-uci-v1",
+    "rows": 1567,
+    "features": 590,
+    "failure_count": 104,
+    "license": "CC BY 4.0",
+    "source": "https://archive.ics.uci.edu/static/public/179/secom.zip",
+    "file_sha256": {
+      "secom.data": "20f0e7ee434f7dcbae0eea9ffff009a2b57f42d6b0dc9a5bd4f00782c0a3374c",
+      "secom_labels.data": "126884cf453705c9e61a903fe906f0665a3b45ce3639e621edc5c93c89627e03"
+    }
+  },
+  "environment": {
+    "python": "3.13.9",
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+    "scikit_learn": "1.9.0"
+  },
+  "resource_guard": {
+    "schema_version": "semiyield-resource-usage-v1",
+    "created_at": "2026-07-31T02:33:30.875489+00:00",
+    "status": "completed",
+    "exit_code": 0,
+    "peak_rss_bytes": 909737984,
+    "soft_limit_bytes": 34359738368,
+    "hard_limit_bytes": 51539607552,
+    "soft_limit_exceeded": false,
+    "elapsed_seconds": 209.20793654199997,
+    "models": [
+      "dummy",
+      "logistic",
+      "catboost"
+    ]
+  },
+  "artifacts": {
+    "fold_metrics.csv": "2e23d062b531148ced99a08cf1734aed64334032a230a5bbf9c30043db652cab",
+    "summary.csv": "167cd95e2e3c39c79193db145c5209d7fe214abe61a822500e9c0086389c92a3",
+    "model_status.csv": "8ed2da95a42ceb9956358a0b44d30fce30cb1385e5cba72fe927df50fb972261",
+    "benchmark_pr_auc.svg": "f6bc6726729d36ba9314ac6726d89aff7f7cca14e49c8c44b5feeb58ccc3896a",
+    "resource_usage.json": "61e5305279d6c443115cf9fd77d1234a92d155e40e696425a75fd13d00826308"
+  }
+}

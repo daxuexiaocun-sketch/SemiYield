@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">SemiYield 图形摘要</title>
+  <desc id="desc">两条分析链路将 SECOM 制造数据和 NASA MOSFET 老化数据转化为可审计的良率风险与可靠性结果。</desc>
+  <defs>
+    <linearGradient id="header" x1="0" x2="1"><stop stop-color="#155eef"/><stop offset="1" stop-color="#7a5af8"/></linearGradient>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#667085"/></marker>
+    <style>
+      .bg{fill:#f8fafc}.card{fill:#fff;stroke:#d0d5dd;stroke-width:1.5}.blue{fill:#eff8ff;stroke:#84caff}.violet{fill:#f4f3ff;stroke:#bdb4fe}.out{fill:#ecfdf3;stroke:#6ce9a6}.h{font:700 22px system-ui,sans-serif;fill:#fff}.lane{font:700 20px system-ui,sans-serif;fill:#101828}.t{font:600 16px system-ui,sans-serif;fill:#101828}.s{font:14px system-ui,sans-serif;fill:#475467}.note{font:13px system-ui,sans-serif;fill:#667085}.arrow{stroke:#667085;stroke-width:2;fill:none;marker-end:url(#arrow)}
+      @media(prefers-color-scheme:dark){.bg{fill:#0d1117}.card{fill:#161b22;stroke:#3d444d}.blue{fill:#102a43;stroke:#388bfd}.violet{fill:#26204d;stroke:#8957e5}.out{fill:#123524;stroke:#2ea043}.lane,.t{fill:#e6edf3}.s{fill:#b1bac4}.note{fill:#8c959f}}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="620" rx="18"/>
+  <rect x="0" y="0" width="1200" height="72" rx="18" fill="url(#header)"/><rect x="0" y="52" width="1200" height="20" fill="url(#header)"/>
+  <text class="h" x="42" y="44">SemiYield · 从半导体数据到可审计的工程结论</text>
+  <text class="lane" x="42" y="122">制造良率风险筛查</text>
+  <rect class="blue" x="42" y="145" width="220" height="125" rx="14"/><text class="t" x="62" y="178">UCI SECOM</text><text class="s" x="62" y="205">1,567 个样本</text><text class="s" x="62" y="227">590 个匿名过程变量</text><text class="s" x="62" y="249">缺失值与类别不平衡</text>
+  <path class="arrow" d="M274 208H326"/>
+  <rect class="card" x="338" y="145" width="230" height="125" rx="14"/><text class="t" x="358" y="178">无泄漏数据流水线</text><text class="s" x="358" y="205">质量检查 · 缺失填补</text><text class="s" x="358" y="227">仅训练集内特征筛选</text><text class="s" x="358" y="249">交叉验证 + 时间留出</text>
+  <path class="arrow" d="M580 208H632"/>
+  <rect class="card" x="644" y="145" width="230" height="125" rx="14"/><text class="t" x="664" y="178">风险模型</text><text class="s" x="664" y="205">逻辑回归 · CatBoost</text><text class="s" x="664" y="227">可选 TabPFN v2</text><text class="s" x="664" y="249">概率校准 + 阈值决策</text>
+  <path class="arrow" d="M886 208H938"/>
+  <rect class="out" x="950" y="145" width="208" height="125" rx="14"/><text class="t" x="970" y="178">工程输出</text><text class="s" x="970" y="205">失败风险概率</text><text class="s" x="970" y="227">候选异常变量</text><text class="s" x="970" y="249">固定复检预算捕获率</text>
+  <text class="lane" x="42" y="334">MOSFET 退化与可靠性</text>
+  <rect class="violet" x="42" y="357" width="220" height="125" rx="14"/><text class="t" x="62" y="390">NASA MOSFET</text><text class="s" x="62" y="417">热过应力老化试验</text><text class="s" x="62" y="439">全器件慢速信号</text><text class="s" x="62" y="461">外部 7.85 GB 原始包</text>
+  <path class="arrow" d="M274 420H326"/>
+  <rect class="card" x="338" y="357" width="230" height="125" rx="14"/><text class="t" x="358" y="390">物理特征</text><text class="s" x="358" y="417">RDS(on) 漂移与趋势</text><text class="s" x="358" y="439">温度修正</text><text class="s" x="358" y="461">器件隔离切分</text>
+  <path class="arrow" d="M580 420H632"/>
+  <rect class="card" x="644" y="357" width="230" height="125" rx="14"/><text class="t" x="664" y="390">可靠性模型</text><text class="s" x="664" y="417">含删失 Weibull</text><text class="s" x="664" y="439">Arrhenius–Weibull</text><text class="s" x="664" y="461">随机生存森林</text>
+  <path class="arrow" d="M886 420H938"/>
+  <rect class="out" x="950" y="357" width="208" height="125" rx="14"/><text class="t" x="970" y="390">可靠性输出</text><text class="s" x="970" y="417">β · η · B10</text><text class="s" x="970" y="439">退化轨迹</text><text class="s" x="970" y="461">寿命风险与置信区间</text>
+  <rect class="card" x="42" y="526" width="1116" height="58" rx="12"/><text class="t" x="600" y="551" text-anchor="middle">可复现 · 可解释 · 可审计</text><text class="note" x="600" y="573" text-anchor="middle">固定随机种子 · 模型状态 · 器件清单 · SHA-256 溯源 · 明确限制</text>
+</svg>

@@ -1,0 +1,55 @@
+{
+  "schema_version": "semiyield-reliability-report-v1",
+  "created_at": "2026-07-30T07:33:11.724110+00:00",
+  "data_sha256": "d395bd643891f464a0bc4422886a90add62d4782844274100b288547dc61cf85",
+  "weibull": {
+    "beta": 2.331591236091369,
+    "eta": 1233.0425543640104,
+    "b10": 469.6915822184881,
+    "failures": 28,
+    "censored": 8,
+    "log_likelihood": -217.34733081668995,
+    "beta_ci95": [
+      1.7337214786687163,
+      3.13563496738386
+    ],
+    "eta_ci95": [
+      1049.389194019064,
+      1448.837046862999
+    ]
+  },
+  "arrhenius_weibull": {
+    "beta": 5.949905577697251,
+    "intercept": -3.033342495474784,
+    "activation_energy_ev": 0.43086501133714084,
+    "use_temperature_c": 55.0,
+    "eta_at_use": 199492.79932237926,
+    "b10_at_use": 136668.61729254996,
+    "failures": 28,
+    "censored": 8,
+    "observed_temperature_range_c": [
+      210.0,
+      250.0
+    ],
+    "extrapolation_warning": "Use temperature is outside the observed stress range; lifetime is an extrapolation that requires mechanism validation."
+  },
+  "survival_forest": {
+    "status": "completed",
+    "c_index": 0.5769230769230769,
+    "c_index_bootstrap_ci95": [
+      0.25,
+      0.8571428571428571
+    ],
+    "integrated_brier_score": null,
+    "integrated_brier_score_note": "all times must be within follow-up time of test data: [455.0; 650.0[",
+    "observed_failure_median_lifetime_mae": 55.833333333333336,
+    "train_units": 28,
+    "test_units": 8,
+    "split_source": "deterministic_unit_order"
+  },
+  "artifacts": {
+    "weibull_curve.csv": "dcb796303e323d2a4cd2f6ca7d9ec8e3769c35c723152e60650776479157849c",
+    "weibull_survival.svg": "bc9cbf3b58928a9f113e9afbe34a9fb57e293b2d51c6db81cdece52f2e8edd4b",
+    "accelerated_life.svg": "40d7b22e9fbbc9ca2afab1f19c219b6be7ee1c05c8531562e74fe7e83cc09b48"
+  }
+}

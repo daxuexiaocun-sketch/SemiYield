@@ -1,0 +1,8 @@
+{
+  "device": null,
+  "time": "REPLACE_ROOT.slow.REPLACE_TIME_PATH",
+  "temperature": "REPLACE_ROOT.slow.REPLACE_TEMPERATURE_PATH",
+  "voltage": "REPLACE_ROOT.slow.REPLACE_VDS_PATH",
+  "current": "REPLACE_ROOT.slow.REPLACE_ID_PATH",
+  "event": null
+}

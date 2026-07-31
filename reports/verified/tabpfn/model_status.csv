@@ -1,0 +1,2 @@
+model,status,reason
+tabpfn,archived,Not rerun after the resource-safe calibration refactor; metrics are not directly comparable

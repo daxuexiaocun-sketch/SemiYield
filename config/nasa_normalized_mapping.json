@@ -1,0 +1,8 @@
+{
+  "device": "device_id",
+  "time": "time_s",
+  "temperature": "temperature_c",
+  "voltage": "vds_v",
+  "current": "id_a",
+  "event": "event_observed"
+}

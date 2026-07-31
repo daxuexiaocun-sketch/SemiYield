@@ -1,0 +1,49 @@
+{
+  "train": [
+    "device_005",
+    "device_006",
+    "device_007",
+    "device_008",
+    "device_011",
+    "device_012",
+    "device_013",
+    "device_018",
+    "device_020",
+    "device_022",
+    "device_023",
+    "device_025",
+    "device_026",
+    "device_027",
+    "device_028",
+    "device_029",
+    "device_030",
+    "device_031",
+    "device_032",
+    "device_033",
+    "device_034",
+    "device_037",
+    "device_040",
+    "device_042"
+  ],
+  "validation": [
+    "device_001",
+    "device_004",
+    "device_017",
+    "device_019",
+    "device_021",
+    "device_024",
+    "device_036",
+    "device_039"
+  ],
+  "test": [
+    "device_002",
+    "device_003",
+    "device_009",
+    "device_014",
+    "device_015",
+    "device_016",
+    "device_035",
+    "device_038",
+    "device_041"
+  ]
+}

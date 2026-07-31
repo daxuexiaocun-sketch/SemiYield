@@ -1,0 +1,62 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "semiyield"
+version = "0.3.0"
+description = "Explainable semiconductor manufacturing yield-risk analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [{name = "SemiYield contributors"}]
+dependencies = [
+  "joblib>=1.3",
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "psutil>=5.9",
+  "scikit-learn>=1.4",
+  "scipy>=1.10",
+  "typer>=0.12",
+]
+
+[project.optional-dependencies]
+catboost = ["catboost>=1.2; python_version < '3.14'"]
+explain = ["shap>=0.45"]
+app = ["streamlit>=1.36", "plotly>=5.22"]
+tabpfn = ["tabpfn>=6"]
+parquet = ["pyarrow>=15"]
+survival = ["scikit-survival>=0.23; python_version < '3.14'"]
+demo = [
+  "catboost>=1.2; python_version < '3.14'",
+  "matplotlib>=3.8",
+  "pyarrow>=15",
+  "streamlit>=1.36",
+  "plotly>=5.22",
+]
+dev = ["build>=1.2", "pytest>=8", "pytest-cov>=5", "ruff>=0.5"]
+all = [
+  "catboost>=1.2; python_version < '3.14'",
+  "shap>=0.45",
+  "matplotlib>=3.8",
+  "pyarrow>=15",
+  "streamlit>=1.36",
+  "plotly>=5.22",
+]
+
+[project.scripts]
+semiyield = "semiyield.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/semiyield"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
