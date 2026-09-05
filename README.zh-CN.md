@@ -36,20 +36,14 @@ uv run semiyield app
 ```bash
 uv run semiyield packaging validate
 uv run semiyield packaging benchmark
-uv run semiyield quickstart
-```
-
-原有 `quickstart` 仍下载 SECOM（需要网络）、安装小型合成寿命样例，输出到 `reports/reference/`。
-对应展开命令继续可用：
-
-```bash
 uv run semiyield yield download
-uv run semiyield data download-demo
 uv run semiyield yield benchmark --profile quick
+uv run semiyield reliability example install
 uv run semiyield reliability report --profile quick
 ```
 
-原有顶层 SECOM 命令保持兼容。NASA 数据准备详见 [NASA 数据流水线](docs/NASA_PIPELINE.md)。
+1.0 版本移除了原有顶层命令、Python 导入别名和旧模型文件兼容层；旧模型需要重新训练，或保留旧版本导出的结果。
+NASA 数据准备详见 [NASA 数据流水线](docs/NASA_PIPELINE.md)。
 依赖统一以 `uv.lock` 为准，extras 需要显式选择，详见[业务架构与环境说明](docs/ARCHITECTURE.md)。
 
 ## 参考结果

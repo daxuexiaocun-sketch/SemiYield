@@ -8,9 +8,10 @@ import pytest
 from typer.testing import CliRunner
 
 from semiyield.cli import app
-from semiyield.demo.data import SENSORS, generate, load_dataset
-from semiyield.demo.service import run
-from semiyield.packaging.data import FEATURES
+from semiyield.demo.workflow import run
+from semiyield.simulation.contracts import PACKAGING_FEATURES, SENSORS
+from semiyield.simulation.generator import generate
+from semiyield.simulation.validation import load_dataset
 
 
 def test_generation_reproducible_linked_and_batch_isolated(tmp_path):
@@ -18,8 +19,8 @@ def test_generation_reproducible_linked_and_batch_isolated(tmp_path):
     second = generate(tmp_path / "b", seed=42, batches=10, units_per_batch=30)
     assert first == second
     manifest, tables = load_dataset(tmp_path / "a")
-    manufacturing, packaging, lifetime, trace = (
-        tables[key] for key in ["manufacturing", "packaging", "lifetime", "trace"]
+    manufacturing, packaging, lifetime = (
+        tables[key] for key in ["manufacturing", "packaging_candidates", "lifetime_candidates"]
     )
     assert manufacturing.groupby("batch_id").split.nunique().eq(1).all()
     for table in tables.values():
@@ -28,15 +29,10 @@ def test_generation_reproducible_linked_and_batch_isolated(tmp_path):
         joined = table.merge(manufacturing[["unit_id", "split"]], on="unit_id")
         assert joined.split_x.eq(joined.split_y).all()
     assert set(packaging.unit_id) == set(manufacturing.loc[manufacturing.failed.eq(0), "unit_id"])
-    assert set(lifetime.unit_id) == set(packaging.loc[packaging.proxy_failed.eq(0), "unit_id"])
-    assert trace.loc[~trace.entered_packaging, "packaging_proxy_failed"].isna().all()
-    assert trace.loc[~trace.entered_lifetime, "time_to_event"].isna().all()
+    assert set(lifetime.unit_id) == set(packaging.unit_id)
     assert lifetime.time_to_event.gt(0).all()
     assert set(lifetime.event_observed) == {0, 1}
-    assert manifest["throughput_threshold"] == pytest.approx(
-        packaging.loc[packaging.split.eq("train"), "Y"].quantile(0.1)
-    )
-    assert manifest["features"] == {"manufacturing": SENSORS, "packaging": FEATURES}
+    assert manifest["features"] == {"manufacturing": SENSORS, "packaging": PACKAGING_FEATURES}
     assert not any("latent" in column for table in tables.values() for column in table.columns)
 
 
@@ -88,7 +84,7 @@ def test_integrity_and_output_protection(tmp_path):
     generate(root, batches=2, units_per_batch=2)
     with pytest.raises(ValueError, match="Output exists"):
         generate(root)
-    with (root / "packaging.csv").open("a") as handle:
+    with (root / "packaging_candidates.csv").open("a") as handle:
         handle.write("\n")
     with pytest.raises(ValueError, match="hash mismatch"):
         load_dataset(root)
@@ -117,7 +113,9 @@ def test_demo_generate_cli_and_force(tmp_path):
 def test_generated_probability_labels_are_not_features(tmp_path):
     generate(tmp_path / "data", batches=5, units_per_batch=20)
     _, tables = load_dataset(tmp_path / "data")
-    from semiyield.yield_risk.service import train_manufacturing
+    from importlib import import_module
+
+    train_manufacturing = import_module("semiyield.yield.modeling").train_manufacturing
 
     frame = tables["manufacturing"]
     artifact = train_manufacturing(frame[SENSORS], frame.failed)

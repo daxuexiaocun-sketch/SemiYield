@@ -22,8 +22,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from semiyield.common.data import sha256_file
-from semiyield.common.visuals import write_degradation_chart
+from semiyield.common.artifacts import sha256_file
+from semiyield.reliability.reporting import write_degradation_chart
 from semiyield.constants import (
     MOSFET_FEATURE_SCHEMA_VERSION,
     NASA_DATASET_CITATION,
@@ -407,7 +407,7 @@ def _iter_normalized_tables(source: Path) -> Iterable[tuple[Path, pd.DataFrame]]
             if not safe_members:
                 raise ValueError(
                     "Archive contains no normalized CSV/Parquet tables. "
-                    "Run `semiyield nasa inspect` and convert the MATLAB slow-measurement "
+                    "Run `semiyield reliability nasa inspect` and convert the MATLAB slow-measurement "
                     "structures using an explicit mapping before preparation."
                 )
             for member in safe_members:

@@ -3,7 +3,7 @@ import sys
 
 import pandas as pd
 
-from semiyield.resource_guard import run_guarded
+from semiyield.common.resources import run_guarded
 
 
 def test_guard_records_completed_process(tmp_path):

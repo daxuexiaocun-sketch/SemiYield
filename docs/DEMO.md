@@ -39,10 +39,12 @@ creating observations. IDs and split assignment are identical across all subsequ
 | File | Population | Outcomes and units |
 |---|---|---|
 | `manufacturing.csv` | All devices | 24 anonymous sensors, observed binary `failed`; sensors in arbitrary units |
-| `packaging.csv` | Manufacturing passes only | Mixed `X1`–`X16`, `Y` in synthetic units/hour, `proxy_failed` |
-| `lifetime.csv` | Both earlier stages passed | `temperature_c`, positive `time_to_event` in hours, `event_observed` |
-| `trace.csv` | All devices | Stage entry flags, nullable outcomes, final stage disposition |
-| `manifest.json` | Dataset description | Generator version, seed, dimensions, split, threshold, field meanings, file hashes |
+| `packaging_candidates.csv` | Manufacturing passes only | Raw mixed `X1`–`X16` and synthetic `Y` in units/hour; no label |
+| `lifetime_candidates.csv` | Packaging candidates | Raw stress and right-censored lifetime observations before packaging routing |
+| `manifest.json` | Dataset description | Generator version, seed, dimensions, split, field meanings, file hashes |
+
+`demo run` writes `packaging_observed.csv`, `lifetime_observed.csv`, and `trace.csv` in the report
+directory after it calculates the training-only packaging threshold and applies observed routing.
 
 A shared latent batch/device quality variable affects early measurements and failure propensity.
 Packaging adds independent process noise; throughput decreases with poor quality/process conditions.
@@ -61,7 +63,8 @@ screening capability; observed generated outcomes determine routing.
 
 Manufacturing and packaging run Dummy and Logistic Regression on shared training batches and report
 metrics on test batches. IDs, split, role flags and labels are excluded from input features.
-The generator manifest supplies source hashes and the packaging threshold is checked when running.
+The generator manifest supplies source hashes. The workflow computes and records the packaging
+threshold in the report manifest; it is not a generator input.
 
 Weibull fits training survivors only and describes their pooled stress-temperature cohort; it is
 not a holdout accuracy metric or a use-temperature curve. Arrhenius fitting runs only with two

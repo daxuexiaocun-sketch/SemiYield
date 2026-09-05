@@ -5,30 +5,38 @@ inside one installable Python package. It remains a single uv project, not three
 
 | Package | Owns | Public commands |
 |---|---|---|
-| `yield_risk` | SECOM acquisition, yield benchmark, manufacturing model service, review pages | `semiyield yield …` |
+| `yield` | SECOM acquisition, preprocessing, models, evaluation, review pages | `semiyield yield …` |
 | `packaging` | Mixed-type process schema, throughput proxy labels, training, evaluation, review page | `semiyield packaging …` |
-| `reliability` | NASA ingestion, lifetime/Arrhenius/optional survival analysis, review page | `semiyield reliability …`, `semiyield nasa …` |
-| `common` | Numeric model primitives, metrics, preprocessing, I/O, explanations, drift, plotting, resource protection | Shared Python interfaces |
-| `demo` | Synthetic generation, cross-stage orchestration, static reports | `semiyield demo …` |
+| `reliability` | NASA ingestion, lifetime/Arrhenius/optional survival analysis, review page | `semiyield reliability …` |
+| `simulation` | Raw synthetic contracts, scenarios, generation and integrity validation | Internal generator interface |
+| `common` | Hashes, generic reporting, metrics, validation and resource protection | Shared infrastructure |
+| `demo` | Cross-stage orchestration and static reports | `semiyield demo …` |
 
-`cli.py` registers commands and compatibility exports; `streamlit_app.py` routes business pages.
-`workflows.py` retains the legacy SECOM plus reliability quickstart and experiment-manifest commands.
-Business packages depend on shared utilities, not on one another. Only the demo/workflow layer
-coordinates business services. Optional plotting/app/model imports stay out of basic CLI startup.
+`cli.py` only registers `yield`, `packaging`, `reliability`, `demo`, and `app`; `streamlit_app.py`
+only routes business pages. The generator never imports a business package. Only `demo.workflow`
+coordinates business services, calculates the packaging training threshold, and routes observed
+stage outcomes. Optional plotting/app/model imports stay out of basic CLI startup.
 
-## Compatibility
+```text
+src/semiyield/
+├── common/       # artifacts, generic validation, metrics, reporting, resources
+├── yield/        # SECOM data, preprocessing, modeling, evaluation, explanations, drift
+├── packaging/    # input contract, labeling, mixed preprocessing, models, evaluation
+├── reliability/  # lifetime contract/models/reports and NASA preparation
+├── simulation/   # raw contracts, scenario, generator, integrity validation
+├── demo/         # the only cross-business workflow and its report writer
+├── cli.py        # public command registration
+└── streamlit_app.py
+```
 
-Existing top-level SECOM commands (`download`, `train`, `benchmark`, etc.) remain aliases.
-`quickstart` still downloads SECOM and installs the small lifetime example; use `demo quickstart`
-for the new entirely synthetic three-stage workflow. Existing `data download-demo` and NASA
-commands remain available.
+## 1.0 migration
 
-Former Python modules are compatibility aliases to their implementation modules. Old imports such
-as `semiyield.data.SecomDataset`, `semiyield.modeling.ModelArtifact` and
-`semiyield.preprocessing.ColumnCleaner` still resolve, including when loading trusted old joblib
-artifacts. `semiyield.reliability` is now a package exporting the existing lifetime API.
-Packaging uses its own `PackagingArtifact` and does not pass categorical values through SECOM's
-numeric coercion. Artifact loaders only accept their respective artifact types.
+This is a breaking API release. The old top-level commands (`download`, `train`, `benchmark`,
+`quickstart`, `data`, and `nasa`), the old Python aliases, `workflows.py`, and old joblib loading
+paths were removed. Use `semiyield yield …`, `semiyield reliability nasa …`, and
+`semiyield reliability example install`. Re-train old model files with 1.0, or keep the result
+exported by the version that created them. Packaging keeps its independent mixed-type schema and
+does not apply SECOM numeric coercion.
 
 ## Reproducible environments
 

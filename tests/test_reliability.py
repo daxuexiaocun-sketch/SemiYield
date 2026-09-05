@@ -2,13 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from semiyield.reliability import (
-    fit_arrhenius_weibull,
-    fit_weibull,
-    survival_probability,
-    validate_lifetime_data,
-    write_reliability_report,
-)
+from semiyield.reliability.data import validate_lifetime_data
+from semiyield.reliability.lifetime import fit_arrhenius_weibull, fit_weibull, survival_probability
+from semiyield.reliability.reporting import write_reliability_report
 
 
 @pytest.fixture

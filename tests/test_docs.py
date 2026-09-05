@@ -27,10 +27,9 @@ def test_readmes_have_matching_content_structure():
     assert english.count("\n## ") == chinese.count("\n## ") == 6
     for command in (
         "uv sync --locked --extra demo --extra dev",
-        "semiyield quickstart",
         "semiyield demo quickstart",
         "semiyield packaging benchmark",
-        "semiyield data download-demo",
+        "semiyield reliability example install",
     ):
         assert command in english
         assert command in chinese

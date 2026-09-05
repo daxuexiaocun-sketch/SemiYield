@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 from scipy.io import savemat
 
-from semiyield.nasa import (
+from semiyield.reliability.nasa import (
     _transient_rows,
     aggregate_signals,
     convert_matlab_directory,

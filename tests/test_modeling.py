@@ -1,9 +1,16 @@
 import pandas as pd
 import pytest
 
-from semiyield.evaluate import classification_metrics, evaluate_model
-from semiyield.modeling import ModelArtifact, train_model
-from semiyield.predict import predict_risk
+from importlib import import_module
+
+metrics = import_module("semiyield.yield.metrics")
+modeling = import_module("semiyield.yield.modeling")
+predict = import_module("semiyield.yield.predict")
+classification_metrics = metrics.classification_metrics
+evaluate_model = metrics.evaluate_model
+ModelArtifact = modeling.ModelArtifact
+train_model = modeling.train_model
+predict_risk = predict.predict_risk
 
 
 def test_train_save_load_predict(sample_data, tmp_path):

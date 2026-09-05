@@ -1,10 +1,11 @@
 """Bilingual business navigation for the local interface."""
 
 import streamlit as st
+from importlib import import_module
 
 from semiyield.packaging import page as packaging_page
 from semiyield.reliability import page as reliability_page
-from semiyield.yield_risk import page as yield_page
+yield_page = import_module("semiyield.yield.page")
 
 st.set_page_config(page_title="SemiYield", page_icon="🔬", layout="wide")
 zh = st.sidebar.selectbox("Language / 语言", ["中文", "English"]) == "中文"

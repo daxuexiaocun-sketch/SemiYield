@@ -1,8 +1,11 @@
 # Changelog
 
-## Unreleased
+## 1.0.0
 
-- Separate manufacturing yield, packaging process and device lifetime business modules while retaining legacy entry points.
+- Separate manufacturing yield, packaging process and device lifetime into pure business packages.
+- Move raw synthetic generation into `simulation`; only `demo.workflow` may join business lines.
+- Remove legacy top-level CLI commands, Python import aliases, `workflows.py`, and old joblib loading paths.
+- Preserve the existing SECOM, packaging, NASA/MOSFET, and demo analysis rules under the new command paths.
 - Add training-only low-throughput proxy labels, mixed-type packaging models and matched-fold evaluation.
 - Add reproducible linked synthetic data, offline three-stage CLI demonstration and static reports.
 - Standardize development and CI on uv.lock; repair clean-runner star-history updates and calendar spacing.

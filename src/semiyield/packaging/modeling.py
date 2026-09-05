@@ -6,36 +6,21 @@ from pathlib import Path
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
-from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from semiyield.packaging.data import (
     CATEGORICAL,
     FEATURES,
     NUMERIC,
-    proxy_labels,
-    resolve_threshold,
     validate_data,
 )
+from semiyield.packaging.labeling import proxy_labels, resolve_threshold
+from semiyield.packaging.preprocessing import build_preprocessor
 
 
 def build_pipeline(model="logistic", seed=42):
-    numeric = Pipeline(
-        [
-            ("impute", SimpleImputer(strategy="median", keep_empty_features=True)),
-            ("scale", StandardScaler()),
-        ]
-    )
-    categorical = Pipeline(
-        [
-            ("impute", SimpleImputer(strategy="constant", fill_value="__missing__")),
-            ("encode", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
-        ]
-    )
     if model == "dummy":
         classifier = DummyClassifier(strategy="prior")
     elif model == "logistic":
@@ -58,15 +43,7 @@ def build_pipeline(model="logistic", seed=42):
         raise ValueError(f"Unknown packaging model: {model}")
     return Pipeline(
         [
-            (
-                "preprocess",
-                ColumnTransformer(
-                    [
-                        ("numeric", numeric, NUMERIC),
-                        ("categorical", categorical, CATEGORICAL),
-                    ]
-                ),
-            ),
+            ("preprocess", build_preprocessor()),
             ("model", classifier),
         ]
     )

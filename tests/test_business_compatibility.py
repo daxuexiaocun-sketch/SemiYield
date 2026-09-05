@@ -1,5 +1,4 @@
 import importlib
-import pickle
 import subprocess
 import sys
 from pathlib import Path
@@ -7,55 +6,29 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from semiyield.cli import app
-from semiyield.modeling import ModelArtifact, train_model
-from semiyield.preprocessing import ColumnCleaner
+import pytest
 
 
-def test_old_imports_share_identity():
-    for old, new in [
-        ("data", "yield_risk.data"),
-        ("benchmark", "yield_risk.benchmark"),
-        ("nasa", "reliability.nasa"),
-        ("modeling", "common.modeling"),
-        ("preprocessing", "common.preprocessing"),
-    ]:
-        assert importlib.import_module(f"semiyield.{old}") is importlib.import_module(
-            f"semiyield.{new}"
-        )
+def test_legacy_modules_are_not_importable():
+    for name in ("data", "benchmark", "modeling", "preprocessing", "workflows", "nasa"):
+        with pytest.raises(ModuleNotFoundError):
+            importlib.import_module(f"semiyield.{name}")
 
 
-def test_legacy_pickle_class_paths(monkeypatch, tmp_path):
-    import numpy as np
-    import pandas as pd
-
-    rng = np.random.default_rng(42)
-    features = pd.DataFrame(rng.normal(size=(30, 3)), columns=["a", "b", "c"])
-    artifact = train_model(features, pd.Series([0, 1] * 15), calibrate=False)
-    with monkeypatch.context() as legacy:
-        legacy.setattr(ModelArtifact, "__module__", "semiyield.modeling")
-        legacy.setattr(ColumnCleaner, "__module__", "semiyield.preprocessing")
-        path = tmp_path / "legacy.joblib"
-        artifact.save(path)
-        # Old serialized globals resolve without re-training.
-        payload = pickle.dumps(artifact)
-    loaded = ModelArtifact.load(path)
-    np.testing.assert_allclose(
-        loaded.estimator.predict_proba(features),
-        pickle.loads(payload).estimator.predict_proba(features),
-    )
-
-
-def test_new_and_legacy_command_help():
+def test_business_command_help_has_no_legacy_routes():
     for args in [
         ["yield", "train"],
-        ["train"],
-        ["nasa", "prepare"],
+        ["reliability", "nasa", "prepare"],
+        ["reliability", "example", "install"],
         ["reliability", "report"],
         ["packaging", "train"],
         ["demo", "run"],
     ]:
         result = CliRunner().invoke(app, [*args, "--help"])
         assert result.exit_code == 0, result.output
+    root = CliRunner().invoke(app, ["--help"])
+    assert "quickstart" not in root.stdout
+    assert "nasa" not in root.stdout
 
 
 def test_star_script_in_installed_isolated_interpreter():

@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from semiyield.reliability import fit_arrhenius_weibull, fit_weibull, survival_probability
+from semiyield.reliability.lifetime import fit_arrhenius_weibull, fit_weibull, survival_probability
 
 
 def render(zh):
@@ -34,9 +34,9 @@ def render(zh):
     )
     if not reliability_path.exists():
         st.error(
-            "请先运行 `semiyield data download-demo`"
+            "请先运行 `semiyield reliability example install`"
             if zh
-            else "Run `semiyield data download-demo` first"
+            else "Run `semiyield reliability example install` first"
         )
         st.stop()
     lifetime = pd.read_csv(reliability_path)

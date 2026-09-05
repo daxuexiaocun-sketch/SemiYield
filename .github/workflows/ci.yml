@@ -42,7 +42,7 @@ jobs:
           name: semiyield-three-stage-demo
           path: reports/demo/three_stage
 
-  quick:
+  reference-smoke:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
@@ -52,10 +52,9 @@ jobs:
           python-version: "3.13"
           enable-cache: true
       - run: uv sync --locked --extra demo
-      - run: >-
-          uv run --locked semiyield quickstart
-          --soft-memory-gb 4 --memory-limit-gb 6
+      - run: uv run --locked semiyield reliability example install
+      - run: uv run --locked semiyield reliability report --profile quick
       - uses: actions/upload-artifact@v4
         with:
-          name: semiyield-quick-reports
+          name: semiyield-reliability-smoke-reports
           path: reports/reference

@@ -4,23 +4,24 @@
 
 Prepare the external NASA Power MOSFET thermal-overstress archive for device-level reliability analysis.
 
-The local `semiyield quickstart` workflow does not use this archive. It uses UCI SECOM and a synthetic reliability example only.
+The synthetic demo does not use this archive. Install the local smoke table with
+`semiyield reliability example install` when needed.
 
 ## Inspect and convert
 
 ```bash
-uv run semiyield nasa verify /path/to/nasa-mosfet.zip
-uv run semiyield nasa notices /path/to/nasa-mosfet.zip
-uv run semiyield nasa inspect /path/to/nasa-mosfet.zip
-uv run semiyield nasa convert-official /path/to/nasa-mosfet.zip
-uv run semiyield nasa prepare --source data/interim/nasa_mosfet_normalized
+uv run semiyield reliability nasa verify /path/to/nasa-mosfet.zip
+uv run semiyield reliability nasa notices /path/to/nasa-mosfet.zip
+uv run semiyield reliability nasa inspect /path/to/nasa-mosfet.zip
+uv run semiyield reliability nasa convert-official /path/to/nasa-mosfet.zip
+uv run semiyield reliability nasa prepare --source data/interim/nasa_mosfet_normalized
 ```
 
 For archive variants, inspect a representative MATLAB file and provide explicit dotted-path mapping:
 
 ```bash
-uv run semiyield nasa inspect-mat /path/to/Test_1_run_1.mat
-uv run semiyield nasa convert-matlab /path/to/extracted nasa_mapping.json
+uv run semiyield reliability nasa inspect-mat /path/to/Test_1_run_1.mat
+uv run semiyield reliability nasa convert-matlab /path/to/extracted nasa_mapping.json
 ```
 
 ## Inputs and outputs

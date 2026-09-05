@@ -7,10 +7,10 @@ import pandas as pd
 import typer
 
 from semiyield.common.cli import friendly_errors
-from semiyield.common.data import data_quality_report
+from semiyield.common.artifacts import data_quality_report
 from semiyield.packaging.data import DEFAULT_INPUT, FEATURES, validate_data
 from semiyield.packaging.modeling import PackagingArtifact
-from semiyield.packaging.service import run_benchmark, train_holdout
+from semiyield.packaging.evaluate import run_benchmark, train_holdout
 
 app = typer.Typer(help="Low-throughput proxy failure analysis (not physical device failure).")
 

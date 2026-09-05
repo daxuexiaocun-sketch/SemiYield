@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from semiyield.common.data import data_quality_report
+from semiyield.common.artifacts import data_quality_report
 from semiyield.packaging.data import DEFAULT_INPUT, FEATURES, validate_data
 
 

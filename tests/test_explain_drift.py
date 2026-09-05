@@ -1,8 +1,14 @@
 import numpy as np
 
-from semiyield.drift import detect_drift, population_stability_index
-from semiyield.explain import explain_prediction
-from semiyield.modeling import train_model
+from importlib import import_module
+
+drift = import_module("semiyield.yield.drift")
+explain = import_module("semiyield.yield.explain")
+modeling = import_module("semiyield.yield.modeling")
+detect_drift = drift.detect_drift
+population_stability_index = drift.population_stability_index
+explain_prediction = explain.explain_prediction
+train_model = modeling.train_model
 
 
 def test_local_explanation(sample_data):

@@ -2,7 +2,7 @@ import json
 
 import pandas as pd
 
-from semiyield.evidence import build_experiment_manifest
+from semiyield.common.experiment import build_experiment_manifest
 
 
 def test_experiment_manifest_is_hashed_and_candid_without_nasa(tmp_path):

@@ -36,21 +36,15 @@ For the local packaging process CSV and the existing real-data workflows:
 ```bash
 uv run semiyield packaging validate
 uv run semiyield packaging benchmark
-uv run semiyield quickstart
-```
-
-The legacy `quickstart` downloads SECOM (network required), installs the small synthetic lifetime
-example, and writes `reports/reference/`. Its expanded commands remain supported:
-
-```bash
 uv run semiyield yield download
-uv run semiyield data download-demo
 uv run semiyield yield benchmark --profile quick
+uv run semiyield reliability example install
 uv run semiyield reliability report --profile quick
 ```
 
-Top-level SECOM commands remain compatible. NASA preparation is documented in the
-[NASA data pipeline](docs/NASA_PIPELINE.md). `uv.lock` is the dependency source of truth; extras must
+Version 1.0 removes the former top-level commands and Python import aliases. Existing model files
+from earlier releases must be re-trained or their old exported results retained. NASA preparation is
+documented in the [NASA data pipeline](docs/NASA_PIPELINE.md). `uv.lock` is the dependency source of truth; extras must
 be explicitly selected. See [architecture and environments](docs/ARCHITECTURE.md).
 
 ## Reference results

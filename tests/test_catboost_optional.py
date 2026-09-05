@@ -3,7 +3,11 @@ from importlib import util
 import pandas as pd
 import pytest
 
-from semiyield.modeling import ModelArtifact, train_model
+from importlib import import_module
+
+modeling = import_module("semiyield.yield.modeling")
+ModelArtifact = modeling.ModelArtifact
+train_model = modeling.train_model
 
 pytestmark = pytest.mark.skipif(
     util.find_spec("catboost") is None,

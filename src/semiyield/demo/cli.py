@@ -5,8 +5,8 @@ from pathlib import Path
 import typer
 
 from semiyield.common.cli import friendly_errors
-from semiyield.demo.data import generate as generate_data
-from semiyield.demo.service import run as run_demo
+from semiyield.demo.workflow import run as run_demo
+from semiyield.simulation.generator import generate as generate_data
 
 app = typer.Typer(help="Reproducible synthetic three-stage data and static reports.")
 DATA = Path("data/demo/three_stage")

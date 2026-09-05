@@ -1,14 +1,16 @@
 import numpy as np
 import pandas as pd
 
-from semiyield.benchmark import (
-    BenchmarkConfig,
-    _evaluate_split,
-    run_benchmark,
-    select_budget_threshold,
-    select_threshold,
-)
-from semiyield.data import SecomDataset
+from importlib import import_module
+
+evaluate = import_module("semiyield.yield.evaluate")
+data = import_module("semiyield.yield.data")
+BenchmarkConfig = evaluate.BenchmarkConfig
+_evaluate_split = evaluate._evaluate_split
+run_benchmark = evaluate.run_benchmark
+select_budget_threshold = evaluate.select_budget_threshold
+select_threshold = evaluate.select_threshold
+SecomDataset = data.SecomDataset
 
 
 def test_threshold_uses_cost_tradeoff():
