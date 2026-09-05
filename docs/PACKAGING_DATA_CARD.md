@@ -22,16 +22,18 @@ A fixed finite engineering threshold can replace the percentile. `--threshold` a
 are mutually exclusive. Ties can make the observed failure fraction differ from 10%.
 
 ```bash
-uv run semiyield packaging validate
-uv run semiyield packaging train
-uv run semiyield packaging benchmark --models dummy,logistic
-uv run semiyield packaging benchmark --threshold 100 --output-dir reports/packaging_fixed
-uv run semiyield packaging train --quantile 0.15 --output artifacts/packaging/q15.joblib
+uv run semiyield packaging data-status
+uv run semiyield packaging validate --input-csv /path/to/mixed_categorical_numerical_data.csv
+uv run semiyield packaging train --input-csv /path/to/mixed_categorical_numerical_data.csv
+uv run semiyield packaging benchmark --input-csv /path/to/mixed_categorical_numerical_data.csv --models dummy,logistic
+uv run semiyield packaging benchmark --input-csv /path/to/input.csv --threshold 100 --output-dir reports/packaging_fixed
+uv run semiyield packaging train --input-csv /path/to/input.csv --quantile 0.15 --output artifacts/packaging/q15.joblib
 uv run semiyield packaging predict artifacts/packaging/model.joblib input.csv
 ```
 
-The value 100 above is an example, not an engineering recommendation. Use `--input-csv` to select
-another compatible raw CSV. Inference requires `X1`–`X16`, but does not require `Y`.
+The value 100 above is an example, not an engineering recommendation. Every real-data command
+requires an explicit `--input-csv`; this avoids silently depending on a Git-ignored local path.
+Inference requires `X1`–`X16`, but does not require `Y`.
 
 ## Evaluation and persistence
 

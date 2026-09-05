@@ -11,7 +11,6 @@ import typer
 
 from semiyield.common.artifacts import sha256_file
 from semiyield.reliability.data import validate_lifetime_data
-from semiyield.reliability.reporting import write_reliability_report
 from semiyield.reliability.nasa import (
     SignalMapping,
     convert_matlab_directory,
@@ -22,6 +21,7 @@ from semiyield.reliability.nasa import (
     prepare_nasa_features,
     verify_archive,
 )
+from semiyield.reliability.reporting import write_reliability_report
 
 app = typer.Typer()
 nasa_app = typer.Typer(help="Prepare NASA MOSFET data.")
@@ -35,7 +35,9 @@ def example_install(output: Path = Path("data/demo/mosfet_lifetime_smoke.csv")):
     bundled = files("semiyield").joinpath("assets/mosfet_lifetime_smoke.csv")
     with bundled.open("rb") as source, output.open("wb") as destination:
         shutil.copyfileobj(source, destination)
-    typer.echo(f"Installed synthetic example data at {output}; it is not a NASA experimental result.")
+    typer.echo(
+        f"Installed synthetic example data at {output}; it is not a NASA experimental result."
+    )
 
 
 app.add_typer(nasa_app, name="nasa")
@@ -146,7 +148,9 @@ def reliability_report(
     if profile not in {"quick", "full"}:
         raise typer.BadParameter("profile must be quick or full")
     if not input_csv.exists():
-        raise typer.BadParameter("Input is missing; run `semiyield reliability example install` first")
+        raise typer.BadParameter(
+            "Input is missing; run `semiyield reliability example install` first"
+        )
     frame = pd.read_csv(input_csv)
     report = write_reliability_report(
         frame,

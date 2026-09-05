@@ -1,20 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="340" viewBox="0 0 1080 340" role="img" aria-labelledby="title desc">
-<title id="title">SemiYield three business workflows</title>
-<desc id="desc">Manufacturing yield, packaging proxy failure, device lifetime; a separate synthetic demo links batch and device identities.</desc>
-<rect width="1080" height="340" rx="20" fill="#f1f5f9"/>
-<g font-family="Arial, sans-serif" fill="#172033">
-<text x="45" y="48" font-size="26" font-weight="bold">SemiYield</text>
-<rect x="45" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
-<text x="65" y="124" font-size="23" font-weight="bold">制造良率</text>
-<text x="65" y="165" font-size="16">SECOM 良率风险筛查</text>
-<text x="357" y="152" font-size="24">→</text>
-<rect x="385" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
-<text x="405" y="124" font-size="23" font-weight="bold">封测过程</text>
-<text x="405" y="165" font-size="16">低吞吐率代理失效</text>
-<text x="697" y="152" font-size="24">→</text>
-<rect x="725" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
-<text x="745" y="124" font-size="23" font-weight="bold">器件寿命</text>
-<text x="745" y="165" font-size="16">MOSFET 可靠性分析</text>
-<text x="45" y="262" font-size="19">合成演示：关联批次与器件 ID · 隔离评估 · 静态报告</text>
-<text x="45" y="301" font-size="16">共享基础设施：指标、输入模式、模型文件、资源保护 · uv.lock</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">SemiYield 四线路半导体工程分析路线图</title>
+<desc id="desc">四条线路包括 SECOM 制造良率、封测低吞吐代理失效、MOSFET 器件寿命和三阶段合成演示，共享工程平台支持全部线路。</desc>
+<rect width="1600" height="900" fill="#f6f8fc"/>
+<g font-family="Arial, 'Microsoft YaHei', sans-serif" fill="#172033">
+<text x="72" y="78" font-size="42" font-weight="700">SemiYield · 四线路半导体工程分析</text><text x="72" y="118" font-size="20" fill="#516174">真实证据、过程代理标签与合成验证分别呈现，避免混合解释。</text>
+<g stroke="#d7e0ec" stroke-width="2"><rect x="72" y="170" width="700" height="255" rx="22" fill="#fff"/><rect x="828" y="170" width="700" height="255" rx="22" fill="#fff"/><rect x="72" y="460" width="700" height="255" rx="22" fill="#fff"/><rect x="828" y="460" width="700" height="255" rx="22" fill="#fff"/></g>
+<g font-size="18"><text x="104" y="211" fill="#2878b5" font-weight="700">01 · 真实工艺证据</text><text x="104" y="254" font-size="30" font-weight="700">制造良率</text><text x="104" y="290">输入：UCI SECOM 测量与失效标签</text><text x="104" y="322">方法：防泄漏预处理 · 交叉验证 · 概率校准</text><text x="104" y="354">输出：风险排序 · PR-AUC · 复检捕获率</text><text x="104" y="390" fill="#516174">边界：用于筛查，不构成因果诊断</text>
+<text x="860" y="211" fill="#d47832" font-weight="700">02 · 过程代理指标</text><text x="860" y="254" font-size="30" font-weight="700">封测过程</text><text x="860" y="290">输入：本地混合工艺设置与吞吐率 Y</text><text x="860" y="322">标签：Y &lt; 仅训练集计算的吞吐阈值</text><text x="860" y="354">输出：代理失效概率 · PR/ROC · 混淆矩阵指标</text><text x="860" y="390" fill="#516174">边界：代理标签，不等同器件物理失效</text>
+<text x="104" y="501" fill="#4f8f6b" font-weight="700">03 · 可靠性证据</text><text x="104" y="544" font-size="30" font-weight="700">器件寿命</text><text x="104" y="580">输入：NASA MOSFET 退化、应力温度与删失</text><text x="104" y="612">方法：Weibull · Arrhenius-Weibull · 可选生存森林</text><text x="104" y="644">输出：B10 · η · 生存曲线 · 外推提醒</text><text x="104" y="680" fill="#516174">边界：保留机理与应力范围假设</text>
+<text x="860" y="501" fill="#7654b8" font-weight="700">04 · 合成贯通验证</text><text x="860" y="544" font-size="30" font-weight="700">三阶段模拟演示</text><text x="860" y="580">输入：固定种子的批次与关联器件 ID</text><text x="860" y="612">流转：制造通过 → 封测代理通过 → 寿命队列</text><text x="860" y="644">输出：漏斗 · 留出集模型 · 阈值 · 生存 · 追溯</text><text x="860" y="680" fill="#516174">边界：合成验证，不代表真实实验结论</text></g>
+<rect x="72" y="765" width="1456" height="86" rx="18" fill="#172f4b"/><g fill="#fff"><text x="104" y="802" font-size="20" font-weight="700">共享工程平台</text><text x="104" y="831" font-size="18">uv.lock · 数据契约 · 训练期隔离 · 哈希与受管产物 · 资源保护 · 双语 Streamlit 审阅</text></g>
 </g></svg>

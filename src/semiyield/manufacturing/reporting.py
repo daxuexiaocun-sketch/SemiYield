@@ -18,7 +18,13 @@ def write_benchmark_chart(summary: pd.DataFrame, output: str | Path) -> Path | N
     if selected.empty:
         return None
     figure, axis = plt.subplots(figsize=(7.2, 4.2))
-    axis.bar(selected["model"], selected["pr_auc_mean"], yerr=selected["pr_auc_std"], capsize=4, color="#2878B5")
+    axis.bar(
+        selected["model"],
+        selected["pr_auc_mean"],
+        yerr=selected["pr_auc_std"],
+        capsize=4,
+        color="#2878B5",
+    )
     axis.set_ylabel("PR-AUC")
     axis.set_title("SECOM repeated cross-validation")
     axis.set_ylim(bottom=0)

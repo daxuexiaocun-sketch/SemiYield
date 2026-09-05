@@ -1,20 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="340" viewBox="0 0 1080 340" role="img" aria-labelledby="title desc">
-<title id="title">SemiYield three business workflows</title>
-<desc id="desc">Manufacturing yield, packaging proxy failure, device lifetime; a separate synthetic demo links batch and device identities.</desc>
-<rect width="1080" height="340" rx="20" fill="#f1f5f9"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">SemiYield four-route engineering analytics roadmap</title>
+<desc id="desc">Four routes cover SECOM manufacturing yield, packaging throughput proxy failure, MOSFET lifetime, and a synthetic three-stage demonstration. A shared engineering platform supports all routes.</desc>
+<rect width="1600" height="900" fill="#f6f8fc"/>
 <g font-family="Arial, sans-serif" fill="#172033">
-<text x="45" y="48" font-size="26" font-weight="bold">SemiYield</text>
-<rect x="45" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
-<text x="65" y="124" font-size="23" font-weight="bold">Manufacturing yield</text>
-<text x="65" y="165" font-size="16">SECOM risk screening</text>
-<text x="357" y="152" font-size="24">→</text>
-<rect x="385" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
-<text x="405" y="124" font-size="23" font-weight="bold">Packaging process</text>
-<text x="405" y="165" font-size="16">Low-throughput proxy failure</text>
-<text x="697" y="152" font-size="24">→</text>
-<rect x="725" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
-<text x="745" y="124" font-size="23" font-weight="bold">Device lifetime</text>
-<text x="745" y="165" font-size="16">MOSFET survival analysis</text>
-<text x="45" y="262" font-size="19">Synthetic demo: shared batch/device IDs · isolated evaluation · static reports</text>
-<text x="45" y="301" font-size="16">Shared infrastructure: metrics, schemas, artifacts, resource protection · uv.lock</text>
+<text x="72" y="78" font-size="42" font-weight="700">SemiYield · Four-route semiconductor analytics</text>
+<text x="72" y="118" font-size="20" fill="#516174">Evidence, proxy labels and synthetic validation are reported separately.</text>
+<g stroke="#d7e0ec" stroke-width="2">
+<rect x="72" y="170" width="700" height="255" rx="22" fill="#fff"/><rect x="828" y="170" width="700" height="255" rx="22" fill="#fff"/>
+<rect x="72" y="460" width="700" height="255" rx="22" fill="#fff"/><rect x="828" y="460" width="700" height="255" rx="22" fill="#fff"/>
+</g>
+<g font-size="18"><text x="104" y="211" fill="#2878b5" font-weight="700">01 · REAL PROCESS EVIDENCE</text><text x="104" y="254" font-size="30" font-weight="700">Manufacturing yield</text><text x="104" y="290">Input: UCI SECOM measurements and failure labels</text><text x="104" y="322">Method: leakage-safe preprocessing · CV · calibrated classifiers</text><text x="104" y="354">Output: risk ranking · PR-AUC · inspection capture</text><text x="104" y="390" fill="#516174">Boundary: screening evidence, not causal diagnosis</text>
+<text x="860" y="211" fill="#d47832" font-weight="700">02 · OPERATIONAL PROXY</text><text x="860" y="254" font-size="30" font-weight="700">Packaging process</text><text x="860" y="290">Input: local mixed process settings and throughput Y</text><text x="860" y="322">Label: Y &lt; training-only throughput threshold</text><text x="860" y="354">Output: proxy-failure probability · PR/ROC · confusion metrics</text><text x="860" y="390" fill="#516174">Boundary: proxy label, not physical device failure</text>
+<text x="104" y="501" fill="#4f8f6b" font-weight="700">03 · RELIABILITY EVIDENCE</text><text x="104" y="544" font-size="30" font-weight="700">Device lifetime</text><text x="104" y="580">Input: NASA MOSFET degradation, stress temperature, censoring</text><text x="104" y="612">Method: Weibull · Arrhenius-Weibull · optional survival forest</text><text x="104" y="644">Output: B10 · η · survival curve · extrapolation warning</text><text x="104" y="680" fill="#516174">Boundary: mechanism and stress-range assumptions remain explicit</text>
+<text x="860" y="501" fill="#7654b8" font-weight="700">04 · SYNTHETIC INTEGRATION</text><text x="860" y="544" font-size="30" font-weight="700">Three-stage demonstration</text><text x="860" y="580">Input: seeded batches and linked unit IDs</text><text x="860" y="612">Flow: manufacturing pass → packaging proxy pass → lifetime cohort</text><text x="860" y="644">Output: funnel · holdout models · threshold · survival · trace</text><text x="860" y="680" fill="#516174">Boundary: synthetic validation, never a real experimental result</text></g>
+<path d="M422 425v35M1178 425v35" stroke="#9aabc0" stroke-width="3" stroke-dasharray="7 7"/>
+<rect x="72" y="765" width="1456" height="86" rx="18" fill="#172f4b"/>
+<g fill="#fff"><text x="104" y="802" font-size="20" font-weight="700">Shared engineering platform</text><text x="104" y="831" font-size="18">uv.lock · data contracts · training-only isolation · hashes and managed artifacts · resource protection · bilingual Streamlit review</text></g>
 </g></svg>

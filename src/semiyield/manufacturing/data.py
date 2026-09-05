@@ -4,17 +4,15 @@ from __future__ import annotations
 
 import json
 import shutil
+import time
+import urllib.request
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
 
-from semiyield.common.artifacts import (  # noqa: F401
-    _download_file,
-    data_quality_report,
-    sha256_file,
-)
+from semiyield.common.artifacts import sha256_file
 from semiyield.constants import (
     DATA_FILE_URLS,
     DATA_URL,
@@ -30,6 +28,27 @@ class SecomDataset:
     target: pd.Series
     timestamps: pd.Series
     metadata: dict[str, object]
+
+
+def _download_file(url: str, destination: Path, attempts: int = 3) -> None:
+    last_error: Exception | None = None
+    for attempt in range(attempts):
+        try:
+            request = urllib.request.Request(url, headers={"User-Agent": "SemiYield/1.1"})
+            with (
+                urllib.request.urlopen(request, timeout=60) as response,
+                destination.open("wb") as output,
+            ):
+                shutil.copyfileobj(response, output)
+            if destination.stat().st_size == 0:
+                raise ValueError(f"Empty response from {url}")
+            return
+        except Exception as exc:
+            last_error = exc
+            destination.unlink(missing_ok=True)
+            if attempt + 1 < attempts:
+                time.sleep(0.5 * (attempt + 1))
+    raise RuntimeError(f"Failed to download {url} after {attempts} attempts") from last_error
 
 
 def _download_individual_files(destination: Path) -> dict[str, str]:

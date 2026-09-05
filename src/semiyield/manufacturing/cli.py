@@ -7,19 +7,17 @@ from pathlib import Path
 import pandas as pd
 import typer
 
+from semiyield.common.reporting import data_quality_report
 from semiyield.common.resources import run_guarded
 from semiyield.constants import DEFAULT_DATA_DIR, DEFAULT_MODEL_PATH
+
+from .data import download_secom, load_secom
 from .drift import detect_drift
 from .evaluate import BenchmarkConfig, run_benchmark
-from .metrics import evaluate_model
 from .explain import explain_prediction
+from .metrics import evaluate_model
 from .modeling import ModelArtifact, train_model
 from .predict import predict_risk
-from .data import (
-    data_quality_report,
-    download_secom,
-    load_secom,
-)
 
 app = typer.Typer()
 

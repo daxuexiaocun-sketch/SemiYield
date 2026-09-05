@@ -23,13 +23,13 @@ import numpy as np
 import pandas as pd
 
 from semiyield.common.artifacts import sha256_file
-from semiyield.reliability.reporting import write_degradation_chart
 from semiyield.constants import (
     MOSFET_FEATURE_SCHEMA_VERSION,
     NASA_DATASET_CITATION,
     NASA_MOSFET_URL,
     RANDOM_STATE,
 )
+from semiyield.reliability.reporting import write_degradation_chart
 
 LICENSE_NAMES = {"license", "license.txt", "copying", "notice", "readme", "readme.txt"}
 
@@ -407,7 +407,8 @@ def _iter_normalized_tables(source: Path) -> Iterable[tuple[Path, pd.DataFrame]]
             if not safe_members:
                 raise ValueError(
                     "Archive contains no normalized CSV/Parquet tables. "
-                    "Run `semiyield reliability nasa inspect` and convert the MATLAB slow-measurement "
+                    "Run `semiyield reliability nasa inspect` and convert the MATLAB "
+                    "slow-measurement "
                     "structures using an explicit mapping before preparation."
                 )
             for member in safe_members:

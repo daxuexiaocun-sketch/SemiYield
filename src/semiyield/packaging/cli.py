@@ -2,22 +2,23 @@
 
 import json
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
 import typer
 
 from semiyield.common.cli import friendly_errors
-from semiyield.common.artifacts import data_quality_report
-from semiyield.packaging.data import DEFAULT_INPUT, FEATURES, validate_data
-from semiyield.packaging.modeling import PackagingArtifact
+from semiyield.common.reporting import data_quality_report
+from semiyield.packaging.data import FEATURES, local_data_status, validate_data
 from semiyield.packaging.evaluate import run_benchmark, train_holdout
+from semiyield.packaging.modeling import PackagingArtifact
 
 app = typer.Typer(help="Low-throughput proxy failure analysis (not physical device failure).")
 
 
 @app.command()
 @friendly_errors
-def validate(input_csv: Path = DEFAULT_INPUT):
+def validate(input_csv: Annotated[Path, typer.Option("--input-csv")] = ...):
     """Validate raw mixed categorical and numerical process data."""
     frame = validate_data(pd.read_csv(input_csv))
     typer.echo(json.dumps(data_quality_report(frame[FEATURES]), indent=2))
@@ -27,7 +28,7 @@ def validate(input_csv: Path = DEFAULT_INPUT):
 @app.command()
 @friendly_errors
 def train(
-    input_csv: Path = DEFAULT_INPUT,
+    input_csv: Annotated[Path, typer.Option("--input-csv")] = ...,
     output: Path = Path("artifacts/packaging/model.joblib"),
     model: str = "logistic",
     threshold: float | None = None,
@@ -51,7 +52,7 @@ def train(
 @app.command()
 @friendly_errors
 def benchmark(
-    input_csv: Path = DEFAULT_INPUT,
+    input_csv: Annotated[Path, typer.Option("--input-csv")] = ...,
     output_dir: Path = Path("reports/packaging"),
     models: str = "dummy,logistic",
     threshold: float | None = None,
@@ -78,3 +79,9 @@ def predict(model_path: Path, input_csv: Path, output: Path = Path("packaging_pr
     output.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(output, index=False)
     typer.echo(f"Wrote {len(result)} packaging predictions to {output}")
+
+
+@app.command("data-status")
+def data_status(path: Path | None = None):
+    """Show whether the optional local packaging source is available."""
+    typer.echo(json.dumps(local_data_status(path) if path else local_data_status(), indent=2))

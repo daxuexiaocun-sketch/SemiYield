@@ -1,0 +1,4 @@
+stage,dataset_role,entered,observed_failures,unknown_outcomes,passed,censored,failure_rate
+manufacturing,synthetic,10000,992,0,9008.0,,0.0992
+packaging,synthetic,9008,935,0,8073.0,,0.10379662522202486
+lifetime,synthetic,8073,4305,0,,3768.0,0.5332590115198811

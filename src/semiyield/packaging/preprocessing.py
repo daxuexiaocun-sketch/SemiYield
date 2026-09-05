@@ -9,12 +9,18 @@ from semiyield.packaging.data import CATEGORICAL, NUMERIC
 
 
 def build_preprocessor() -> ColumnTransformer:
-    numeric = Pipeline([
-        ("impute", SimpleImputer(strategy="median", keep_empty_features=True)),
-        ("scale", StandardScaler()),
-    ])
-    categorical = Pipeline([
-        ("impute", SimpleImputer(strategy="constant", fill_value="__missing__")),
-        ("encode", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
-    ])
-    return ColumnTransformer([("numeric", numeric, NUMERIC), ("categorical", categorical, CATEGORICAL)])
+    numeric = Pipeline(
+        [
+            ("impute", SimpleImputer(strategy="median", keep_empty_features=True)),
+            ("scale", StandardScaler()),
+        ]
+    )
+    categorical = Pipeline(
+        [
+            ("impute", SimpleImputer(strategy="constant", fill_value="__missing__")),
+            ("encode", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+        ]
+    )
+    return ColumnTransformer(
+        [("numeric", numeric, NUMERIC), ("categorical", categorical, CATEGORICAL)]
+    )

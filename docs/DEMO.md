@@ -40,11 +40,11 @@ creating observations. IDs and split assignment are identical across all subsequ
 |---|---|---|
 | `manufacturing.csv` | All devices | 24 anonymous sensors, observed binary `failed`; sensors in arbitrary units |
 | `packaging_candidates.csv` | Manufacturing passes only | Raw mixed `X1`–`X16` and synthetic `Y` in units/hour; no label |
-| `lifetime_candidates.csv` | Packaging candidates | Raw stress and right-censored lifetime observations before packaging routing |
 | `manifest.json` | Dataset description | Generator version, seed, dimensions, split, field meanings, file hashes |
 
 `demo run` writes `packaging_observed.csv`, `lifetime_observed.csv`, and `trace.csv` in the report
 directory after it calculates the training-only packaging threshold and applies observed routing.
+Lifetime observations are generated only for packaging-passed devices.
 
 A shared latent batch/device quality variable affects early measurements and failure propensity.
 Packaging adds independent process noise; throughput decreases with poor quality/process conditions.

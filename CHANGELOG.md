@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- Rename the public manufacturing Python package to `semiyield.manufacturing` while retaining the `semiyield yield` CLI.
+- Publish aggregate-only packaging and synthetic-demo reference artifacts and a four-route README overview.
+- Generate lifetime observations only after the observed packaging gate and atomically replace managed demo outputs.
+
 ## 1.0.0
 
 - Separate manufacturing yield, packaging process and device lifetime into pure business packages.

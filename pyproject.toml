@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "semiyield"
-version = "1.0.0"
+version = "1.1.0"
 description = "Manufacturing yield, packaging proxy failure, and device lifetime analysis"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -63,4 +63,3 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
-ignore = ["E501", "E702", "I001"]

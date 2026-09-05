@@ -1,16 +1,11 @@
 from io import BytesIO
-from importlib import import_module
 from zipfile import ZipFile
 
 import pytest
 
-from semiyield.common.artifacts import data_quality_report
-
-yield_data = import_module("semiyield.yield.data")
-yield_preprocessing = import_module("semiyield.yield.preprocessing")
-download_secom = yield_data.download_secom
-load_secom = yield_data.load_secom
-validate_features = yield_preprocessing.validate_features
+from semiyield.common.reporting import data_quality_report
+from semiyield.manufacturing.data import download_secom, load_secom
+from semiyield.manufacturing.preprocessing import validate_features
 
 
 def test_quality_report_detects_problem_columns(sample_data):
@@ -44,9 +39,9 @@ def test_download_rejects_hash_mismatch(tmp_path, monkeypatch):
     def fake_download(url, destination, attempts=3):
         destination.write_bytes(archive.getvalue())
 
-    monkeypatch.setattr("semiyield.yield.data._download_file", fake_download)
+    monkeypatch.setattr("semiyield.manufacturing.data._download_file", fake_download)
     monkeypatch.setattr(
-        "semiyield.yield.data._download_individual_files",
+        "semiyield.manufacturing.data._download_individual_files",
         lambda destination: (_ for _ in ()).throw(RuntimeError("fallback failed")),
     )
     with pytest.raises(RuntimeError, match="fallback failed"):

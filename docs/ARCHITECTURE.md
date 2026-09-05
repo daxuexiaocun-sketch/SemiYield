@@ -5,7 +5,7 @@ inside one installable Python package. It remains a single uv project, not three
 
 | Package | Owns | Public commands |
 |---|---|---|
-| `yield` | SECOM acquisition, preprocessing, models, evaluation, review pages | `semiyield yield …` |
+| `manufacturing` | SECOM acquisition, preprocessing, models, evaluation, review pages | `semiyield yield …` |
 | `packaging` | Mixed-type process schema, throughput proxy labels, training, evaluation, review page | `semiyield packaging …` |
 | `reliability` | NASA ingestion, lifetime/Arrhenius/optional survival analysis, review page | `semiyield reliability …` |
 | `simulation` | Raw synthetic contracts, scenarios, generation and integrity validation | Internal generator interface |
@@ -20,7 +20,7 @@ stage outcomes. Optional plotting/app/model imports stay out of basic CLI startu
 ```text
 src/semiyield/
 ├── common/       # artifacts, generic validation, metrics, reporting, resources
-├── yield/        # SECOM data, preprocessing, modeling, evaluation, explanations, drift
+├── manufacturing/# SECOM data, preprocessing, modeling, evaluation, explanations, drift
 ├── packaging/    # input contract, labeling, mixed preprocessing, models, evaluation
 ├── reliability/  # lifetime contract/models/reports and NASA preparation
 ├── simulation/   # raw contracts, scenario, generator, integrity validation
@@ -29,12 +29,13 @@ src/semiyield/
 └── streamlit_app.py
 ```
 
-## 1.0 migration
+## 1.1 migration
 
 This is a breaking API release. The old top-level commands (`download`, `train`, `benchmark`,
 `quickstart`, `data`, and `nasa`), the old Python aliases, `workflows.py`, and old joblib loading
-paths were removed. Use `semiyield yield …`, `semiyield reliability nasa …`, and
-`semiyield reliability example install`. Re-train old model files with 1.0, or keep the result
+paths were removed. Use `semiyield yield …` for the manufacturing CLI,
+`semiyield.manufacturing` for Python imports, `semiyield reliability nasa …`, and
+`semiyield reliability example install`. Re-train old model files with 1.1, or keep the result
 exported by the version that created them. Packaging keeps its independent mixed-type schema and
 does not apply SECOM numeric coercion.
 

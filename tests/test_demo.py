@@ -10,7 +10,7 @@ from typer.testing import CliRunner
 from semiyield.cli import app
 from semiyield.demo.workflow import run
 from semiyield.simulation.contracts import PACKAGING_FEATURES, SENSORS
-from semiyield.simulation.generator import generate
+from semiyield.simulation.generator import generate, generate_lifetime_observations
 from semiyield.simulation.validation import load_dataset
 
 
@@ -19,9 +19,7 @@ def test_generation_reproducible_linked_and_batch_isolated(tmp_path):
     second = generate(tmp_path / "b", seed=42, batches=10, units_per_batch=30)
     assert first == second
     manifest, tables = load_dataset(tmp_path / "a")
-    manufacturing, packaging, lifetime = (
-        tables[key] for key in ["manufacturing", "packaging_candidates", "lifetime_candidates"]
-    )
+    manufacturing, packaging = (tables[key] for key in ["manufacturing", "packaging_candidates"])
     assert manufacturing.groupby("batch_id").split.nunique().eq(1).all()
     for table in tables.values():
         assert table.unit_id.is_unique
@@ -29,11 +27,18 @@ def test_generation_reproducible_linked_and_batch_isolated(tmp_path):
         joined = table.merge(manufacturing[["unit_id", "split"]], on="unit_id")
         assert joined.split_x.eq(joined.split_y).all()
     assert set(packaging.unit_id) == set(manufacturing.loc[manufacturing.failed.eq(0), "unit_id"])
-    assert set(lifetime.unit_id) == set(packaging.unit_id)
-    assert lifetime.time_to_event.gt(0).all()
-    assert set(lifetime.event_observed) == {0, 1}
     assert manifest["features"] == {"manufacturing": SENSORS, "packaging": PACKAGING_FEATURES}
     assert not any("latent" in column for table in tables.values() for column in table.columns)
+
+
+def test_lifetime_is_generated_only_after_packaging_routing(tmp_path):
+    generate(tmp_path / "data", seed=42, batches=5, units_per_batch=20)
+    _, tables = load_dataset(tmp_path / "data")
+    packaging = tables["packaging_candidates"].head(5)
+    lifetime = generate_lifetime_observations(packaging, seed=42)
+    assert set(lifetime.unit_id) == set(packaging.unit_id)
+    assert lifetime.time_to_event.gt(0).all()
+    assert set(lifetime.event_observed) <= {0, 1}
 
 
 def test_offline_demo_reports_and_routing_counts(tmp_path, monkeypatch):
@@ -93,6 +98,15 @@ def test_integrity_and_output_protection(tmp_path):
     assert not (tmp_path / "bad").exists()
 
 
+def test_force_refuses_an_unmanaged_output_directory(tmp_path):
+    target = tmp_path / "manual-results"
+    target.mkdir()
+    (target / "notes.txt").write_text("keep me")
+    with pytest.raises(ValueError, match="unmanaged"):
+        generate(target, force=True)
+    assert (target / "notes.txt").read_text() == "keep me"
+
+
 def test_demo_generate_cli_and_force(tmp_path):
     runner = CliRunner()
     args = [
@@ -113,9 +127,8 @@ def test_demo_generate_cli_and_force(tmp_path):
 def test_generated_probability_labels_are_not_features(tmp_path):
     generate(tmp_path / "data", batches=5, units_per_batch=20)
     _, tables = load_dataset(tmp_path / "data")
-    from importlib import import_module
 
-    train_manufacturing = import_module("semiyield.yield.modeling").train_manufacturing
+    from semiyield.manufacturing.modeling import train_manufacturing
 
     frame = tables["manufacturing"]
     artifact = train_manufacturing(frame[SENSORS], frame.failed)

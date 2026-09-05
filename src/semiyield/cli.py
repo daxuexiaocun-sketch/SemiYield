@@ -2,19 +2,19 @@
 
 import subprocess
 import sys
-from importlib import import_module
 from pathlib import Path
 
 import typer
 
 from semiyield.demo.cli import app as demo_app
+from semiyield.manufacturing import cli as manufacturing_cli
 from semiyield.packaging.cli import app as packaging_app
 from semiyield.reliability import cli as reliability_cli
 
-yield_cli = import_module("semiyield.yield.cli")
-
-app = typer.Typer(help="Manufacturing yield, packaging process, device lifetime, and demo analysis.")
-app.add_typer(yield_cli.app, name="yield")
+app = typer.Typer(
+    help="Manufacturing yield, packaging process, device lifetime, and demo analysis."
+)
+app.add_typer(manufacturing_cli.app, name="yield")
 app.add_typer(packaging_app, name="packaging")
 app.add_typer(reliability_cli.app, name="reliability")
 app.add_typer(demo_app, name="demo")

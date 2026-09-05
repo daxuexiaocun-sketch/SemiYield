@@ -1,7 +1,6 @@
 """Offline orchestration; this is the only package allowed to join business lines."""
 
 from dataclasses import asdict
-from importlib import import_module
 from pathlib import Path
 
 import numpy as np
@@ -9,52 +8,34 @@ import pandas as pd
 
 from semiyield.common.artifacts import sha256_file
 from semiyield.common.metrics import classification_report
-from semiyield.common.validation import require_distinct_directories
+from semiyield.common.reporting import write_json_report
+from semiyield.common.validation import managed_output_dir, require_distinct_directories
 from semiyield.demo.reporting import write_charts, write_report
+from semiyield.manufacturing.modeling import train_manufacturing
 from semiyield.packaging.labeling import proxy_labels, resolve_threshold
 from semiyield.packaging.modeling import train_model as train_packaging
 from semiyield.reliability.lifetime import fit_arrhenius_weibull, fit_weibull, survival_probability
 from semiyield.simulation.contracts import SENSORS
-from semiyield.simulation.validation import load_dataset, prepare_output
-
-yield_modeling = import_module("semiyield.yield.modeling")
-
-
-def write_json(path, value):
-    import json
-
-    Path(path).write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
+from semiyield.simulation.generator import generate_lifetime_observations
+from semiyield.simulation.validation import load_dataset
 
 
-def run(data_dir, output_dir, *, force=False):
+def _run_into(data_dir, output: Path):
     manifest, tables = load_dataset(data_dir)
-    source, destination = require_distinct_directories(data_dir, output_dir)
+    source = Path(data_dir).resolve()
     # Check the only plotting dependency before writing partial reports.
     try:
         import matplotlib  # noqa: F401
     except ImportError as exc:
         raise ImportError("Run `uv sync --locked --extra demo` to generate static charts") from exc
-    output = prepare_output(output_dir, force)
-    if force:
-        # Remove only optional artifacts owned by this runner so skipped fits cannot
-        # leave an older successful model/curve in the new report.
-        for relative in (
-            "weibull_curve.csv",
-            "manufacturing/dummy.joblib",
-            "manufacturing/logistic.joblib",
-            "packaging/dummy.joblib",
-            "packaging/logistic.joblib",
-        ):
-            (output / relative).unlink(missing_ok=True)
     manufacturing = tables["manufacturing"]
     packaging = tables["packaging_candidates"].copy()
-    lifetime_candidates = tables["lifetime_candidates"].copy()
     training_y = packaging.loc[packaging.split.eq("train"), "Y"]
     threshold, threshold_info = resolve_threshold(training_y)
     packaging["proxy_failed"] = proxy_labels(packaging.Y, threshold)
-    lifetime = lifetime_candidates.loc[
-        lifetime_candidates.unit_id.isin(packaging.loc[packaging.proxy_failed.eq(0), "unit_id"])
-    ].copy()
+    lifetime = generate_lifetime_observations(
+        packaging.loc[packaging.proxy_failed.eq(0)].copy(), seed=manifest["seed"]
+    )
     trace = manufacturing[["batch_id", "unit_id", "split", "dataset_role", "failed"]].copy()
     trace = trace.rename(columns={"failed": "manufacturing_failed"})
     trace["entered_packaging"] = trace.unit_id.isin(packaging.unit_id)
@@ -65,7 +46,11 @@ def run(data_dir, output_dir, *, force=False):
     trace["time_to_event"] = trace.unit_id.map(lifetime_values["time_to_event"])
     trace["event_observed"] = trace.unit_id.map(lifetime_values["event_observed"]).astype("Int64")
     trace["stage_status"] = np.select(
-        [trace.manufacturing_failed.eq(1), trace.packaging_proxy_failed.eq(1).fillna(False), trace.entered_lifetime],
+        [
+            trace.manufacturing_failed.eq(1),
+            trace.packaging_proxy_failed.eq(1).fillna(False),
+            trace.entered_lifetime,
+        ],
         ["manufacturing_rejected", "packaging_proxy_rejected", "lifetime_observed"],
         default="packaging_label_unavailable",
     )
@@ -78,7 +63,7 @@ def run(data_dir, output_dir, *, force=False):
                 if train.empty or test.empty:
                     raise ValueError("No training or test devices reached this stage")
                 if stage == "manufacturing":
-                    artifact = yield_modeling.train_manufacturing(
+                    artifact = train_manufacturing(
                         train[SENSORS], train.failed, model=model, seed=manifest["seed"]
                     )
                     scores = artifact.estimator.predict_proba(test[SENSORS])[:, 1]
@@ -92,7 +77,11 @@ def run(data_dir, output_dir, *, force=False):
                 artifact.metadata.update(
                     dataset_role="synthetic",
                     split_protocol="batch_holdout",
-                    data_sha256=manifest["files"]["manufacturing.csv" if stage == "manufacturing" else "packaging_candidates.csv"]["sha256"],
+                    data_sha256=manifest["files"][
+                        "manufacturing.csv"
+                        if stage == "manufacturing"
+                        else "packaging_candidates.csv"
+                    ]["sha256"],
                 )
                 if stage == "manufacturing":
                     artifact.schema_version = "semiyield-synthetic-manufacturing-v1"
@@ -107,7 +96,7 @@ def run(data_dir, output_dir, *, force=False):
     metrics.drop(columns=["undefined_reasons"], errors="ignore").to_csv(
         output / "metrics.csv", index=False
     )
-    write_json(output / "metrics.json", rows)
+    write_json_report(rows, output / "metrics.json")
     curve = None
     life_train = lifetime.loc[lifetime.split.eq("train")]
     reliability = {
@@ -150,7 +139,7 @@ def run(data_dir, output_dir, *, force=False):
             reliability["arrhenius"] = {"status": "completed", **asdict(fitted)}
         except (ValueError, RuntimeError) as exc:
             reliability["arrhenius"] = {"status": "skipped", "reason": str(exc)}
-    write_json(output / "reliability.json", reliability)
+    write_json_report(reliability, output / "reliability.json")
     stage_rows = []
     for stage, data, failed in [
         ("manufacturing", manufacturing, manufacturing.failed),
@@ -178,9 +167,8 @@ def run(data_dir, output_dir, *, force=False):
     trace.to_csv(output / "trace.csv", index=False)
     charts = write_charts(output, stages, metrics, packaging, threshold, curve)
     report_manifest = {**manifest, "throughput_threshold": threshold, "threshold": threshold_info}
-    write_report(output, report_manifest, stages, metrics, reliability, trace, charts)
-    write_json(
-        output / "manifest.json",
+    write_report(output, report_manifest, stages, metrics, reliability, charts)
+    write_json_report(
         {
             "schema_version": "semiyield-three-stage-report-v1",
             "dataset_role": "synthetic",
@@ -192,8 +180,25 @@ def run(data_dir, output_dir, *, force=False):
             "artifacts": {
                 str(p.relative_to(output)): sha256_file(p)
                 for p in sorted(output.rglob("*"))
-                if p.is_file() and p.name != "manifest.json"
+                if p.is_file()
+                and p.name != "manifest.json"
+                and p.relative_to(output).parts[0] not in {"manufacturing", "packaging"}
+                and p.name
+                not in {
+                    "trace.csv",
+                    "packaging_observed.csv",
+                    "lifetime_observed.csv",
+                }
             },
         },
+        output / "manifest.json",
     )
     return output / "README.md"
+
+
+def run(data_dir, output_dir, *, force=False):
+    """Run the cross-business demo and atomically publish a complete report."""
+    require_distinct_directories(data_dir, output_dir)
+    with managed_output_dir(output_dir, force=force) as output:
+        _run_into(data_dir, output)
+    return Path(output_dir) / "README.md"

@@ -3,9 +3,8 @@ from importlib import util
 import pandas as pd
 import pytest
 
-from importlib import import_module
+from semiyield.manufacturing import modeling
 
-modeling = import_module("semiyield.yield.modeling")
 ModelArtifact = modeling.ModelArtifact
 train_model = modeling.train_model
 

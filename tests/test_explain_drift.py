@@ -1,10 +1,7 @@
 import numpy as np
 
-from importlib import import_module
+from semiyield.manufacturing import drift, explain, modeling
 
-drift = import_module("semiyield.yield.drift")
-explain = import_module("semiyield.yield.explain")
-modeling = import_module("semiyield.yield.modeling")
 detect_drift = drift.detect_drift
 population_stability_index = drift.population_stability_index
 explain_prediction = explain.explain_prediction

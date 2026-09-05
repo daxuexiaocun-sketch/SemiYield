@@ -23,7 +23,7 @@ See [model card](MODEL_CARD.md) and [reliability methods](RELIABILITY_METHODS.md
 
 ## Packaging process screening
 
-Run `uv run semiyield packaging benchmark`. The default three shuffled outer folds use identical
+Run `uv run semiyield packaging benchmark --input-csv /path/to/raw.csv`. The default three shuffled outer folds use identical
 splits across models and derive each low-throughput threshold only from that fold's training Y.
 Feature processing is fitted only on training rows; target Y is excluded. A fixed engineering
 threshold can replace the default training 10th percentile. The probability decision cutoff is 0.5.

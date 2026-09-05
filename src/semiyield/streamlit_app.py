@@ -1,18 +1,17 @@
 """Bilingual business navigation for the local interface."""
 
 import streamlit as st
-from importlib import import_module
 
+from semiyield.manufacturing import page as manufacturing_page
 from semiyield.packaging import page as packaging_page
 from semiyield.reliability import page as reliability_page
-yield_page = import_module("semiyield.yield.page")
 
 st.set_page_config(page_title="SemiYield", page_icon="🔬", layout="wide")
 zh = st.sidebar.selectbox("Language / 语言", ["中文", "English"]) == "中文"
 st.title("SemiYield · Semiconductor Engineering Analytics")
 pages = {
     "项目说明" if zh else "Overview": None,
-    "制造良率" if zh else "Manufacturing yield": yield_page.render,
+    "制造良率" if zh else "Manufacturing yield": manufacturing_page.render,
     "封测过程" if zh else "Packaging process": packaging_page.render,
     "器件寿命" if zh else "Device lifetime": reliability_page.render,
 }

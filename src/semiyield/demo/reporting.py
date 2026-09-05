@@ -91,9 +91,7 @@ def markdown_table(frame):
     return "\n".join(lines)
 
 
-def write_report(output, manifest, stages, metrics, reliability, trace, charts):
-    examples = trace.groupby("stage_status", sort=True).head(3)
-    examples.to_csv(output / "example_trace.csv", index=False)
+def write_report(output, manifest, stages, metrics, reliability, charts):
     total = int(stages.entered.iloc[0])
     shipped = int(stages.entered.iloc[2])
     summary = metrics.reindex(columns=["stage", "model", "status", "pr_auc", "roc_auc", "reason"])
@@ -137,8 +135,6 @@ Lifetime analysis status: {reliability["status"]}.
 
 """
     content += "\n\n".join(f"![{name.removesuffix('.svg')}]({name})" for name in charts)
-    content += "\n\n## 器件追溯 / Device trace\n\n"
-    content += markdown_table(examples[["unit_id", "batch_id", "split", "stage_status"]])
-    content += "\n\n[Complete example records](example_trace.csv) · [Stage counts](stages.csv)"
+    content += "\n\n[Stage counts](stages.csv)"
     content += " · [Metrics](metrics.csv) · [Provenance and hashes](manifest.json)\n"
     (output / "README.md").write_text(content, encoding="utf-8")

@@ -1,0 +1,40 @@
+{
+  "status": "completed",
+  "cohort": "training_survivors",
+  "train_units": 6502,
+  "test_units": 1571,
+  "time_unit": "hours",
+  "dataset_role": "synthetic",
+  "weibull": {
+    "beta": 1.4369505281939619,
+    "eta": 1903.2099775572744,
+    "b10": 397.51221412883024,
+    "failures": 3464,
+    "censored": 3038,
+    "log_likelihood": -29825.460246104172,
+    "beta_ci95": [
+      1.295353640451676,
+      1.594025566452203
+    ],
+    "eta_ci95": [
+      1805.5588633791556,
+      2006.142415038463
+    ]
+  },
+  "arrhenius": {
+    "status": "completed",
+    "beta": 1.5792359725966054,
+    "intercept": -5.650423555497662,
+    "activation_energy_ev": 0.4308639768752861,
+    "use_temperature_c": 55.0,
+    "eta_at_use": 14565.569640652666,
+    "b10_at_use": 3503.2402272465274,
+    "failures": 3464,
+    "censored": 3038,
+    "observed_temperature_range_c": [
+      85.0,
+      125.0
+    ],
+    "extrapolation_warning": "Use temperature is outside the observed stress range; lifetime is an extrapolation that requires mechanism validation."
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema_version": "semiyield-three-stage-report-v1",
+  "dataset_role": "synthetic",
+  "seed": 42,
+  "source_manifest_sha256": "f9b1f5b40ceb025a23ac7b7c4d58e74e86e000fbdd86be92ad62b6d2b8b9094a",
+  "source_files": {
+    "manufacturing.csv": {
+      "sha256": "b5f54ed132b11daf6565aafd9af7eb8380ed28cea94726abc4c8100474fd4860",
+      "rows": 10000,
+      "columns": [
+        "batch_id",
+        "unit_id",
+        "split",
+        "dataset_role",
+        "sensor_000",
+        "sensor_001",
+        "sensor_002",
+        "sensor_003",
+        "sensor_004",
+        "sensor_005",
+        "sensor_006",
+        "sensor_007",
+        "sensor_008",
+        "sensor_009",
+        "sensor_010",
+        "sensor_011",
+        "sensor_012",
+        "sensor_013",
+        "sensor_014",
+        "sensor_015",
+        "sensor_016",
+        "sensor_017",
+        "sensor_018",
+        "sensor_019",
+        "sensor_020",
+        "sensor_021",
+        "sensor_022",
+        "sensor_023",
+        "failed"
+      ]
+    },
+    "packaging_candidates.csv": {
+      "sha256": "16dc9718e4dc56614fad8af8f1588c19d3757c33dbc7f5c1a58a12394842936c",
+      "rows": 9008,
+      "columns": [
+        "batch_id",
+        "unit_id",
+        "split",
+        "dataset_role",
+        "X1",
+        "X2",
+        "X3",
+        "X4",
+        "X5",
+        "X6",
+        "X7",
+        "X8",
+        "X9",
+        "X10",
+        "X11",
+        "X12",
+        "X13",
+        "X14",
+        "X15",
+        "X16",
+        "Y"
+      ]
+    }
+  },
+  "throughput_threshold": 257.5891893426385,
+  "threshold": {
+    "mode": "training_quantile",
+    "quantile": 0.1,
+    "value": 257.5891893426385
+  },
+  "artifacts": {
+    "README.md": "a03a91d263b2e18fca7248823119547cb0a4a7bdf7ec036dc36bc683a60b14c6",
+    "metrics.csv": "d6df6d99d780e47821e8e17625af15b3d6f6dfb05eb43dc7d05a57304ae44f14",
+    "metrics.json": "11a15a690a7d3c28f6274e97204e3fcb59dfc6c34d6c3c8a8b0724bab2b1fcd4",
+    "model_comparison.svg": "0b291ad0add92b5a2fd5714169ff36c3c4668470e8794c35e102f6932755b539",
+    "reliability.json": "2803dc78fadcd18c4b4007d7decc398857f3cb858484755c6d9b3b9f37c87387",
+    "stage_failure_rates.svg": "f796aac958d76ead531487c02b6cfa865642e071a5626eec377b5f50e7ba8a0a",
+    "stage_funnel.svg": "ad5eff202b065eaec9d6e64a3d8db33a8635bc6778429099ad9b2f855c55bb8a",
+    "stages.csv": "4cf6059333d9ab10b02c146e8f0a9d7bd07cadbe48fdeb4b785f4b13bb8e0e00",
+    "survival.svg": "0676acb238116a8421f409c111c7b916162a518d221c07af81bf379cca4a1be2",
+    "throughput.svg": "20a2d6fa78d8c09744dcc0eb3a58212bccae7b78b357a41610e42b7c406159c3",
+    "weibull_curve.csv": "e6a8f31d9699a1373c7b9c1d1fc578fe40fb3b5cf437912e867d0120da70d60e"
+  }
+}

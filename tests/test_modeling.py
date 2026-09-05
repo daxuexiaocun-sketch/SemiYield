@@ -1,11 +1,8 @@
 import pandas as pd
 import pytest
 
-from importlib import import_module
+from semiyield.manufacturing import metrics, modeling, predict
 
-metrics = import_module("semiyield.yield.metrics")
-modeling = import_module("semiyield.yield.modeling")
-predict = import_module("semiyield.yield.predict")
 classification_metrics = metrics.classification_metrics
 evaluate_model = metrics.evaluate_model
 ModelArtifact = modeling.ModelArtifact

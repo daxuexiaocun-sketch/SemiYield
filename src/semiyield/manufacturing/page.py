@@ -5,7 +5,8 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from semiyield.common.artifacts import data_quality_report
+from semiyield.common.reporting import data_quality_report
+
 from .data import load_secom
 from .drift import detect_drift
 from .explain import explain_prediction

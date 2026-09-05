@@ -17,8 +17,9 @@ from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
-from .preprocessing import build_preprocessor
 from semiyield.constants import DEFAULT_THRESHOLD, RANDOM_STATE, SCHEMA_VERSION
+
+from .preprocessing import build_preprocessor
 
 
 @dataclass

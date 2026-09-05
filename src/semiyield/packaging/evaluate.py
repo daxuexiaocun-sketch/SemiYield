@@ -11,6 +11,7 @@ from semiyield.common.metrics import classification_report
 from semiyield.packaging.data import validate_data
 from semiyield.packaging.labeling import proxy_labels
 from semiyield.packaging.modeling import train_model
+from semiyield.packaging.reporting import write_benchmark_chart
 
 
 def train_holdout(input_csv, output, **kwargs):
@@ -71,6 +72,10 @@ def run_benchmark(
     metrics.to_csv(output / "fold_metrics.csv", index=False)
     summary = metrics.groupby("model").mean(numeric_only=True).drop(columns="fold")
     summary.to_csv(output / "summary.csv")
+    chart = write_benchmark_chart(summary, output / "benchmark_summary.svg")
+    artifact_paths = [output / "summary.csv", output / "fold_metrics.csv"]
+    if chart:
+        artifact_paths.append(chart)
     (output / "manifest.json").write_text(
         json.dumps(
             {
@@ -82,6 +87,7 @@ def run_benchmark(
                 ),
                 "data_sha256": digest,
                 "folds": details,
+                "artifacts": {artifact.name: sha256_file(artifact) for artifact in artifact_paths},
             },
             indent=2,
             allow_nan=False,

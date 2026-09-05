@@ -1,10 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from importlib import import_module
+from semiyield.manufacturing import data, evaluate
 
-evaluate = import_module("semiyield.yield.evaluate")
-data = import_module("semiyield.yield.data")
 BenchmarkConfig = evaluate.BenchmarkConfig
 _evaluate_split = evaluate._evaluate_split
 run_benchmark = evaluate.run_benchmark

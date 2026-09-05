@@ -10,10 +10,10 @@
   <a href="LICENSE"><img alt="Apache-2.0 许可证" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a>
 </p>
 
-**制造良率风险、封测过程筛查与器件寿命分析。**
+**四条可复现线路：制造良率风险、封测过程筛查、器件寿命与三阶段合成演示。**
 
-SemiYield 按 SECOM 制造良率、低吞吐封测代理失效、MOSFET 寿命三个业务组织代码，支持本地审阅，
-并提供同批次器件跨越三个环节的可复现合成演示。
+SemiYield 按 SECOM 制造良率、低吞吐封测代理失效、MOSFET 寿命三个业务组织代码；第四条线路为
+同批次器件跨越三个环节的可复现合成演示。
 
 ![SemiYield 图形摘要](docs/assets/graphical-abstract-zh-CN.svg)
 
@@ -31,42 +31,41 @@ uv run semiyield app
 静态报告位于 `reports/demo/three_stage/README.md`。已有输出需要 `--force` 才能覆盖。
 详见[完整演示指南](docs/DEMO.md)。
 
-本地封测 CSV 与已有真实数据流程：
+真实数据线路中，封测 CSV 必须显式指定：
 
 ```bash
-uv run semiyield packaging validate
-uv run semiyield packaging benchmark
+uv run semiyield packaging data-status
+uv run semiyield packaging benchmark --input-csv /path/to/packaging.csv
 uv run semiyield yield download
 uv run semiyield yield benchmark --profile quick
 uv run semiyield reliability example install
 uv run semiyield reliability report --profile quick
 ```
 
-1.0 版本移除了原有顶层命令、Python 导入别名和旧模型文件兼容层；旧模型需要重新训练，或保留旧版本导出的结果。
+1.1 版本移除了原有顶层命令、Python 导入别名和旧模型文件兼容层；旧模型需要重新训练，或保留旧版本导出的结果。
 NASA 数据准备详见 [NASA 数据流水线](docs/NASA_PIPELINE.md)。
 依赖统一以 `uv.lock` 为准，extras 需要显式选择，详见[业务架构与环境说明](docs/ARCHITECTURE.md)。
 
-## 参考结果
+## 四线路参考结果
 
-### SECOM 良率风险筛查
+| 线路 | 输入与证据性质 | 方法 | 已发布聚合结果 | 复现方式 |
+|---|---|---|---|---|
+| 制造良率 | UCI SECOM 真实工艺/失效标签 | 重复交叉验证风险筛查 | CatBoost PR-AUC **0.167**；10% 复检捕获率 **0.269** | `semiyield yield benchmark --profile quick` |
+| 封测过程 | 本地混合过程数据；吞吐代理标签 | 训练期 10% 阈值、三折基准 | 逻辑回归 PR-AUC **0.882**、ROC-AUC **0.979**、召回率 **0.943**、MCC **0.759** | `semiyield packaging benchmark --input-csv …` |
+| 器件寿命 | NASA 功率 MOSFET 观测 | Weibull 与加速寿命分析 | ΔRDS(on)=0.045 Ω 时 β **0.832**、η **10,553 s**、B10 **706 s** | 见 [NASA 数据流水线](docs/NASA_PIPELINE.md) |
+| 三阶段演示 | 合成关联批次与器件 | 批次隔离流转与留出集评估 | 工艺通过率 80.73%；封测逻辑回归 PR-AUC **0.680** | `semiyield demo quickstart` |
 
-所有模型共用外层切分，预处理、特征筛选、校准和阈值选择仅在训练数据内完成。
-
-| 模型 | PR-AUC | 失败召回率 | MCC | 10% 复检捕获率 |
-|---|---:|---:|---:|---:|
-| Dummy | 0.066 | 0.000 | 0.000 | 0.057 |
-| 逻辑回归 | 0.113 | 0.392 | 0.040 | 0.164 |
-| CatBoost | 0.167 | 0.308 | 0.160 | 0.269 |
+封测线路是**低吞吐代理失效**结果，不能证明器件物理失效；三阶段演示完全为 **synthetic**，不代表 SECOM、NASA 或真实封测实验结论。
 
 ![SECOM 重复交叉验证 PR-AUC](reports/verified/yield/benchmark_pr_auc.svg)
 
-### MOSFET 可靠性
-
-参考 NASA 分析覆盖 41 个器件隔离的功率 MOSFET。在温度修正 ΔRDS(on) = 0.045 Ω 阈值下，Weibull β 为 **0.832**，特征寿命 η 为 **10,553 s**，B10 为 **706 s**，器件隔离生存森林 C-index 为 **0.839**。
+![封测代理失效模型对比](reports/verified/packaging/benchmark_summary.svg)
 
 ![NASA MOSFET 退化轨迹](reports/verified/nasa/degradation_trends.svg)
 
-![NASA MOSFET Weibull 生存曲线](reports/verified/reliability_0045/weibull_survival.svg)
+![合成三阶段漏斗](reports/verified/demo/stage_funnel.svg)
+
+完整方法与溯源见[封测聚合产物](reports/verified/packaging/manifest.json)和[合成三阶段报告](reports/verified/demo/README.md)。
 
 ## 数据与适用范围
 

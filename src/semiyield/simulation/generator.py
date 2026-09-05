@@ -1,33 +1,26 @@
 """Generate raw linked synthetic observations without business-model imports."""
 
-import json
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
 from semiyield.common.artifacts import sha256_file
+from semiyield.common.reporting import write_json_report
+from semiyield.common.validation import managed_output_dir
 from semiyield.simulation.contracts import PACKAGING_FEATURES, SENSORS, TABLES, VERSION
 from semiyield.simulation.scenario import Scenario
-from semiyield.simulation.validation import prepare_output
 
 
-def write_json(path, value):
-    Path(path).write_text(
-        json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8"
-    )
-
-
-def generate(output_dir, *, seed=42, batches=100, units_per_batch=100, force=False):
+def _generate_into(output, *, seed=42, batches=100, units_per_batch=100):
     scenario = Scenario(seed=seed, batches=batches, units_per_batch=units_per_batch)
     scenario.validate()
-    output = prepare_output(output_dir, force)
-    rng = np.random.default_rng(seed)
+    manufacturing_rng, packaging_rng = (
+        np.random.default_rng(child) for child in np.random.SeedSequence(seed).spawn(2)
+    )
     n = batches * units_per_batch
     batch = np.repeat(np.arange(batches), units_per_batch)
-    test_batches = rng.permutation(batches)[: max(1, int(np.ceil(0.2 * batches)))]
+    test_batches = manufacturing_rng.permutation(batches)[: max(1, int(np.ceil(0.2 * batches)))]
     split = np.where(np.isin(batch, test_batches), "test", "train")
-    latent = rng.normal(0, 0.7, batches)[batch] + rng.normal(0, 0.8, n)
+    latent = manufacturing_rng.normal(0, 0.7, batches)[batch] + manufacturing_rng.normal(0, 0.8, n)
     identity = pd.DataFrame(
         {
             "batch_id": [f"B{i:04d}" for i in batch],
@@ -37,37 +30,23 @@ def generate(output_dir, *, seed=42, batches=100, units_per_batch=100, force=Fal
         }
     )
     manufacturing = identity.copy()
-    sensors = rng.normal(size=(n, len(SENSORS)))
+    sensors = manufacturing_rng.normal(size=(n, len(SENSORS)))
     sensors[:, :8] += latent[:, None] * np.linspace(0.5, 1.2, 8)
     manufacturing[SENSORS] = sensors
     failure_probability = 1 / (1 + np.exp(-(-2.7 + 1.1 * latent)))
-    manufacturing["failed"] = (rng.random(n) < failure_probability).astype(int)
+    manufacturing["failed"] = (manufacturing_rng.random(n) < failure_probability).astype(int)
     packaging = identity.loc[manufacturing.failed.eq(0)].copy()
     idx = packaging.index.to_numpy()
-    process = latent[idx] + rng.normal(0, 0.6, len(idx))
+    process = latent[idx] + packaging_rng.normal(0, 0.6, len(idx))
     for i, count in enumerate([2, 3, 4, 7, 22], 1):
-        code = rng.integers(1, count + 1, len(idx))
+        code = packaging_rng.integers(1, count + 1, len(idx))
         packaging[f"X{i}"] = [f"X{i}-{c}" for c in code]
     for i in range(6, 17):
-        packaging[f"X{i}"] = process * (0.3 + i / 20) + rng.normal(size=len(idx))
+        packaging[f"X{i}"] = process * (0.3 + i / 20) + packaging_rng.normal(size=len(idx))
     # Synthetic throughput is defined as units/hour; it is not a conversion of source Y.
-    packaging["Y"] = np.exp(6.2 - 0.45 * process + rng.normal(0, 0.22, len(idx)))
-    # The generator only emits raw candidates.  Labeling and stage routing belong to
-    # demo.workflow, which calls the packaging business rule after its train split.
-    lifetime = packaging[identity.columns].copy()
-    life_idx = lifetime.index.to_numpy()
-    temperature = rng.choice([85.0, 105.0, 125.0], len(lifetime))
-    stress = process
-    # Arrhenius acceleration plus correlated upstream quality and packaging damage.
-    eta = 1800 * np.exp(
-        4500 * (1 / (temperature + 273.15) - 1 / 378.15) - 0.3 * latent[life_idx] - 0.2 * stress
-    )
-    failure_time = eta * rng.weibull(1.7, len(lifetime))
-    followup = rng.uniform(700, 2600, len(lifetime))
-    lifetime["temperature_c"] = temperature
-    lifetime["time_to_event"] = np.maximum(np.minimum(failure_time, followup), 1e-9)
-    lifetime["event_observed"] = (failure_time <= followup).astype(int)
-    tables = dict(zip(TABLES, [manufacturing, packaging, lifetime], strict=True))
+    packaging["Y"] = np.exp(6.2 - 0.45 * process + packaging_rng.normal(0, 0.22, len(idx)))
+    # Stage routing belongs to demo.workflow, which applies the packaging label rule.
+    tables = dict(zip(TABLES, [manufacturing, packaging], strict=True))
     for name, table in tables.items():
         table.to_csv(output / name, index=False)
     fields = {
@@ -81,10 +60,6 @@ def generate(output_dir, *, seed=42, batches=100, units_per_batch=100, force=Fal
         "X6..X16": "Synthetic numerical process measurements; arbitrary units",
         "Y": "Synthetic throughput; units/hour (source dataset units remain unspecified)",
         "packaging_candidates.csv": "Raw packaging observations after manufacturing pass",
-        "lifetime_candidates.csv": "Raw lifetime observations before packaging routing",
-        "temperature_c": "Accelerated stress temperature; Celsius",
-        "time_to_event": "min(failure time, follow-up); hours",
-        "event_observed": "1 observed failure, 0 right-censored; blank before lifetime stage",
     }
     manifest = {
         "schema_version": VERSION,
@@ -102,6 +77,7 @@ def generate(output_dir, *, seed=42, batches=100, units_per_batch=100, force=Fal
         "mechanism": (
             "Shared latent quality + independent stage noise; latent quality is not exported"
         ),
+        "random_streams": {"manufacturing": 0, "packaging": 1, "lifetime": 2},
         "files": {
             name: {
                 "sha256": sha256_file(output / name),
@@ -111,5 +87,30 @@ def generate(output_dir, *, seed=42, batches=100, units_per_batch=100, force=Fal
             for name, table in tables.items()
         },
     }
-    write_json(output / "manifest.json", manifest)
+    write_json_report(manifest, output / "manifest.json")
     return manifest
+
+
+def generate(output_dir, *, seed=42, batches=100, units_per_batch=100, force=False):
+    """Generate raw manufacturing and packaging observations into a managed directory."""
+    with managed_output_dir(output_dir, force=force) as output:
+        return _generate_into(output, seed=seed, batches=batches, units_per_batch=units_per_batch)
+
+
+def generate_lifetime_observations(packaging_passed: pd.DataFrame, *, seed: int) -> pd.DataFrame:
+    """Generate lifetime observations only for devices observed to pass packaging."""
+    required = {"batch_id", "unit_id", "split", "dataset_role", "X6"}
+    missing = sorted(required - set(packaging_passed))
+    if missing:
+        raise ValueError(f"Missing lifetime generation columns: {', '.join(missing)}")
+    rows = packaging_passed[["batch_id", "unit_id", "split", "dataset_role"]].copy()
+    rng = np.random.default_rng(np.random.SeedSequence(seed).spawn(3)[2])
+    temperature = rng.choice([85.0, 105.0, 125.0], len(rows))
+    stress = pd.to_numeric(packaging_passed["X6"], errors="raise").to_numpy(dtype=float)
+    eta = 1800 * np.exp(4500 * (1 / (temperature + 273.15) - 1 / 378.15) - 0.2 * stress)
+    failure_time = eta * rng.weibull(1.7, len(rows))
+    followup = rng.uniform(700, 2600, len(rows))
+    rows["temperature_c"] = temperature
+    rows["time_to_event"] = np.maximum(np.minimum(failure_time, followup), 1e-9)
+    rows["event_observed"] = (failure_time <= followup).astype(int)
+    return rows

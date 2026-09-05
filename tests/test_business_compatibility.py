@@ -3,14 +3,23 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from semiyield.cli import app
-import pytest
 
 
 def test_legacy_modules_are_not_importable():
-    for name in ("data", "benchmark", "modeling", "preprocessing", "workflows", "nasa"):
+    importlib.import_module("semiyield.manufacturing")
+    for name in (
+        "data",
+        "benchmark",
+        "modeling",
+        "preprocessing",
+        "workflows",
+        "nasa",
+        "yield",
+    ):
         with pytest.raises(ModuleNotFoundError):
             importlib.import_module(f"semiyield.{name}")
 

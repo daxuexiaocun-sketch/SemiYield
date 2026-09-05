@@ -6,8 +6,8 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from semiyield.common.artifacts import data_quality_report
-from semiyield.packaging.data import DEFAULT_INPUT, FEATURES, validate_data
+from semiyield.common.reporting import data_quality_report
+from semiyield.packaging.data import FEATURES, local_data_status, validate_data
 
 
 def render(zh):
@@ -18,7 +18,12 @@ def render(zh):
         else "Low throughput is a process-failure proxy, not proof of physical device failure. "
         "The source unit of Y is unspecified."
     )
-    input_path = Path(st.sidebar.text_input("CSV", str(DEFAULT_INPUT)))
+    input_text = st.sidebar.text_input("CSV", "")
+    if not input_text:
+        st.info(local_data_status()["message"])
+        st.code("uv run semiyield packaging validate --input-csv /path/to/packaging.csv")
+        return
+    input_path = Path(input_text)
     try:
         data = validate_data(pd.read_csv(input_path))
     except (OSError, ValueError) as exc:

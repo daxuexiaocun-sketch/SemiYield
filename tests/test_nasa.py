@@ -82,9 +82,7 @@ def test_transient_reduction_uses_on_state_and_nearest_temperature():
                 },
             }
         ],
-        "steadyState": [
-            {"timeEpoch": 10.0, "timeDomain": {"packageTemperature": 210.0}}
-        ],
+        "steadyState": [{"timeEpoch": 10.0, "timeDomain": {"packageTemperature": 210.0}}],
     }
     result = _transient_rows(measurement, "device_001")
     assert result.loc[0, "vds_v"] == pytest.approx(0.2)

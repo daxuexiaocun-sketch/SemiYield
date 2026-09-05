@@ -9,9 +9,9 @@ from typer.testing import CliRunner
 from semiyield.cli import app
 from semiyield.common.metrics import classification_report
 from semiyield.packaging.data import FEATURES, validate_data
+from semiyield.packaging.evaluate import run_benchmark, train_holdout
 from semiyield.packaging.labeling import proxy_labels, resolve_threshold
 from semiyield.packaging.modeling import PackagingArtifact, train_model
-from semiyield.packaging.evaluate import run_benchmark, train_holdout
 
 
 @pytest.fixture
