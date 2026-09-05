@@ -1,4 +1,4 @@
-# Model Card
+# Model Card: Manufacturing Yield
 
 ## Purpose
 
@@ -15,3 +15,11 @@ Use the [evaluation protocol](EXPERIMENTS.md): repeated stratified cross-validat
 ## Limitations
 
 Predictions require revalidation for each fab, product, toolset, process node, prevalence, and inspection cost. Feature attributions are not causal root-cause analysis; drift alerts require engineering review.
+
+## Other business lines
+
+The packaging models use a separate mixed-type pipeline and throughput proxy labels; see the
+[packaging data and methods card](PACKAGING_DATA_CARD.md). Their probabilities are not calibrated
+physical failure probabilities. Lifetime analysis is described in [reliability methods](RELIABILITY_METHODS.md).
+The [synthetic demo](DEMO.md) reports independent batch-held-out scores and must not be cited as
+SECOM, NASA or measured packaging performance.

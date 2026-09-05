@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "semiyield"
 version = "0.3.0"
-description = "Explainable semiconductor manufacturing yield-risk analysis"
+description = "Manufacturing yield, packaging proxy failure, and device lifetime analysis"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
@@ -49,6 +49,9 @@ semiyield = "semiyield.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/semiyield"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/docs/Dataset_from_semiconductor_processes"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,14 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360" role="img" aria-labelledby="title desc">
-  <title id="title">GitHub stars over time for daxuexiaocun-sketch/SemiYield</title>
-  <desc id="desc">The first authenticated repository workflow run will generate this chart.</desc>
-  <style>
-    .bg{fill:#fff}.fg{fill:#172033}.muted{fill:#667085}.grid{stroke:#d8dee9}
-    @media(prefers-color-scheme:dark){.bg{fill:#0d1117}.fg{fill:#e6edf3}.muted{fill:#9da7b3}.grid{stroke:#30363d}}
-  </style>
-  <rect class="bg" width="100%" height="100%" rx="12"/>
-  <text class="fg" x="74" y="42" font-family="system-ui,sans-serif" font-size="18" font-weight="600">GitHub stars over time</text>
-  <line class="grid" x1="74" y1="70" x2="74" y2="290"/>
-  <line class="grid" x1="74" y1="290" x2="872" y2="290"/>
-  <text class="muted" x="450" y="174" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16">Awaiting the first authenticated workflow update</text>
-  <text class="muted" x="450" y="202" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13">No star count is inferred or fabricated.</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 180" role="img" aria-labelledby="title desc"><title id="title">GitHub star history pending</title><desc id="desc">No authenticated star data available for daxuexiaocun-sketch/SemiYield.</desc><rect width="900" height="180" rx="12" fill="#edf2f7"/><text x="40" y="75" font-family="sans-serif" font-size="22" fill="#172033">Star history awaiting a successful GitHub workflow run</text><text x="40" y="115" font-family="sans-serif" font-size="16" fill="#475467">daxuexiaocun-sketch/SemiYield — unavailable does not mean zero stars</text></svg>

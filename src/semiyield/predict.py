@@ -1,23 +1,7 @@
-from __future__ import annotations
+"""Compatibility alias for shared predict utilities."""
 
-import pandas as pd
+import sys
 
-from semiyield.data import validate_features
-from semiyield.modeling import ModelArtifact
+from semiyield.common import predict as _implementation
 
-
-def predict_risk(artifact: ModelArtifact, features: pd.DataFrame) -> pd.DataFrame:
-    validated, warnings = validate_features(features, artifact.feature_columns)
-    probability = artifact.estimator.predict_proba(validated)[:, 1]
-    return pd.DataFrame(
-        {
-            "failure_probability": probability,
-            "predicted_failure": probability >= artifact.threshold,
-            "decision_threshold": artifact.threshold,
-            "model_name": artifact.model_name,
-            "model_created_at": artifact.created_at,
-            "schema_version": artifact.schema_version,
-            "input_warnings": "; ".join(warnings),
-        },
-        index=features.index,
-    )
+sys.modules[__name__] = _implementation

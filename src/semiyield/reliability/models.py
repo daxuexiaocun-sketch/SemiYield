@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 
-from semiyield.data import sha256_file
-from semiyield.visuals import write_reliability_charts
+from semiyield.common.data import sha256_file
+from semiyield.common.visuals import write_reliability_charts
 
 BOLTZMANN_EV_PER_K = 8.617333262145e-5
 RELIABILITY_COLUMNS = ("unit_id", "time_to_event", "event_observed")
@@ -190,7 +190,7 @@ def benchmark_survival_forest(
         from sksurv.ensemble import RandomSurvivalForest
         from sksurv.metrics import concordance_index_censored, integrated_brier_score
     except ImportError:
-        return {"status": "skipped", "reason": "Install semiyield[survival]"}
+        return {"status": "skipped", "reason": "Run `uv sync --locked --extra survival`"}
     missing = [column for column in feature_columns if column not in data]
     if missing:
         raise ValueError(f"Missing survival features: {', '.join(missing)}")
@@ -310,9 +310,9 @@ def write_reliability_report(
     }
     if "temperature_c" in frame:
         stress_group = (pd.to_numeric(frame["temperature_c"], errors="coerce") / 10).round() * 10
-        failures_by_group = frame.loc[frame["event_observed"].astype(bool)].groupby(
-            stress_group
-        ).size()
+        failures_by_group = (
+            frame.loc[frame["event_observed"].astype(bool)].groupby(stress_group).size()
+        )
         eligible_groups = failures_by_group[failures_by_group >= 3]
         if len(eligible_groups) >= 2:
             eligible = frame.loc[stress_group.isin(eligible_groups.index)]

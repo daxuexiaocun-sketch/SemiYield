@@ -11,6 +11,7 @@ from datetime import datetime
 from html import escape
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 API_ROOT = "https://api.github.com"
@@ -48,9 +49,7 @@ def fetch_star_history(repository: str, token: str | None = None) -> dict[str, o
     return build_history(repository, created_at, starred_at)
 
 
-def build_history(
-    repository: str, created_at: str, starred_at: list[str]
-) -> dict[str, object]:
+def build_history(repository: str, created_at: str, starred_at: list[str]) -> dict[str, object]:
     """Aggregate timestamped stars into a daily cumulative series."""
     created_date = datetime.fromisoformat(created_at.replace("Z", "+00:00")).date().isoformat()
     daily = Counter(
@@ -74,15 +73,30 @@ def build_history(
 def render_svg(history: dict[str, object]) -> str:  # noqa: C901
     """Render a dependency-free SVG that remains legible in light and dark themes."""
     points = list(history["points"])
+    if not points:
+        repository = escape(str(history["repository"]))
+        return (
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 180" '
+            'role="img" aria-labelledby="title desc">'
+            '<title id="title">GitHub star history pending</title>'
+            f'<desc id="desc">No authenticated star data available for {repository}.</desc>'
+            '<rect width="900" height="180" rx="12" fill="#edf2f7"/>'
+            '<text x="40" y="75" font-family="sans-serif" font-size="22" fill="#172033">'
+            "Star history awaiting a successful GitHub workflow run</text>"
+            '<text x="40" y="115" font-family="sans-serif" font-size="16" fill="#475467">'
+            f"{repository} — unavailable does not mean zero stars</text></svg>\n"
+        )
+    points = sorted(points, key=lambda point: str(point["date"]))
     width, height = 900, 360
     left, right, top, bottom = 74, 28, 52, 62
     plot_w, plot_h = width - left - right, height - top - bottom
     totals = [int(point["total"]) for point in points]
     maximum = max(max(totals, default=0), 1)
-    denominator = max(len(points) - 1, 1)
+    dates = [datetime.fromisoformat(str(point["date"])).date() for point in points]
+    denominator = max((dates[-1] - dates[0]).days, 1)
     coordinates = [
         (
-            left + index * plot_w / denominator,
+            left + (dates[index] - dates[0]).days * plot_w / denominator,
             top + plot_h - total * plot_h / maximum,
         )
         for index, total in enumerate(totals)
@@ -107,16 +121,16 @@ def render_svg(history: dict[str, object]) -> str:  # noqa: C901
 </style>
 <rect class="bg" width="100%" height="100%" rx="12"/>
 <text class="fg" x="{left}" y="30" font-family="system-ui,sans-serif" font-size="18" font-weight="600">GitHub stars over time</text>
-<text class="muted" x="{width-right}" y="30" text-anchor="end" font-family="system-ui,sans-serif" font-size="14">{current} stars</text>
-<line class="grid" x1="{left}" y1="{top}" x2="{left}" y2="{top+plot_h}"/>
-<line class="grid" x1="{left}" y1="{top+plot_h}" x2="{left+plot_w}" y2="{top+plot_h}"/>
-<line class="grid" x1="{left}" y1="{top}" x2="{left+plot_w}" y2="{top}" stroke-dasharray="4 6"/>
-<text class="muted" x="{left-12}" y="{top+5}" text-anchor="end" font-family="system-ui,sans-serif" font-size="12">{maximum}</text>
-<text class="muted" x="{left-12}" y="{top+plot_h+5}" text-anchor="end" font-family="system-ui,sans-serif" font-size="12">0</text>
-<polygon class="area" points="{left},{top+plot_h} {polyline} {left+plot_w},{top+plot_h}" opacity="0.7"/>
+<text class="muted" x="{width - right}" y="30" text-anchor="end" font-family="system-ui,sans-serif" font-size="14">{current} stars</text>
+<line class="grid" x1="{left}" y1="{top}" x2="{left}" y2="{top + plot_h}"/>
+<line class="grid" x1="{left}" y1="{top + plot_h}" x2="{left + plot_w}" y2="{top + plot_h}"/>
+<line class="grid" x1="{left}" y1="{top}" x2="{left + plot_w}" y2="{top}" stroke-dasharray="4 6"/>
+<text class="muted" x="{left - 12}" y="{top + 5}" text-anchor="end" font-family="system-ui,sans-serif" font-size="12">{maximum}</text>
+<text class="muted" x="{left - 12}" y="{top + plot_h + 5}" text-anchor="end" font-family="system-ui,sans-serif" font-size="12">0</text>
+<polygon class="area" points="{left},{top + plot_h} {polyline} {left + plot_w},{top + plot_h}" opacity="0.7"/>
 <polyline class="line" points="{polyline}" fill="none" stroke-width="3" stroke-linejoin="round"/>
-<text class="muted" x="{left}" y="{height-24}" font-family="system-ui,sans-serif" font-size="12">{first_date}</text>
-<text class="muted" x="{left+plot_w}" y="{height-24}" text-anchor="end" font-family="system-ui,sans-serif" font-size="12">{last_date}</text>
+<text class="muted" x="{left}" y="{height - 24}" font-family="system-ui,sans-serif" font-size="12">{first_date}</text>
+<text class="muted" x="{left + plot_w}" y="{height - 24}" text-anchor="end" font-family="system-ui,sans-serif" font-size="12">{last_date}</text>
 </svg>
 '''
 
@@ -132,8 +146,11 @@ def _atomic_write(path: Path, content: str) -> None:
 def update(repository: str, token: str | None, data_path: Path, svg_path: Path) -> None:
     """Fetch first, then atomically replace both outputs after a successful response."""
     history = fetch_star_history(repository, token)
-    _atomic_write(data_path, json.dumps(history, indent=2) + "\n")
-    _atomic_write(svg_path, render_svg(history))
+    # Finish validation and rendering before replacing either existing resource.
+    data = json.dumps(history, indent=2) + "\n"
+    svg = render_svg(history)
+    _atomic_write(data_path, data)
+    _atomic_write(svg_path, svg)
 
 
 def main() -> None:
@@ -145,4 +162,19 @@ def main() -> None:
     args = parser.parse_args()
     if not args.repository:
         parser.error("--repository or GITHUB_REPOSITORY is required")
-    update(args.repository, os.getenv("GITHUB_TOKEN"), args.data, args.svg)
+    try:
+        update(args.repository, os.getenv("GITHUB_TOKEN"), args.data, args.svg)
+    except HTTPError as exc:
+        message = f"GitHub API HTTP {exc.code}; existing star-history assets retained."
+        if exc.code in {401, 403, 404}:
+            message += (
+                " Check repository identity, token access, stargazer-list permissions "
+                "and API rate limits. Access failures are not zero-star results."
+            )
+        parser.exit(1, message + "\n")
+    except (URLError, TimeoutError, ValueError, KeyError, RuntimeError) as exc:
+        parser.exit(
+            1,
+            f"Star-history update failed ({type(exc).__name__}); "
+            "existing assets retained. Check the API response/network.\n",
+        )

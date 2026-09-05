@@ -9,18 +9,18 @@ The local `semiyield quickstart` workflow does not use this archive. It uses UCI
 ## Inspect and convert
 
 ```bash
-semiyield nasa verify --archive /path/to/nasa-mosfet.zip
-semiyield nasa notices /path/to/nasa-mosfet.zip
-semiyield nasa inspect --archive /path/to/nasa-mosfet.zip
-semiyield nasa convert-official /path/to/nasa-mosfet.zip
-semiyield nasa prepare --source data/interim/nasa_mosfet_normalized
+uv run semiyield nasa verify /path/to/nasa-mosfet.zip
+uv run semiyield nasa notices /path/to/nasa-mosfet.zip
+uv run semiyield nasa inspect /path/to/nasa-mosfet.zip
+uv run semiyield nasa convert-official /path/to/nasa-mosfet.zip
+uv run semiyield nasa prepare --source data/interim/nasa_mosfet_normalized
 ```
 
 For archive variants, inspect a representative MATLAB file and provide explicit dotted-path mapping:
 
 ```bash
-semiyield nasa inspect-mat /path/to/Test_1_run_1.mat
-semiyield nasa convert-matlab /path/to/extracted nasa_mapping.json
+uv run semiyield nasa inspect-mat /path/to/Test_1_run_1.mat
+uv run semiyield nasa convert-matlab /path/to/extracted nasa_mapping.json
 ```
 
 ## Inputs and outputs

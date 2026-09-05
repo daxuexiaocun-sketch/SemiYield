@@ -10,35 +10,47 @@
   <a href="LICENSE"><img alt="Apache-2.0 许可证" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a>
 </p>
 
-**面向半导体制造良率风险筛查与器件可靠性分析。**
+**制造良率风险、封测过程筛查与器件寿命分析。**
 
-SemiYield 为高维制造过程数据与 MOSFET 热过应力可靠性研究提供可复现的分析流程，支持风险评分、候选变量排序、漂移监测、器件隔离寿命分析和本地交互式审阅。
+SemiYield 按 SECOM 制造良率、低吞吐封测代理失效、MOSFET 寿命三个业务组织代码，支持本地审阅，
+并提供同批次器件跨越三个环节的可复现合成演示。
 
 ![SemiYield 图形摘要](docs/assets/graphical-abstract-zh-CN.svg)
 
 ## 快速开始
 
-请使用 Python **3.10–3.13**。首次运行需从 UCI 下载 SECOM，因此需要网络连接。
+演示默认使用 Python **3.13**（CI 覆盖 3.10、3.12、3.13），先安装 [uv](https://docs.astral.sh/uv/)。
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[demo]"
-
-semiyield quickstart
-semiyield app
+uv sync --locked --extra demo --extra dev
+uv run semiyield demo quickstart
+uv run semiyield app
 ```
 
-`quickstart` 下载 SECOM、安装本地合成可靠性示例，并将结果生成至 `reports/reference/`；不会下载 NASA 原始包。等价的展开命令为：
+依赖安装后，合成演示可以离线运行。默认生成 100 批次 × 100 个器件，串联制造、封测和寿命阶段，
+静态报告位于 `reports/demo/three_stage/README.md`。已有输出需要 `--force` 才能覆盖。
+详见[完整演示指南](docs/DEMO.md)。
+
+本地封测 CSV 与已有真实数据流程：
 
 ```bash
-semiyield download
-semiyield data download-demo
-semiyield benchmark --profile quick
-semiyield reliability report --profile quick
+uv run semiyield packaging validate
+uv run semiyield packaging benchmark
+uv run semiyield quickstart
 ```
 
-完整 NASA 数据准备流程见 [NASA 数据流水线](docs/NASA_PIPELINE.md)。
+原有 `quickstart` 仍下载 SECOM（需要网络）、安装小型合成寿命样例，输出到 `reports/reference/`。
+对应展开命令继续可用：
+
+```bash
+uv run semiyield yield download
+uv run semiyield data download-demo
+uv run semiyield yield benchmark --profile quick
+uv run semiyield reliability report --profile quick
+```
+
+原有顶层 SECOM 命令保持兼容。NASA 数据准备详见 [NASA 数据流水线](docs/NASA_PIPELINE.md)。
+依赖统一以 `uv.lock` 为准，extras 需要显式选择，详见[业务架构与环境说明](docs/ARCHITECTURE.md)。
 
 ## 参考结果
 
@@ -65,10 +77,16 @@ semiyield reliability report --profile quick
 ## 数据与适用范围
 
 - **UCI SECOM：**匿名过程变量，用于少数类失效风险筛查；源数据在运行时下载。
+- **封测过程：**本地混合类型数据，以低于训练期吞吐阈值作为代理失效，不能直接等同于器件物理失效。详见[数据卡](docs/PACKAGING_DATA_CARD.md)。
+- **三环节合成演示：**关联批次与器件 ID，与真实参考结果分开。
 - **NASA Power MOSFET：**上游原始包保持在仓库外。本仓库发布代码、聚合结果和溯源信息，不发布 NASA 逐样本派生数据。
 - 输出用于工程复核和可靠性研究，不替代工艺工程、失效分析、认证流程或因果根因确认。
 
 ## 文档
+
+- [Architecture / 业务架构](docs/ARCHITECTURE.md)
+- [Packaging data and methods / 封测数据与方法](docs/PACKAGING_DATA_CARD.md)
+- [Three-stage demo / 三环节演示](docs/DEMO.md)
 
 - [评估协议](docs/EXPERIMENTS.md)
 - [数据卡](docs/DATA_CARD.md) 与 [可靠性数据卡](docs/RELIABILITY_DATA_CARD.md)
@@ -79,7 +97,7 @@ semiyield reliability report --profile quick
 
 ## 项目活跃度
 
-仓库工作流记录 GitHub Stars 的累计变化。
+工作流根据当前仍保留的星标及其时间重建曲线，无法恢复已取消的星标。详见[维护与故障排查](docs/STAR_HISTORY.md)。
 
 ![GitHub Stars 随时间变化](docs/assets/star-history.svg)
 

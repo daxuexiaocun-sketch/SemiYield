@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Separate manufacturing yield, packaging process and device lifetime business modules while retaining legacy entry points.
+- Add training-only low-throughput proxy labels, mixed-type packaging models and matched-fold evaluation.
+- Add reproducible linked synthetic data, offline three-stage CLI demonstration and static reports.
+- Standardize development and CI on uv.lock; repair clean-runner star-history updates and calendar spacing.
+
+
 ## 0.3.0
 
 - Added Python 3.13/CatBoost reference experiment results and a locked demo environment.

@@ -1,4 +1,4 @@
 model,status,reason
 dummy,completed,
 logistic,completed,
-catboost,completed,
+catboost,skipped,Install SemiYield with `pip install -e '.[catboost]'`

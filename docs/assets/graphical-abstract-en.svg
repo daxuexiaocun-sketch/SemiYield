@@ -1,32 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
-  <title id="title">SemiYield graphical abstract</title>
-  <desc id="desc">Two analysis paths connect SECOM manufacturing data and NASA MOSFET aging data to auditable yield-risk and reliability results.</desc>
-  <defs>
-    <linearGradient id="header" x1="0" x2="1"><stop stop-color="#155eef"/><stop offset="1" stop-color="#7a5af8"/></linearGradient>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#667085"/></marker>
-    <style>
-      .bg{fill:#f8fafc}.card{fill:#fff;stroke:#d0d5dd;stroke-width:1.5}.blue{fill:#eff8ff;stroke:#84caff}.violet{fill:#f4f3ff;stroke:#bdb4fe}.out{fill:#ecfdf3;stroke:#6ce9a6}.h{font:700 22px system-ui,sans-serif;fill:#fff}.lane{font:700 20px system-ui,sans-serif;fill:#101828}.t{font:600 16px system-ui,sans-serif;fill:#101828}.s{font:14px system-ui,sans-serif;fill:#475467}.note{font:13px system-ui,sans-serif;fill:#667085}.arrow{stroke:#667085;stroke-width:2;fill:none;marker-end:url(#arrow)}
-      @media(prefers-color-scheme:dark){.bg{fill:#0d1117}.card{fill:#161b22;stroke:#3d444d}.blue{fill:#102a43;stroke:#388bfd}.violet{fill:#26204d;stroke:#8957e5}.out{fill:#123524;stroke:#2ea043}.lane,.t{fill:#e6edf3}.s{fill:#b1bac4}.note{fill:#8c959f}}
-    </style>
-  </defs>
-  <rect class="bg" width="1200" height="620" rx="18"/>
-  <rect x="0" y="0" width="1200" height="72" rx="18" fill="url(#header)"/><rect x="0" y="52" width="1200" height="20" fill="url(#header)"/>
-  <text class="h" x="42" y="44">SemiYield · From semiconductor data to auditable engineering evidence</text>
-  <text class="lane" x="42" y="122">Manufacturing yield-risk screening</text>
-  <rect class="blue" x="42" y="145" width="220" height="125" rx="14"/><text class="t" x="62" y="178">UCI SECOM</text><text class="s" x="62" y="205">1,567 samples</text><text class="s" x="62" y="227">590 anonymous variables</text><text class="s" x="62" y="249">Missing + imbalanced</text>
-  <path class="arrow" d="M274 208H326"/>
-  <rect class="card" x="338" y="145" width="230" height="125" rx="14"/><text class="t" x="358" y="178">Leakage-safe pipeline</text><text class="s" x="358" y="205">Quality checks · imputation</text><text class="s" x="358" y="227">Train-only selection</text><text class="s" x="358" y="249">CV + temporal holdout</text>
-  <path class="arrow" d="M580 208H632"/>
-  <rect class="card" x="644" y="145" width="230" height="125" rx="14"/><text class="t" x="664" y="178">Risk models</text><text class="s" x="664" y="205">Logistic · CatBoost</text><text class="s" x="664" y="227">Optional TabPFN v2</text><text class="s" x="664" y="249">Calibration + thresholds</text>
-  <path class="arrow" d="M886 208H938"/>
-  <rect class="out" x="950" y="145" width="208" height="125" rx="14"/><text class="t" x="970" y="178">Engineering outputs</text><text class="s" x="970" y="205">Failure probability</text><text class="s" x="970" y="227">Candidate variables</text><text class="s" x="970" y="249">Review-budget capture</text>
-  <text class="lane" x="42" y="334">MOSFET degradation and reliability</text>
-  <rect class="violet" x="42" y="357" width="220" height="125" rx="14"/><text class="t" x="62" y="390">NASA MOSFET</text><text class="s" x="62" y="417">Thermal overstress aging</text><text class="s" x="62" y="439">All-device slow signals</text><text class="s" x="62" y="461">External 7.85 GB archive</text>
-  <path class="arrow" d="M274 420H326"/>
-  <rect class="card" x="338" y="357" width="230" height="125" rx="14"/><text class="t" x="358" y="390">Physical features</text><text class="s" x="358" y="417">RDS(on) drift + trend</text><text class="s" x="358" y="439">Temperature correction</text><text class="s" x="358" y="461">Device-isolated splits</text>
-  <path class="arrow" d="M580 420H632"/>
-  <rect class="card" x="644" y="357" width="230" height="125" rx="14"/><text class="t" x="664" y="390">Reliability models</text><text class="s" x="664" y="417">Censored Weibull</text><text class="s" x="664" y="439">Arrhenius–Weibull</text><text class="s" x="664" y="461">Survival forest</text>
-  <path class="arrow" d="M886 420H938"/>
-  <rect class="out" x="950" y="357" width="208" height="125" rx="14"/><text class="t" x="970" y="390">Reliability outputs</text><text class="s" x="970" y="417">β · η · B10</text><text class="s" x="970" y="439">Degradation trajectories</text><text class="s" x="970" y="461">Lifetime risk + CI</text>
-  <rect class="card" x="42" y="526" width="1116" height="58" rx="12"/><text class="t" x="600" y="551" text-anchor="middle">Reproducible · Explainable · Auditable</text><text class="note" x="600" y="573" text-anchor="middle">Fixed seeds · model status · device manifests · SHA-256 provenance · explicit limitations</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="340" viewBox="0 0 1080 340" role="img" aria-labelledby="title desc">
+<title id="title">SemiYield three business workflows</title>
+<desc id="desc">Manufacturing yield, packaging proxy failure, device lifetime; a separate synthetic demo links batch and device identities.</desc>
+<rect width="1080" height="340" rx="20" fill="#f1f5f9"/>
+<g font-family="Arial, sans-serif" fill="#172033">
+<text x="45" y="48" font-size="26" font-weight="bold">SemiYield</text>
+<rect x="45" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
+<text x="65" y="124" font-size="23" font-weight="bold">Manufacturing yield</text>
+<text x="65" y="165" font-size="16">SECOM risk screening</text>
+<text x="357" y="152" font-size="24">→</text>
+<rect x="385" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
+<text x="405" y="124" font-size="23" font-weight="bold">Packaging process</text>
+<text x="405" y="165" font-size="16">Low-throughput proxy failure</text>
+<text x="697" y="152" font-size="24">→</text>
+<rect x="725" y="82" width="305" height="126" rx="12" fill="#ffffff" stroke="#b7c9de"/>
+<text x="745" y="124" font-size="23" font-weight="bold">Device lifetime</text>
+<text x="745" y="165" font-size="16">MOSFET survival analysis</text>
+<text x="45" y="262" font-size="19">Synthetic demo: shared batch/device IDs · isolated evaluation · static reports</text>
+<text x="45" y="301" font-size="16">Shared infrastructure: metrics, schemas, artifacts, resource protection · uv.lock</text>
+</g></svg>

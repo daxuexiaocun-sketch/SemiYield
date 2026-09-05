@@ -26,8 +26,10 @@ def test_readmes_have_matching_content_structure():
     chinese = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
     assert english.count("\n## ") == chinese.count("\n## ") == 6
     for command in (
-        'pip install -e ".[demo]"',
+        "uv sync --locked --extra demo --extra dev",
         "semiyield quickstart",
+        "semiyield demo quickstart",
+        "semiyield packaging benchmark",
         "semiyield data download-demo",
     ):
         assert command in english

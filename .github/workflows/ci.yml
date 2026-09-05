@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: "17 3 * * 1"
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,28 +17,43 @@ jobs:
         python-version: ["3.10", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-      - run: python -m pip install --upgrade pip
-      - run: pip install -e ".[dev]"
-      - run: ruff check src tests
-      - run: pytest --cov=semiyield --cov-report=term-missing
-      - run: python -m build
+          enable-cache: true
+      - run: uv sync --locked --extra dev --extra demo
+      - run: uv run --locked ruff check src tests scripts
+      - run: uv run --locked pytest --cov=semiyield --cov-report=term-missing
+      - run: uv build
+      - run: uv run --locked python -I scripts/update_star_history.py --help
+
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --locked --extra demo
+      - run: uv run --locked semiyield demo quickstart
+      - uses: actions/upload-artifact@v4
+        with:
+          name: semiyield-three-stage-demo
+          path: reports/demo/three_stage
 
   quick:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
-          cache: pip
-      - run: pip install -e ".[demo]"
+          enable-cache: true
+      - run: uv sync --locked --extra demo
       - run: >-
-          semiyield quickstart
+          uv run --locked semiyield quickstart
           --soft-memory-gb 4 --memory-limit-gb 6
       - uses: actions/upload-artifact@v4
         with:

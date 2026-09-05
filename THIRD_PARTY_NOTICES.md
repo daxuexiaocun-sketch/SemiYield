@@ -21,3 +21,10 @@ related NASA Open Data Portal record says “License not specified”. SemiYield
 redistribution as not cleared. Public reports contain aggregate metrics, figures and hashes only.
 
 The bundled `mosfet_lifetime_smoke.csv` is synthetic and is covered by the SemiYield project license. It is not derived from NASA.
+
+## Local packaging process inputs
+
+The optional files under `docs/Dataset_from_semiconductor_processes` are user-supplied local inputs.
+Their readme distinguishes raw and encoded CSVs and R models but does not specify reuse terms,
+feature semantics or throughput units. SemiYield does not bundle them in the wheel or use the R
+models. The new three-stage demo is generated synthetically and does not copy their records.

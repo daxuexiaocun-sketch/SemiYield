@@ -19,3 +19,9 @@ artifacts/
 catboost_info/
 *.joblib
 .DS_Store
+
+# Reproducible local demo artifacts and derived dependency exports
+reports/demo/
+reports/packaging/
+requirements-demo-py313.lock
+docs/Dataset_from_semiconductor_processes/

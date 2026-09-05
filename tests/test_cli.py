@@ -1,6 +1,6 @@
 from typer.testing import CliRunner
 
-import semiyield.cli as cli
+import semiyield.workflows as cli
 from semiyield.cli import app
 
 runner = CliRunner()
