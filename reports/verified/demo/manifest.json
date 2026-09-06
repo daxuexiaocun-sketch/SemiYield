@@ -74,15 +74,14 @@
     "value": 257.5891893426385
   },
   "artifacts": {
-    "README.md": "ae2b7cf6a997810425e588a12bbb23317956117ff741817884475b3fc1d1063a",
+    "README.md": "98273abb8d5f491937f23c9f8f2d3bfc41b8dbe7822f552fcfc69e1d639180f4",
     "metrics.csv": "d6df6d99d780e47821e8e17625af15b3d6f6dfb05eb43dc7d05a57304ae44f14",
     "metrics.json": "11a15a690a7d3c28f6274e97204e3fcb59dfc6c34d6c3c8a8b0724bab2b1fcd4",
-    "model_metrics.svg": "79049d6f28127934eabb5d2e982e41a08cff6cc59110c6fc09c347f6e4afe6f6",
+    "model_metrics.svg": "7793e52aaa0a621de5d5e4e330c00f1443b0588884739bc20fe49adb4378fedd",
     "reliability.json": "2803dc78fadcd18c4b4007d7decc398857f3cb858484755c6d9b3b9f37c87387",
-    "stage_flow.svg": "0533908bed8ff1225f187d6436a564bac0c5133b89781c552721615588fac765",
+    "stage_flow.svg": "afe22df6a07263c6ca66c8dde20418295a3f4e06de9f9040e373ac2e1dc60944",
     "stages.csv": "4cf6059333d9ab10b02c146e8f0a9d7bd07cadbe48fdeb4b785f4b13bb8e0e00",
-    "survival.svg": "f7dd0e801cf5110103f57dea17609547e4d3470a7c42312f92819f7520227b0d",
-    "throughput.svg": "09df421853fa84118b97123e7cfd031b59c72898ec0bcc74a954947a8a5bd1d8",
+    "survival.svg": "d5496abe50fd5e421f2faaf0e4668208c8c53fe55bdfc91f0201da9935d5f6fa",
     "weibull_curve.csv": "e6a8f31d9699a1373c7b9c1d1fc578fe40fb3b5cf437912e867d0120da70d60e"
   }
 }

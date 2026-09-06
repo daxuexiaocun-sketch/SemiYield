@@ -12,7 +12,7 @@ configuration, input identity, split protocol, and artifact hashes.
 SECOM repeated cross-validation: CatBoost PR-AUC **0.167** and 10% review capture **0.269**.
 This is a process-risk screening result, not a causal diagnosis.
 
-![Manufacturing repeated-CV models](yield/benchmark_pr_auc.svg)
+![Manufacturing PR-AUC by model](yield/benchmark_pr_auc.svg)
 
 [Aggregate metrics](yield/summary.csv) · [fold metrics](yield/fold_metrics.csv) · [manifest](yield/manifest.json)
 
@@ -22,10 +22,12 @@ Local mixed process data, with low throughput defined from each training fold. L
 **0.882**, ROC-AUC **0.979**, recall **0.943**, F1 **0.773**, and MCC **0.759**. This is a
 random three-fold internal-validation result for a throughput proxy label; it does not establish
 new-batch, machine, recipe, or time-period performance.
+Packaging is a different task from Manufacturing: it predicts a low-throughput operational proxy from
+mixed process settings, whereas Manufacturing screens SECOM failure labels from sensor measurements.
 
-![Packaging metric matrix](packaging/benchmark_summary.svg)
+![Packaging proxy-failure metrics by model](packaging/benchmark_summary.svg)
 
-![Packaging threshold provenance](packaging/thresholds.svg)
+![Packaging proxy-label threshold provenance](packaging/thresholds.svg)
 
 [Aggregate metrics](packaging/summary.csv) · [fold metrics](packaging/fold_metrics.csv) · [manifest](packaging/manifest.json)
 
@@ -33,10 +35,11 @@ new-batch, machine, recipe, or time-period performance.
 
 NASA MOSFET data at ΔRDS(on)=0.045 Ω: Weibull β **0.832**, η **10,553 s**, B10 **706 s**.
 The 55 °C result is an accelerated-life extrapolation and needs mechanism validation.
+The NASA curves use real stress-test MOSFET data and are not comparable to the synthetic Demo survival curve.
 
-![All-device degradation](nasa/degradation_trends.svg)
+![NASA MOSFET degradation trajectories](nasa/degradation_trends.svg)
 
-![Weibull survival](reliability_0045/weibull_survival.svg)
+![NASA MOSFET Weibull and Kaplan-Meier survival](reliability_0045/weibull_survival.svg)
 
 [Lifetime report](reliability_0045/reliability_report.json) · [curve data](reliability_0045/weibull_curve.csv)
 
@@ -48,8 +51,6 @@ pass fraction. It is not real SECOM, packaging, or NASA evidence.
 ![Synthetic stage flow](demo/stage_flow.svg)
 
 ![Synthetic model matrix](demo/model_metrics.svg)
-
-![Synthetic throughput threshold](demo/throughput.svg)
 
 ![Synthetic survival and censoring](demo/survival.svg)
 

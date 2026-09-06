@@ -26,25 +26,35 @@ def write_benchmark_charts(
     plt.rcParams["svg.hashsalt"] = "semiyield-packaging-v1"
     metrics = ["pr_auc", "roc_auc", "recall", "precision", "f1", "mcc"]
     available = [metric for metric in metrics if metric in summary]
-    matrix = summary.reindex(columns=available).to_numpy(dtype=float)
+    matrix = summary.reindex(columns=available)
     figure, axis = plt.subplots(figsize=(10, 4.8))
-    image = axis.imshow(matrix, vmin=0, vmax=1, cmap="YlOrBr")
-    axis.set_xticks(
-        range(len(available)), [metric.replace("_", " ").upper() for metric in available]
-    )
-    axis.set_yticks(range(len(summary.index)), [str(model).title() for model in summary.index])
-    for row, model in enumerate(summary.index):
-        for column, metric in enumerate(available):
-            value = summary.loc[model, metric]
-            label = "N/A" if pd.isna(value) else f"{value:.3f}"
-            axis.text(column, row, label, ha="center", va="center", fontsize=10)
-    figure.colorbar(image, ax=axis, label="Aggregate score / 聚合分数")
-    axis.set_title(
-        "Packaging proxy failure / 封测低吞吐代理失效\n"
-        "Random three-fold internal validation / 随机三折内部验证"
-    )
-    axis.set_xlabel("Metrics / 指标")
-    axis.set_ylabel("Model / 模型")
+    x = range(len(available))
+    width = 0.8 / max(1, len(matrix.index))
+    colors = {"dummy": "#9aa9b8", "logistic": "#2878b5", "catboost": "#d47832"}
+    for position, (model, values) in enumerate(matrix.iterrows()):
+        bars = axis.bar(
+            [v + (position - (len(matrix.index) - 1) / 2) * width for v in x],
+            values.to_numpy(dtype=float),
+            width=width,
+            label=str(model).title(),
+            color=colors.get(str(model), "#516174"),
+        )
+        for bar, value in zip(bars, values, strict=True):
+            if pd.notna(value):
+                axis.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    value + 0.02,
+                    f"{value:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=8,
+                )
+    axis.set_xticks(list(x), [metric.replace("_", " ").upper() for metric in available])
+    axis.set_ylim(0, 1.08)
+    axis.set_title("Packaging proxy failure · random three-fold internal validation")
+    axis.set_xlabel("Metric (proxy label, not physical failure)")
+    axis.set_ylabel("Score")
+    axis.legend(title="Model", loc="upper right")
     matrix_path = destination / "benchmark_summary.svg"
     paths = [
         save_svg(
@@ -52,7 +62,7 @@ def write_benchmark_charts(
             matrix_path,
             title="Packaging proxy-failure model metrics",
             description=(
-                "Three-fold internal validation metric matrix. The label is a throughput proxy, "
+                "Three-fold internal validation metric bars. The label is a throughput proxy, "
                 "not physical device failure."
             ),
         )
@@ -60,16 +70,22 @@ def write_benchmark_charts(
     plt.close(figure)
     thresholds = fold_metrics.loc[:, ["fold", "model", "throughput_threshold"]].drop_duplicates()
     figure, axis = plt.subplots(figsize=(8.6, 4.2))
+    offsets = {"dummy": -0.08, "logistic": 0.08, "catboost": 0.0}
     for model, rows in thresholds.groupby("model", sort=True):
-        axis.scatter(rows["fold"], rows["throughput_threshold"], s=72, label=str(model).title())
+        axis.scatter(
+            rows["fold"] + offsets.get(str(model), 0),
+            rows["throughput_threshold"],
+            s=72,
+            label=str(model).title(),
+        )
     axis.set(
-        xlabel="Outer fold / 外层折",
-        ylabel="Training throughput threshold / 训练吞吐阈值",
-        title="Packaging threshold provenance / 封测阈值溯源",
+        xlabel="Outer fold",
+        ylabel="Training throughput threshold",
+        title="Packaging proxy-label threshold provenance",
     )
     axis.set_xticks(sorted(thresholds.fold.unique()))
     axis.grid(alpha=0.25)
-    axis.legend(title="Model / 模型")
+    axis.legend(title="Model")
     threshold_path = destination / "thresholds.svg"
     paths.append(
         save_svg(

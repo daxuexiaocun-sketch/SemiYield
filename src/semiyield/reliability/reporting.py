@@ -46,7 +46,7 @@ def write_reliability_charts(
         where="post",
         color="#2878b5",
         linewidth=2,
-        label="Kaplan–Meier / 经验生存",
+        label="Kaplan–Meier (empirical)",
     )
     axis.plot(
         curve["time"],
@@ -54,7 +54,7 @@ def write_reliability_charts(
         color="#4f8f6b",
         linestyle="--",
         linewidth=2,
-        label="Weibull fit / Weibull 拟合",
+        label="Weibull fit (continuous)",
     )
     censored = lifetime.loc[lifetime.event_observed.eq(0)]
     if len(censored):
@@ -64,12 +64,12 @@ def write_reliability_charts(
             marker="+",
             color="#172033",
             s=30,
-            label=f"Censored / 删失: {len(censored)}",
+            label=f"Right-censored: {len(censored):,}",
         )
     axis.set(
-        xlabel="Time / 时间",
-        ylabel="Survival probability / 生存概率",
-        title="Lifetime survival with censoring / 含右删失的寿命生存",
+        xlabel="Stress time (s)",
+        ylabel="Survival probability",
+        title="NASA MOSFET lifetime · Weibull and Kaplan–Meier",
     )
     axis.set_ylim(0, 1.02)
     axis.grid(alpha=0.25)
@@ -93,7 +93,7 @@ def write_reliability_charts(
             color="#4f8f6b",
             alpha=0.78,
             s=48,
-            label=f"Events / 事件: {len(events)}",
+            label=f"Events: {len(events):,}",
         )
         axis.scatter(
             censored["temperature_c"],
@@ -102,7 +102,7 @@ def write_reliability_charts(
             color="#172033",
             s=54,
             linewidths=1.6,
-            label=f"Censored / 删失: {len(censored)}",
+            label=f"Right-censored: {len(censored):,}",
         )
         times = pd.to_numeric(lifetime["time_to_event"], errors="coerce")
         if times.gt(0).all() and times.max() / times.min() >= 100:
@@ -113,11 +113,11 @@ def write_reliability_charts(
         axis.set(
             xlabel="Stress temperature (°C)",
             ylabel=time_label,
-            title="Accelerated-life observations / 加速寿命观测",
+            title="NASA MOSFET accelerated-life observations",
         )
         axis.grid(alpha=0.25)
         axis.axvline(
-            55, color="#d47832", linestyle="--", label="55 °C use extrapolation / 使用温度外推"
+            55, color="#d47832", linestyle="--", label="55 °C use-temperature extrapolation"
         )
         axis.margins(x=0.04, y=0.12)
         axis.legend(loc="upper left", fontsize=8)
@@ -160,7 +160,7 @@ def write_degradation_chart(features: pd.DataFrame, output: str | Path) -> Path 
     axis.set(
         xlabel="Cumulative measured aging time (minutes)",
         ylabel="Temperature-corrected ΔRDS(on) (Ω)",
-        title="NASA MOSFET degradation / NASA MOSFET 退化轨迹",
+        title="NASA MOSFET degradation trajectories",
     )
     axis.set_ylim(-0.1, 0.25)
     axis.grid(alpha=0.2)

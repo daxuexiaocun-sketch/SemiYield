@@ -6,7 +6,7 @@
 <g font-family="Arial, sans-serif" fill="#172033">
 <text x="58" y="66" font-size="38" font-weight="700">SemiYield · detailed four-route workflow</text><text x="58" y="103" font-size="18" fill="#516174">Each route states its evidence, transformation, method, output and decision boundary. The fourth route validates the cross-stage flow with synthetic data.</text>
 <g fill="#fff" stroke="#d7e0ec" stroke-width="2"><rect x="42" y="145" width="350" height="710" rx="20"/><rect x="426" y="145" width="350" height="710" rx="20"/><rect x="810" y="145" width="350" height="710" rx="20"/><rect x="1194" y="145" width="350" height="710" rx="20"/></g>
-<g font-size="16">
+<g font-size="10">
 <text x="68" y="187" font-size="20" font-weight="700" fill="#2878b5">01 · MANUFACTURING YIELD</text><text x="68" y="216" fill="#516174">Real SECOM process evidence</text>
 <rect x="68" y="245" width="298" height="86" rx="12" fill="#e8f2fb"/><text x="84" y="275" font-weight="700">Input</text><text x="84" y="303">SECOM sensors · timestamps · failure labels</text><path d="M217 331v28" stroke="#91a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
 <rect x="68" y="370" width="298" height="100" rx="12" fill="#edf5fb"/><text x="84" y="400" font-weight="700">Prepare</text><text x="84" y="428">Schema / quality checks · missing-value handling</text><text x="84" y="452">Training-only feature selection and scaling</text><path d="M217 470v28" stroke="#91a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>

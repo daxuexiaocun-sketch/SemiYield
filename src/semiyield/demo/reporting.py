@@ -35,9 +35,9 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
         paths.append(name)
 
     figure, axis = plt.subplots(figsize=(10, 4.8))
-    labels = ["Manufacturing\n制造", "Packaging\n封测", "Lifetime\n寿命"]
+    labels = ["Manufacturing", "Packaging", "Lifetime"]
     values = stages.entered.to_numpy()
-    axis.plot(range(3), values, color="#7654b8", linewidth=3, marker="o", markersize=10)
+    bars = axis.bar(labels, values, color="#7654b8", width=0.62)
     for position, row in stages.reset_index(drop=True).iterrows():
         if row.stage == "lifetime":
             detail = f"{int(row.observed_failures):,} events / {int(row.censored):,} censored"
@@ -45,15 +45,15 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
             detail = f"{int(row.observed_failures):,} rejected ({row.failure_rate:.1%})"
         axis.annotate(
             f"{int(row.entered):,}\n{detail}",
-            (position, row.entered),
+            (bars[position].get_x() + bars[position].get_width() / 2, row.entered),
             xytext=(0, 12),
             textcoords="offset points",
             ha="center",
             fontsize=9,
         )
     axis.annotate(
-        f"Overall process pass / 总工艺通过率: {values[-1] / values[0]:.2%}",
-        (1, max(values) * 0.83),
+        f"Overall process pass: {values[-1] / values[0]:.2%}",
+        (1, max(values) * 1.12),
         ha="center",
         fontsize=11,
         fontweight="bold",
@@ -61,11 +61,11 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
     axis.set(
         xticks=range(3),
         xticklabels=labels,
-        ylabel="Devices entering stage / 进入阶段器件数",
-        title="Synthetic end-to-end observed flow / 合成端到端观测流转",
+        ylabel="Devices entering stage",
+        title="Synthetic end-to-end observed flow",
     )
-    axis.set_xlim(-0.25, 2.25)
-    axis.set_ylim(0, max(values) * 1.18)
+    axis.set_xlim(-0.5, 2.5)
+    axis.set_ylim(0, max(values) * 1.28)
     axis.grid(axis="y", alpha=0.25)
     save(
         figure,
@@ -77,11 +77,11 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
     score_columns = ["pr_auc", "roc_auc", "f1", "mcc"]
     figure, axis = plt.subplots(figsize=(10, 4.8))
     matrix = metrics.reindex(columns=score_columns).to_numpy(dtype=float)
-    image = axis.imshow(np.ma.masked_invalid(matrix), vmin=0, vmax=1, cmap="Purples")
+    image = axis.imshow(np.ma.masked_invalid(matrix), vmin=0, vmax=1, cmap="Blues")
     axis.set_xticks(range(len(score_columns)), ["PR-AUC", "ROC-AUC", "F1", "MCC"])
     axis.set_yticks(
         range(len(metrics)),
-        [f"{r.stage.title()} / {r.model.title()}" for r in metrics.itertuples()],
+        [f"{r.stage.title()} · {r.model.title()}" for r in metrics.itertuples()],
     )
     for row, record in enumerate(metrics.itertuples()):
         for column, key in enumerate(score_columns):
@@ -89,8 +89,8 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
             axis.text(
                 column, row, "N/A" if pd.isna(value) else f"{value:.3f}", ha="center", va="center"
             )
-    figure.colorbar(image, ax=axis, label="Holdout score / 留出集分数")
-    axis.set(title="Batch-isolated model evaluation / 批次隔离模型评估")
+    figure.colorbar(image, ax=axis, label="Holdout score")
+    axis.set(title="Synthetic batch-held-out model evaluation")
     save(
         figure,
         "model_metrics.svg",
@@ -99,29 +99,6 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
         "N/A values remain visible.",
     )
 
-    figure, axis = plt.subplots(figsize=(9.2, 4.5))
-    for split, rows in packaging.groupby("split", sort=True):
-        axis.hist(rows.Y, bins=40, alpha=0.58, label=f"{split.title()} / {len(rows):,}")
-    if threshold is not None:
-        axis.axvline(
-            threshold,
-            color="#d47832",
-            linewidth=2,
-            label=f"Training threshold / 训练阈值: {threshold:.1f}",
-        )
-    failures = int(packaging.proxy_failed.sum())
-    axis.legend(title=f"Proxy failures / 代理失效: {failures:,}")
-    axis.set(
-        xlabel="Synthetic throughput (units/hour)",
-        ylabel="Devices",
-        title="Low-throughput proxy label / 低吞吐代理标签",
-    )
-    save(
-        figure,
-        "throughput.svg",
-        "Synthetic packaging throughput threshold",
-        "Training and test throughput distributions with a training-only proxy-failure threshold.",
-    )
     figure, axis = plt.subplots(figsize=(9.2, 4.5))
     training = lifetime.loc[lifetime.split.eq("train")]
     empirical = _kaplan_meier(training) if len(training) else None
@@ -132,7 +109,7 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
             where="post",
             color="#7654b8",
             linewidth=2,
-            label="Kaplan–Meier / 经验生存",
+        label="Kaplan–Meier (empirical)",
         )
     if curve is not None:
         axis.plot(
@@ -141,7 +118,7 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
             color="#4f8f6b",
             linestyle="--",
             linewidth=2,
-            label="Weibull fit / Weibull 拟合",
+            label="Weibull fit (continuous)",
         )
     if len(training):
         censored = training.loc[training.event_observed.eq(0)]
@@ -152,13 +129,13 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
                 marker="+",
                 color="#172033",
                 s=28,
-                label=f"Censored / 删失: {len(censored):,}",
+                label=f"Right-censored: {len(censored):,}",
             )
         axis.text(
             0.98,
             0.08,
-            f"Events / 事件: {int(training.event_observed.sum()):,}\n"
-            f"Training / 训练: {len(training):,}",
+            f"Events: {int(training.event_observed.sum()):,}\n"
+            f"Training: {len(training):,}",
             transform=axis.transAxes,
             ha="right",
             va="bottom",
@@ -169,7 +146,7 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
         xlabel="Time (hours)",
         ylabel="Survival probability",
         ylim=(0, 1.02),
-        title="Synthetic lifetime with censoring / 合成寿命与右删失",
+        title="Synthetic lifetime with censoring",
     )
     axis.legend(loc="upper right")
     save(
@@ -212,9 +189,9 @@ def write_report(output, manifest, stages, metrics, reliability, charts):
         if manifest["throughput_threshold"] is not None
         else "Unavailable: no training devices reached packaging."
     )
-    content = f"""# 三环节模拟演示 / Three-stage synthetic demonstration
+    content = f"""# Three-stage synthetic demonstration
 
-**全部数据为 synthetic，不代表 SECOM、NASA 或真实封测实验结论。**
+**All data are synthetic and do not represent SECOM, NASA, or real packaging experiments.**
 
 Seed: {manifest["seed"]}. Split: nominal 80/20 by batch (test batches rounded up),
 shared across all stages.
@@ -222,7 +199,7 @@ The packaging label threshold is derived only from manufacturing-passed training
 {threshold_text}
 No latent variables, IDs, labels, throughput targets or future outcomes are model inputs.
 
-## 阶段流转 / Observed stage flow
+## Observed stage flow
 
 {markdown_table(stages)}
 
@@ -231,7 +208,7 @@ Manufacturing and packaging rates are conditional on entry to each stage.
 Lifetime events occur after both stages passed; censoring is not a pass label.
 Post-shipment lifetime is not combined with process rates into one failure probability.
 
-## 留出评估 / Holdout evaluation
+## Holdout evaluation
 
 {markdown_table(summary)}
 
@@ -243,9 +220,10 @@ Arrhenius fitting uses eligible training stress groups only; see
 [reliability.json](reliability.json) for status and extrapolation limits.
 Lifetime analysis status: {reliability["status"]}.
 
-## 图表 / Charts
+## Charts
 
 """
+    charts = [name for name in charts if name != "throughput.svg"]
     content += "\n\n".join(f"![{name.removesuffix('.svg')}]({name})" for name in charts)
     content += "\n\n[Stage counts](stages.csv)"
     content += " · [Metrics](metrics.csv) · [Provenance and hashes](manifest.json)\n"

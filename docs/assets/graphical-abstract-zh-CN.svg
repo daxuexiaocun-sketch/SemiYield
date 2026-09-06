@@ -6,7 +6,7 @@
 <g font-family="Arial, 'Microsoft YaHei', sans-serif" fill="#172033">
 <text x="58" y="66" font-size="38" font-weight="700">SemiYield · 四线路详细技术流程</text><text x="58" y="103" font-size="18" fill="#516174">每条线路独立呈现证据、处理、方法、输出与边界；第四条线路用 synthetic 数据验证跨阶段流转。</text>
 <g fill="#fff" stroke="#d7e0ec" stroke-width="2"><rect x="42" y="145" width="350" height="710" rx="20"/><rect x="426" y="145" width="350" height="710" rx="20"/><rect x="810" y="145" width="350" height="710" rx="20"/><rect x="1194" y="145" width="350" height="710" rx="20"/></g>
-<g font-size="16">
+<g font-size="10">
 <text x="68" y="187" font-size="20" font-weight="700" fill="#2878b5">01 · 制造良率</text><text x="68" y="216" fill="#516174">SECOM 真实工艺证据</text><rect x="68" y="245" width="298" height="86" rx="12" fill="#e8f2fb"/><text x="84" y="275" font-weight="700">输入</text><text x="84" y="303">SECOM 传感器 · 时间戳 · 失效标签</text><path d="M217 331v28" stroke="#91a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
 <rect x="68" y="370" width="298" height="100" rx="12" fill="#edf5fb"/><text x="84" y="400" font-weight="700">清洗与特征</text><text x="84" y="428">模式/质量校验 · 缺失值处理</text><text x="84" y="452">仅训练集特征筛选和缩放</text><path d="M217 470v28" stroke="#91a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
 <rect x="68" y="509" width="298" height="100" rx="12" fill="#e8f2fb"/><text x="84" y="539" font-weight="700">建模与评估</text><text x="84" y="567">Dummy / 逻辑回归 / 可选 CatBoost</text><text x="84" y="591">交叉验证 · 校准 · 复检预算阈值</text><path d="M217 609v28" stroke="#91a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>

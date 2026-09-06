@@ -1,6 +1,6 @@
-# 三环节模拟演示 / Three-stage synthetic demonstration
+# Three-stage synthetic demonstration
 
-**全部数据为 synthetic，不代表 SECOM、NASA 或真实封测实验结论。**
+**All data are synthetic and do not represent SECOM, NASA, or real packaging experiments.**
 
 Seed: 42. Split: nominal 80/20 by batch (test batches rounded up),
 shared across all stages.
@@ -8,7 +8,7 @@ The packaging label threshold is derived only from manufacturing-passed training
 `Y < 257.5891893426385` (synthetic units/hour). Equality passes.
 No latent variables, IDs, labels, throughput targets or future outcomes are model inputs.
 
-## 阶段流转 / Observed stage flow
+## Observed stage flow
 
 | stage | dataset_role | entered | observed_failures | unknown_outcomes | passed | censored | failure_rate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ Manufacturing and packaging rates are conditional on entry to each stage.
 Lifetime events occur after both stages passed; censoring is not a pass label.
 Post-shipment lifetime is not combined with process rates into one failure probability.
 
-## 留出评估 / Holdout evaluation
+## Holdout evaluation
 
 | stage | model | status | pr_auc | roc_auc | f1 | mcc | reason |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -38,13 +38,11 @@ Arrhenius fitting uses eligible training stress groups only; see
 [reliability.json](reliability.json) for status and extrapolation limits.
 Lifetime analysis status: completed.
 
-## 图表 / Charts
+## Charts
 
 ![stage_flow](stage_flow.svg)
 
 ![model_metrics](model_metrics.svg)
-
-![throughput](throughput.svg)
 
 ![survival](survival.svg)
 

@@ -1,55 +1,55 @@
 {
   "schema_version": "semiyield-reliability-report-v1",
-  "created_at": "2026-07-30T07:27:34.974993+00:00",
-  "data_sha256": "9d985874d368c5a3ddada05b2f537591140719a3bb1c80c78a8f224b1789e854",
+  "data_sha256": "6a087138f5449debae214cd416645721741ad3548cc150ba472451933678e52f",
   "weibull": {
-    "beta": 0.8428097012577594,
-    "eta": 10714.53953876245,
-    "b10": 741.9481086371667,
-    "failures": 32,
-    "censored": 9,
-    "log_likelihood": -329.78459424643944,
+    "beta": 0.8896123122113629,
+    "eta": 14119.316709881756,
+    "b10": 1125.1758311363712,
+    "failures": 28,
+    "censored": 13,
+    "log_likelihood": -295.67830382778556,
     "beta_ci95": [
-      0.57571648431518,
-      1.2338159699893527
+      0.5523542454659344,
+      1.432794393334407
     ],
     "eta_ci95": [
-      6214.341152258348,
-      18473.61686700834
+      8263.22118562318,
+      24125.592172311142
     ]
   },
   "arrhenius_weibull": {
-    "beta": 0.7603351310822535,
-    "intercept": -3.4898303359926066,
-    "activation_energy_ev": 0.43086395925591014,
+    "beta": 0.9099195305980163,
+    "intercept": -2.7245364988051155,
+    "activation_energy_ev": 0.43086413348519303,
     "use_temperature_c": 55.0,
-    "eta_at_use": 126374.92657229037,
-    "b10_at_use": 6550.547095495508,
-    "failures": 27,
-    "censored": 6,
+    "eta_at_use": 271660.49182807154,
+    "b10_at_use": 22906.10045393973,
+    "failures": 21,
+    "censored": 9,
     "observed_temperature_range_c": [
-      87.20379694055426,
-      144.03005615086786
+      107.0302852779082,
+      153.56308734203589
     ],
     "extrapolation_warning": "Use temperature is outside the observed stress range; lifetime is an extrapolation that requires mechanism validation."
   },
   "survival_forest": {
     "status": "completed",
-    "c_index": 0.8064516129032258,
+    "c_index": 0.9047619047619048,
+    "c_index_note": "",
     "c_index_bootstrap_ci95": [
-      0.5,
+      0.5882352941176471,
       1.0
     ],
-    "integrated_brier_score": 0.14469237105631563,
+    "integrated_brier_score": 0.13932008669303195,
     "integrated_brier_score_note": "",
-    "observed_failure_median_lifetime_mae": 3639.7968566481554,
+    "observed_failure_median_lifetime_mae": 7122.185201123359,
     "train_units": 32,
     "test_units": 9,
     "split_source": "input_manifest"
   },
   "artifacts": {
-    "weibull_curve.csv": "b2d2f66fd7904155c4658e7202eeb3741a6b7abaf4d323044207a89cbde44bbb",
-    "weibull_survival.svg": "8658b5fcd5fe95b24685fbe7d0daa758a9a3b81c5383a010296ce72c5cafe111",
-    "accelerated_life.svg": "d07da0fb16c8e57e2958a10d7abf07aa865cdb6fc56a15e90258df168c6bfcbc"
+    "weibull_curve.csv": "b68d27d1a546ac6c82bd86812fbdf2ecd64a341d7e40fda39fdbd9020c93e34c",
+    "weibull_survival.svg": "2bd98d54aa9d52c21a352498eb525ab41f479d9bc44c69d97719b5c6101aed78",
+    "accelerated_life.svg": "84390c71e567f2b5a602574cba6385ae453a66b03eddc67bb4c6665007e551df"
   }
 }

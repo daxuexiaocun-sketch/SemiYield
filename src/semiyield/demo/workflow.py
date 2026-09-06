@@ -188,6 +188,7 @@ def _run_into(data_dir, output: Path):
                     "trace.csv",
                     "packaging_observed.csv",
                     "lifetime_observed.csv",
+                    "throughput.svg",
                 }
             },
         },
