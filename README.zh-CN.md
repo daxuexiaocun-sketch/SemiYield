@@ -46,26 +46,18 @@ uv run semiyield reliability report --profile quick
 NASA 数据准备详见 [NASA 数据流水线](docs/NASA_PIPELINE.md)。
 依赖统一以 `uv.lock` 为准，extras 需要显式选择，详见[业务架构与环境说明](docs/ARCHITECTURE.md)。
 
-## 四线路参考结果
+## 四线路结果仪表盘
 
-| 线路 | 输入与证据性质 | 方法 | 已发布聚合结果 | 复现方式 |
-|---|---|---|---|---|
-| 制造良率 | UCI SECOM 真实工艺/失效标签 | 重复交叉验证风险筛查 | CatBoost PR-AUC **0.167**；10% 复检捕获率 **0.269** | `semiyield yield benchmark --profile quick` |
-| 封测过程 | 本地混合过程数据；吞吐代理标签 | 训练期 10% 阈值、三折基准 | 逻辑回归 PR-AUC **0.882**、ROC-AUC **0.979**、召回率 **0.943**、MCC **0.759** | `semiyield packaging benchmark --input-csv …` |
-| 器件寿命 | NASA 功率 MOSFET 观测 | Weibull 与加速寿命分析 | ΔRDS(on)=0.045 Ω 时 β **0.832**、η **10,553 s**、B10 **706 s** | 见 [NASA 数据流水线](docs/NASA_PIPELINE.md) |
-| 三阶段演示 | 合成关联批次与器件 | 批次隔离流转与留出集评估 | 工艺通过率 80.73%；封测逻辑回归 PR-AUC **0.680** | `semiyield demo quickstart` |
+![四线路结果总览](docs/assets/results-overview.svg)
 
-封测线路是**低吞吐代理失效**结果，不能证明器件物理失效；三阶段演示完全为 **synthetic**，不代表 SECOM、NASA 或真实封测实验结论。
+| 线路 | 主要结果 | 证据边界 | 复现与详情 |
+|---|---|---|---|
+| 制造良率 | CatBoost PR-AUC **0.167** | SECOM 实测筛查，不是因果诊断 | `semiyield yield benchmark --profile quick` · [报告](reports/verified/README.md#manufacturing-yield) |
+| 封测过程 | 逻辑回归 PR-AUC **0.882** | 低吞吐代理；仅随机内部验证 | `semiyield packaging benchmark --input-csv …` · [报告](reports/verified/README.md#packaging-process) |
+| 器件寿命 | Weibull B10 **706 s** | NASA 应力证据；使用温度结果为外推 | [报告](reports/verified/README.md#device-lifetime) |
+| 三阶段演示 | 工艺通过率 **80.73%** | synthetic 批次隔离验证 | `semiyield demo quickstart` · [报告](reports/verified/demo/README.md) |
 
-![SECOM 重复交叉验证 PR-AUC](reports/verified/yield/benchmark_pr_auc.svg)
-
-![封测代理失效模型对比](reports/verified/packaging/benchmark_summary.svg)
-
-![NASA MOSFET 退化轨迹](reports/verified/nasa/degradation_trends.svg)
-
-![合成三阶段漏斗](reports/verified/demo/stage_funnel.svg)
-
-完整方法与溯源见[封测聚合产物](reports/verified/packaging/manifest.json)和[合成三阶段报告](reports/verified/demo/README.md)。
+封测线路是**低吞吐代理失效**结果，不能证明器件物理失效。原始来源没有批次或时间标识，已发布的随机三折结果不能代表新生产批次、机台、配方或时间段的性能。三阶段演示完全为 **synthetic**，不代表 SECOM、NASA 或真实封测实验结论。
 
 ## 数据与适用范围
 

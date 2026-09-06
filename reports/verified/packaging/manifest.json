@@ -330,6 +330,7 @@
   "artifacts": {
     "summary.csv": "6ab94d1f98930858696a5bfcc997cc2faa9b99bc67cf90946429bff0969d45b3",
     "fold_metrics.csv": "f0b81663be20d90ed66aa28d9c9d56e9ff6b064a608b41faf059d60ab3e0125b",
-    "benchmark_summary.svg": "4e8f395c3146286fa3113e65c73937d770142d9f105153b0a32b510ddc494f69"
+    "benchmark_summary.svg": "1a31313b87391da903a1d71d0556551de0a5cfe3f3f7ccbfbd91cc9bceb9b28a",
+    "thresholds.svg": "9bee355fed0656928e4981955c82b0304780e986d9e421b4531359dfe4910a3c"
   }
 }

@@ -165,7 +165,7 @@ def _run_into(data_dir, output: Path):
     packaging.to_csv(output / "packaging_observed.csv", index=False)
     lifetime.to_csv(output / "lifetime_observed.csv", index=False)
     trace.to_csv(output / "trace.csv", index=False)
-    charts = write_charts(output, stages, metrics, packaging, threshold, curve)
+    charts = write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
     report_manifest = {**manifest, "throughput_threshold": threshold, "threshold": threshold_info}
     write_report(output, report_manifest, stages, metrics, reliability, charts)
     write_json_report(

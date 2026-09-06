@@ -63,7 +63,14 @@ def test_offline_demo_reports_and_routing_counts(tmp_path, monkeypatch):
     metrics = json.loads((output / "metrics.json").read_text())
     assert len(metrics) == 4
     assert all(row["status"] == "completed" for row in metrics)
-    assert len(list(output.glob("*.svg"))) == 5
+    assert {path.name for path in output.glob("*.svg")} == {
+        "stage_flow.svg",
+        "model_metrics.svg",
+        "throughput.svg",
+        "survival.svg",
+    }
+    assert "Events / 事件" in (output / "survival.svg").read_text(encoding="utf-8")
+    assert "Censored / 删失" in (output / "survival.svg").read_text(encoding="utf-8")
     with pytest.raises(ValueError, match="Output exists"):
         run(data, output)
     with pytest.raises(ValueError, match="separate"):

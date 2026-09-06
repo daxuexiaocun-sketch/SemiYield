@@ -59,13 +59,13 @@ def test_documentation_svgs_are_portable():
 def test_four_route_reference_assets_are_linked_and_aggregate_only():
     for readme in (ROOT / "README.md", ROOT / "README.zh-CN.md"):
         content = readme.read_text(encoding="utf-8")
-        for asset in (
-            "reports/verified/yield/benchmark_pr_auc.svg",
-            "reports/verified/packaging/benchmark_summary.svg",
-            "reports/verified/nasa/degradation_trends.svg",
-            "reports/verified/demo/stage_funnel.svg",
-        ):
-            assert asset in content
-            assert (ROOT / asset).is_file()
+        assert "docs/assets/results-overview.svg" in content
+    for asset in (
+        "docs/assets/results-overview.svg",
+        "reports/verified/yield/benchmark_pr_auc.svg",
+        "reports/verified/packaging/benchmark_summary.svg",
+        "reports/verified/nasa/degradation_trends.svg",
+    ):
+        assert (ROOT / asset).is_file()
     public_demo = ROOT / "reports" / "verified" / "demo" / "README.md"
     assert "example_trace.csv" not in public_demo.read_text(encoding="utf-8")

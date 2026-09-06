@@ -12,9 +12,9 @@ No latent variables, IDs, labels, throughput targets or future outcomes are mode
 
 | stage | dataset_role | entered | observed_failures | unknown_outcomes | passed | censored | failure_rate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| manufacturing | synthetic | 10000 | 992 | 0 | 9008.0 | N/A | 0.0992 |
-| packaging | synthetic | 9008 | 935 | 0 | 8073.0 | N/A | 0.10379662522202486 |
-| lifetime | synthetic | 8073 | 4305 | 0 | N/A | 3768.0 | 0.5332590115198811 |
+| manufacturing | synthetic | 10000 | 992 | 0 | 9008.000 | N/A | 0.099 |
+| packaging | synthetic | 9008 | 935 | 0 | 8073.000 | N/A | 0.104 |
+| lifetime | synthetic | 8073 | 4305 | 0 | N/A | 3768.000 | 0.533 |
 
 Overall process pass fraction: 8073/10000 = 80.73%.
 Manufacturing and packaging rates are conditional on entry to each stage.
@@ -23,12 +23,12 @@ Post-shipment lifetime is not combined with process rates into one failure proba
 
 ## 留出评估 / Holdout evaluation
 
-| stage | model | status | pr_auc | roc_auc | reason |
-| --- | --- | --- | --- | --- | --- |
-| manufacturing | dummy | completed | 0.1085 | 0.5 | N/A |
-| manufacturing | logistic | completed | 0.2712368464705485 | 0.7280227235720876 | N/A |
-| packaging | dummy | completed | 0.11890072910824454 | 0.5 | N/A |
-| packaging | logistic | completed | 0.6801468971678741 | 0.9344907101593746 | N/A |
+| stage | model | status | pr_auc | roc_auc | f1 | mcc | reason |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| manufacturing | dummy | completed | 0.108 | 0.500 | 0.000 | N/A | N/A |
+| manufacturing | logistic | completed | 0.271 | 0.728 | 0.282 | 0.189 | N/A |
+| packaging | dummy | completed | 0.119 | 0.500 | 0.000 | N/A | N/A |
+| packaging | logistic | completed | 0.680 | 0.934 | 0.571 | 0.535 | N/A |
 
 Dummy and logistic models train on training batches only. Model predictions do not route devices.
 Undefined metrics and skipped fits carry reasons in [metrics.json](metrics.json).
@@ -40,11 +40,9 @@ Lifetime analysis status: completed.
 
 ## 图表 / Charts
 
-![stage_funnel](stage_funnel.svg)
+![stage_flow](stage_flow.svg)
 
-![stage_failure_rates](stage_failure_rates.svg)
-
-![model_comparison](model_comparison.svg)
+![model_metrics](model_metrics.svg)
 
 ![throughput](throughput.svg)
 

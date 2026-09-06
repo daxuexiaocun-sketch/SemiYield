@@ -3,8 +3,24 @@
 import numpy as np
 import pandas as pd
 
+from semiyield.common.reporting import save_svg
 
-def write_charts(output, stages, metrics, packaging, threshold, curve):
+
+def _kaplan_meier(frame: pd.DataFrame) -> pd.DataFrame:
+    """Compute a compact empirical survival curve without an extra dependency."""
+    rows = frame.sort_values("time_to_event")
+    survival = 1.0
+    values = [(0.0, survival)]
+    for time, group in rows.groupby("time_to_event", sort=True):
+        at_risk = int((rows.time_to_event >= time).sum())
+        events = int(group.event_observed.sum())
+        if at_risk and events:
+            survival *= 1 - events / at_risk
+        values.append((float(time), survival))
+    return pd.DataFrame(values, columns=["time", "survival_probability"])
+
+
+def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve):
     import matplotlib
 
     matplotlib.use("Agg")
@@ -13,63 +29,155 @@ def write_charts(output, stages, metrics, packaging, threshold, curve):
     plt.rcParams["svg.hashsalt"] = "semiyield-three-stage-v1"
     paths = []
 
-    def save(figure, name):
-        figure.tight_layout()
-        figure.savefig(output / name, format="svg", metadata={"Date": None})
+    def save(figure, name, title, description):
+        save_svg(figure, output / name, title=title, description=description)
         plt.close(figure)
         paths.append(name)
 
-    figure, axis = plt.subplots(figsize=(8, 4))
-    axis.bar(["Manufacturing", "Packaging", "Lifetime"], stages.entered, color="#2878b5")
-    axis.set(ylabel="Devices entering stage", title="Synthetic stage flow")
-    save(figure, "stage_funnel.svg")
-    figure, axis = plt.subplots(figsize=(8, 4))
-    rates = stages.failure_rate.iloc[:2]
-    labels = ["Manufacturing failure", "Packaging proxy failure"]
-    for position, rate in enumerate(rates):
-        if pd.notna(rate):
-            axis.bar(position, rate, color="#d47832")
+    figure, axis = plt.subplots(figsize=(10, 4.8))
+    labels = ["Manufacturing\n制造", "Packaging\n封测", "Lifetime\n寿命"]
+    values = stages.entered.to_numpy()
+    axis.plot(range(3), values, color="#7654b8", linewidth=3, marker="o", markersize=10)
+    for position, row in stages.reset_index(drop=True).iterrows():
+        if row.stage == "lifetime":
+            detail = f"{int(row.observed_failures):,} events / {int(row.censored):,} censored"
         else:
-            axis.text(position, 0.05, "Unavailable", ha="center")
-    axis.set_xticks([0, 1], labels)
-    axis.set(
-        ylabel="Conditional stage failure fraction",
-        ylim=(0, 1),
-        title="Synthetic observed process outcomes",
+            detail = f"{int(row.observed_failures):,} rejected ({row.failure_rate:.1%})"
+        axis.annotate(
+            f"{int(row.entered):,}\n{detail}",
+            (position, row.entered),
+            xytext=(0, 12),
+            textcoords="offset points",
+            ha="center",
+            fontsize=9,
+        )
+    axis.annotate(
+        f"Overall process pass / 总工艺通过率: {values[-1] / values[0]:.2%}",
+        (1, max(values) * 0.83),
+        ha="center",
+        fontsize=11,
+        fontweight="bold",
     )
-    save(figure, "stage_failure_rates.svg")
-    figure, axis = plt.subplots(figsize=(8, 4))
-    valid = metrics.loc[metrics.status.eq("completed")].dropna(subset=["pr_auc"])
-    if len(valid):
-        axis.bar(valid.stage + "/" + valid.model, valid.pr_auc, color="#2878b5")
-    else:
-        axis.text(0.5, 0.5, "Insufficient holdout classes; see metrics.json", ha="center")
-    axis.set(ylabel="Holdout PR-AUC", ylim=(0, 1), title="Batch-isolated synthetic evaluation")
-    save(figure, "model_comparison.svg")
-    figure, axis = plt.subplots(figsize=(8, 4))
-    if len(packaging):
-        axis.hist(packaging.Y, bins=40, color="#2878b5", alpha=0.8)
+    axis.set(
+        xticks=range(3),
+        xticklabels=labels,
+        ylabel="Devices entering stage / 进入阶段器件数",
+        title="Synthetic end-to-end observed flow / 合成端到端观测流转",
+    )
+    axis.set_xlim(-0.25, 2.25)
+    axis.set_ylim(0, max(values) * 1.18)
+    axis.grid(axis="y", alpha=0.25)
+    save(
+        figure,
+        "stage_flow.svg",
+        "Synthetic three-stage device flow",
+        "Stage entries, observed process rejections, lifetime events, and censoring.",
+    )
+
+    score_columns = ["pr_auc", "roc_auc", "f1", "mcc"]
+    figure, axis = plt.subplots(figsize=(10, 4.8))
+    matrix = metrics.reindex(columns=score_columns).to_numpy(dtype=float)
+    image = axis.imshow(np.ma.masked_invalid(matrix), vmin=0, vmax=1, cmap="Purples")
+    axis.set_xticks(range(len(score_columns)), ["PR-AUC", "ROC-AUC", "F1", "MCC"])
+    axis.set_yticks(
+        range(len(metrics)),
+        [f"{r.stage.title()} / {r.model.title()}" for r in metrics.itertuples()],
+    )
+    for row, record in enumerate(metrics.itertuples()):
+        for column, key in enumerate(score_columns):
+            value = getattr(record, key, np.nan)
+            axis.text(
+                column, row, "N/A" if pd.isna(value) else f"{value:.3f}", ha="center", va="center"
+            )
+    figure.colorbar(image, ax=axis, label="Holdout score / 留出集分数")
+    axis.set(title="Batch-isolated model evaluation / 批次隔离模型评估")
+    save(
+        figure,
+        "model_metrics.svg",
+        "Synthetic holdout model metric matrix",
+        "Dummy and logistic model scores for manufacturing and packaging; "
+        "N/A values remain visible.",
+    )
+
+    figure, axis = plt.subplots(figsize=(9.2, 4.5))
+    for split, rows in packaging.groupby("split", sort=True):
+        axis.hist(rows.Y, bins=40, alpha=0.58, label=f"{split.title()} / {len(rows):,}")
     if threshold is not None:
-        axis.axvline(threshold, color="#d47832", label=f"Training 10% threshold: {threshold:.1f}")
-        axis.legend()
+        axis.axvline(
+            threshold,
+            color="#d47832",
+            linewidth=2,
+            label=f"Training threshold / 训练阈值: {threshold:.1f}",
+        )
+    failures = int(packaging.proxy_failed.sum())
+    axis.legend(title=f"Proxy failures / 代理失效: {failures:,}")
     axis.set(
         xlabel="Synthetic throughput (units/hour)",
         ylabel="Devices",
-        title="Low-throughput proxy label",
+        title="Low-throughput proxy label / 低吞吐代理标签",
     )
-    save(figure, "throughput.svg")
-    figure, axis = plt.subplots(figsize=(8, 4))
+    save(
+        figure,
+        "throughput.svg",
+        "Synthetic packaging throughput threshold",
+        "Training and test throughput distributions with a training-only proxy-failure threshold.",
+    )
+    figure, axis = plt.subplots(figsize=(9.2, 4.5))
+    training = lifetime.loc[lifetime.split.eq("train")]
+    empirical = _kaplan_meier(training) if len(training) else None
+    if empirical is not None:
+        axis.step(
+            empirical.time,
+            empirical.survival_probability,
+            where="post",
+            color="#7654b8",
+            linewidth=2,
+            label="Kaplan–Meier / 经验生存",
+        )
     if curve is not None:
-        axis.plot(curve.time, curve.survival_probability)
+        axis.plot(
+            curve.time,
+            curve.survival_probability,
+            color="#4f8f6b",
+            linestyle="--",
+            linewidth=2,
+            label="Weibull fit / Weibull 拟合",
+        )
+    if len(training):
+        censored = training.loc[training.event_observed.eq(0)]
+        if len(censored):
+            axis.scatter(
+                censored.time_to_event,
+                np.interp(censored.time_to_event, empirical.time, empirical.survival_probability),
+                marker="+",
+                color="#172033",
+                s=28,
+                label=f"Censored / 删失: {len(censored):,}",
+            )
+        axis.text(
+            0.98,
+            0.08,
+            f"Events / 事件: {int(training.event_observed.sum()):,}\n"
+            f"Training / 训练: {len(training):,}",
+            transform=axis.transAxes,
+            ha="right",
+            va="bottom",
+        )
     else:
         axis.text(0.5, 0.5, "Lifetime fit unavailable; see reliability.json", ha="center")
     axis.set(
         xlabel="Time (hours)",
         ylabel="Survival probability",
         ylim=(0, 1.02),
-        title="Synthetic training-cohort Weibull (pooled stress temperatures)",
+        title="Synthetic lifetime with censoring / 合成寿命与右删失",
     )
-    save(figure, "survival.svg")
+    axis.legend(loc="upper right")
+    save(
+        figure,
+        "survival.svg",
+        "Synthetic lifetime survival with censoring",
+        "Empirical training survival, Weibull fit, and right-censored observations.",
+    )
     return paths
 
 
@@ -78,6 +186,8 @@ def markdown_table(frame):
     def cell(value):
         if value is None or (isinstance(value, float) and not np.isfinite(value)):
             return "N/A"
+        if isinstance(value, float):
+            return f"{value:.3f}"
         return str(value).replace("|", "\\|").replace("\n", " ")
 
     lines = [
@@ -94,7 +204,9 @@ def markdown_table(frame):
 def write_report(output, manifest, stages, metrics, reliability, charts):
     total = int(stages.entered.iloc[0])
     shipped = int(stages.entered.iloc[2])
-    summary = metrics.reindex(columns=["stage", "model", "status", "pr_auc", "roc_auc", "reason"])
+    summary = metrics.reindex(
+        columns=["stage", "model", "status", "pr_auc", "roc_auc", "f1", "mcc", "reason"]
+    )
     threshold_text = (
         f"`Y < {manifest['throughput_threshold']}` (synthetic units/hour). Equality passes."
         if manifest["throughput_threshold"] is not None

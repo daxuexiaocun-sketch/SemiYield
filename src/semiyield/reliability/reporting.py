@@ -8,12 +8,24 @@ import numpy as np
 import pandas as pd
 
 from semiyield.common.artifacts import sha256_file
+from semiyield.common.reporting import save_svg
 from semiyield.reliability.lifetime import (
     benchmark_survival_forest,
     fit_arrhenius_weibull,
     fit_weibull,
     survival_probability,
 )
+
+
+def _kaplan_meier(frame: pd.DataFrame) -> pd.DataFrame:
+    rows = frame.sort_values("time_to_event")
+    survival = 1.0
+    points = [(0.0, survival)]
+    for time, group in rows.groupby("time_to_event", sort=True):
+        at_risk = int((rows.time_to_event >= time).sum())
+        survival *= 1 - int(group.event_observed.sum()) / at_risk
+        points.append((float(time), survival))
+    return pd.DataFrame(points, columns=["time", "survival_probability"])
 
 
 def write_reliability_charts(
@@ -26,34 +38,89 @@ def write_reliability_charts(
     output = Path(output_dir)
     plt.rcParams["svg.hashsalt"] = "semiyield-v1"
     paths = []
-    figure, axis = plt.subplots(figsize=(7.2, 4.2))
-    axis.plot(curve["time"], curve["survival_probability"], color="#2878B5", linewidth=2)
-    axis.set(xlabel="Time", ylabel="Survival probability", title="Weibull survival curve")
+    figure, axis = plt.subplots(figsize=(8.4, 4.6))
+    empirical = _kaplan_meier(lifetime)
+    axis.step(
+        empirical.time,
+        empirical.survival_probability,
+        where="post",
+        color="#2878b5",
+        linewidth=2,
+        label="Kaplan–Meier / 经验生存",
+    )
+    axis.plot(
+        curve["time"],
+        curve["survival_probability"],
+        color="#4f8f6b",
+        linestyle="--",
+        linewidth=2,
+        label="Weibull fit / Weibull 拟合",
+    )
+    censored = lifetime.loc[lifetime.event_observed.eq(0)]
+    if len(censored):
+        axis.scatter(
+            censored.time_to_event,
+            np.interp(censored.time_to_event, empirical.time, empirical.survival_probability),
+            marker="+",
+            color="#172033",
+            s=30,
+            label=f"Censored / 删失: {len(censored)}",
+        )
+    axis.set(
+        xlabel="Time / 时间",
+        ylabel="Survival probability / 生存概率",
+        title="Lifetime survival with censoring / 含右删失的寿命生存",
+    )
     axis.set_ylim(0, 1.02)
     axis.grid(alpha=0.25)
-    figure.tight_layout()
     survival_path = output / "weibull_survival.svg"
-    figure.savefig(survival_path, format="svg", metadata={"Date": None})
+    axis.legend()
+    save_svg(
+        figure,
+        survival_path,
+        title="Lifetime survival with censoring",
+        description="Kaplan-Meier survival, Weibull fit, and right-censored observations.",
+    )
     plt.close(figure)
     paths.append(survival_path)
     if "temperature_c" in lifetime:
-        figure, axis = plt.subplots(figsize=(7.2, 4.2))
+        figure, axis = plt.subplots(figsize=(8.4, 4.6))
         for temperature, rows in lifetime.groupby("temperature_c"):
+            events = rows.loc[rows.event_observed.eq(1)]
+            censored = rows.loc[rows.event_observed.eq(0)]
             axis.scatter(
-                [temperature] * len(rows),
-                rows["time_to_event"],
-                label=f"{temperature:g} °C",
+                [temperature] * len(events),
+                events["time_to_event"],
+                label=f"{temperature:g} °C event / 事件",
                 alpha=0.8,
+            )
+            axis.scatter(
+                [temperature] * len(censored),
+                censored["time_to_event"],
+                marker="+",
+                color="#172033",
+                label=f"{temperature:g} °C censored / 删失",
             )
         axis.set(
             xlabel="Stress temperature (°C)",
             ylabel="Observed/censored time",
-            title="Accelerated-life observations",
+            title="Accelerated-life observations / 加速寿命观测",
         )
         axis.grid(alpha=0.25)
-        figure.tight_layout()
+        axis.axvline(
+            55, color="#d47832", linestyle="--", label="55 °C use extrapolation / 使用温度外推"
+        )
+        axis.legend(fontsize=8, ncol=2)
         accelerated_path = output / "accelerated_life.svg"
-        figure.savefig(accelerated_path, format="svg", metadata={"Date": None})
+        save_svg(
+            figure,
+            accelerated_path,
+            title="Accelerated-life observations",
+            description=(
+                "Stress-temperature observations distinguish failed and right-censored units; "
+                "55 C is an extrapolated use condition."
+            ),
+        )
         plt.close(figure)
         paths.append(accelerated_path)
     return paths
@@ -82,13 +149,19 @@ def write_degradation_chart(features: pd.DataFrame, output: str | Path) -> Path 
     axis.set(
         xlabel="Cumulative measured aging time (minutes)",
         ylabel="Temperature-corrected ΔRDS(on) (Ω)",
-        title="NASA MOSFET all-device degradation trajectories",
+        title="NASA MOSFET degradation / NASA MOSFET 退化轨迹",
     )
     axis.set_ylim(-0.1, 0.25)
     axis.grid(alpha=0.2)
     axis.legend()
-    figure.tight_layout()
-    figure.savefig(destination, format="svg", metadata={"Date": None})
+    save_svg(
+        figure,
+        destination,
+        title="NASA MOSFET degradation trajectories",
+        description=(
+            "All-device degradation trajectories with two resistance-change threshold lines."
+        ),
+    )
     plt.close(figure)
     return destination
 

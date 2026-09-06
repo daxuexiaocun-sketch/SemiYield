@@ -43,6 +43,22 @@ Benchmarking uses three shuffled outer folds (seed 42), identical for all reques
 fold computes its own threshold only from its training rows. There are no batch/time identifiers
 in the source, so this evaluation does not establish generalization to unseen batches or future time.
 
+## Leakage and generalization audit
+
+The Python implementation supplies only `X1`–`X16` to the preprocessing pipeline; `Y`, the derived
+proxy label, and optional IDs are excluded. Each benchmark fold resolves its throughput threshold
+from that fold's training `Y`, then applies it to the held-out fold. The inspected local source has
+no duplicate feature rows.
+
+This prevents direct target and split leakage in the implemented benchmark, but it cannot establish
+that the anonymous source features are semantically independent of throughput or that the random
+split represents future production. Several numerical features are strongly associated with `Y`,
+and the categorical configurations recur in random training and test folds. The source readme does
+not provide feature semantics, batch IDs, time ordering, or collection protocol. Treat the published
+PR-AUC/ROC-AUC as within-source random-split discrimination only. A deployment claim needs a
+time-ordered, batch-held-out, machine-held-out, or recipe-held-out evaluation after those identifiers
+are available.
+
 Numerical columns use training-only median imputation and scaling; categorical columns use missing
 category imputation and one-hot encoding. Unknown inference categories are ignored by the encoder.
 `Y`, generated labels and identifiers never enter model features. No probability calibration or

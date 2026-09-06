@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from html import escape
 from pathlib import Path
 
 import pandas as pd
@@ -19,6 +20,31 @@ def write_table(frame: pd.DataFrame, path: str | Path) -> Path:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     frame.to_csv(destination, index=False)
+    return destination
+
+
+def save_svg(figure, path: str | Path, *, title: str, description: str) -> Path:
+    """Save a deterministic SVG with accessible, portable metadata."""
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        from matplotlib import font_manager, rcParams
+
+        cjk_font = Path("/System/Library/Fonts/STHeiti Medium.ttc")
+        if cjk_font.is_file():
+            font_manager.fontManager.addfont(cjk_font)
+            rcParams["font.sans-serif"] = ["STHeiti", "DejaVu Sans"]
+    except ImportError:
+        pass
+    figure.tight_layout()
+    figure.savefig(destination, format="svg", metadata={"Date": None})
+    content = destination.read_text(encoding="utf-8")
+    marker = content.find(">", content.find("<svg")) + 1
+    metadata = f"\n<title>{escape(title)}</title>\n<desc>{escape(description)}</desc>"
+    annotated = content[:marker] + metadata + content[marker:]
+    destination.write_text(
+        "\n".join(line.rstrip() for line in annotated.splitlines()) + "\n", encoding="utf-8"
+    )
     return destination
 
 

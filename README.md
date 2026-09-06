@@ -47,26 +47,18 @@ from earlier releases must be re-trained or their old exported results retained.
 documented in the [NASA data pipeline](docs/NASA_PIPELINE.md). `uv.lock` is the dependency source of truth; extras must
 be explicitly selected. See [architecture and environments](docs/ARCHITECTURE.md).
 
-## Four-route reference results
+## Four-route results dashboard
 
-| Route | Input and evidence type | Method | Published aggregate result | Reproduce |
-|---|---|---|---|---|
-| Manufacturing yield | UCI SECOM, measured process/failure labels | Repeated CV risk screening | CatBoost PR-AUC **0.167**; 10% review capture **0.269** | `semiyield yield benchmark --profile quick` |
-| Packaging process | Local mixed process data; throughput proxy label | Training-only 10% threshold, three-fold benchmark | Logistic PR-AUC **0.882**, ROC-AUC **0.979**, recall **0.943**, MCC **0.759** | `semiyield packaging benchmark --input-csv …` |
-| Device lifetime | NASA Power MOSFET observations | Weibull and accelerated-life analysis | At ΔRDS(on)=0.045 Ω: β **0.832**, η **10,553 s**, B10 **706 s** | See [NASA pipeline](docs/NASA_PIPELINE.md) |
-| Three-stage demo | Synthetic linked batches and units | Batch-isolated routing and holdout evaluation | 80.73% process pass fraction; packaging logistic PR-AUC **0.680** | `semiyield demo quickstart` |
+![Four-route results overview](docs/assets/results-overview.svg)
 
-The packaging route is a **low-throughput proxy failure** result, not proof of physical device failure. The demo is entirely **synthetic** and is not SECOM, NASA, or packaging experimental evidence.
+| Route | Main result | Evidence boundary | Reproduce and details |
+|---|---|---|---|
+| Manufacturing | CatBoost PR-AUC **0.167** | Measured SECOM screening, not causal diagnosis | `semiyield yield benchmark --profile quick` · [report](reports/verified/README.md#manufacturing-yield) |
+| Packaging | Logistic PR-AUC **0.882** | Low-throughput proxy; random internal validation only | `semiyield packaging benchmark --input-csv …` · [report](reports/verified/README.md#packaging-process) |
+| Lifetime | Weibull B10 **706 s** | NASA stress evidence; use-temperature result is an extrapolation | [report](reports/verified/README.md#device-lifetime) |
+| Demo | Process pass **80.73%** | Synthetic batch-isolated validation | `semiyield demo quickstart` · [report](reports/verified/demo/README.md) |
 
-![SECOM repeated-CV PR-AUC](reports/verified/yield/benchmark_pr_auc.svg)
-
-![Packaging proxy-failure model comparison](reports/verified/packaging/benchmark_summary.svg)
-
-![NASA MOSFET degradation trajectories](reports/verified/nasa/degradation_trends.svg)
-
-![Synthetic three-stage funnel](reports/verified/demo/stage_funnel.svg)
-
-See [packaging aggregate artifacts](reports/verified/packaging/manifest.json) and the [synthetic three-stage report](reports/verified/demo/README.md) for full methodology and provenance.
+The packaging route is a **low-throughput proxy failure** result, not proof of physical device failure. Its source has no batch or time identifier, so the published random three-fold figures do not establish performance on a new production batch, machine, recipe, or time period. The Demo is entirely **synthetic** and is not SECOM, NASA, or packaging experimental evidence.
 
 ## Data and scope
 
