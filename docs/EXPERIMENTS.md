@@ -12,6 +12,10 @@ Define reproducible evaluation for manufacturing yield, packaging proxy failure 
 - CLI benchmarks execute in a monitored process tree. By default, the warning threshold is 70% of physical memory and the termination threshold is 80%; `--soft-memory-gb` and `--memory-limit-gb` explicitly override them.
 
 Generated manifests record configuration, package versions, dataset metadata, and output hashes.
+CatBoost parameters are selected with a reproducible 20-candidate, three-fold inner PR-AUC
+search. CatBoost benchmark scores use nested validation: each outer training partition is tuned
+independently. The shared governance protocol does not require manufacturing and packaging to use
+the same final hyperparameter values.
 
 ## MOSFET reliability analysis
 

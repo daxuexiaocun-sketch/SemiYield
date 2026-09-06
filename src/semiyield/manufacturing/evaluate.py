@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import platform
 import sys
@@ -22,7 +23,7 @@ from semiyield.constants import EXPERIMENT_SCHEMA_VERSION, RANDOM_STATE
 
 from .data import SecomDataset
 from .metrics import classification_metrics
-from .modeling import build_model_pipeline, train_model
+from .modeling import build_model_pipeline, train_model, tune_catboost
 from .reporting import write_benchmark_chart
 
 
@@ -97,6 +98,12 @@ def _evaluate_split(
 ) -> dict[str, float]:
     train_x, test_x = features.iloc[train_idx], features.iloc[test_idx]
     train_y, test_y = target.iloc[train_idx], target.iloc[test_idx]
+    tuned = None
+    if model_name == "catboost":
+        digest = hashlib.sha256(
+            pd.concat([train_x, train_y.rename("target")], axis=1).to_csv(index=False).encode()
+        ).hexdigest()
+        tuned = tune_catboost(train_x, train_y, data_sha256=digest, seed=config.random_state)
     oof = None
     if model_name != "dummy":
         minority = int(train_y.value_counts().min())
@@ -109,7 +116,9 @@ def _evaluate_split(
             # so an uncalibrated base model's OOF ranking selects the same budget without
             # recursively cross-validating an already calibrated CatBoost estimator.
             oof = cross_val_predict(
-                build_model_pipeline(model_name, config.random_state),
+                build_model_pipeline(
+                    model_name, config.random_state, tuned["best_params"] if tuned else None
+                ),
                 train_x,
                 train_y,
                 cv=inner,
@@ -123,6 +132,7 @@ def _evaluate_split(
         calibrate=model_name != "dummy",
         calibration_folds=config.calibration_folds,
         random_state=config.random_state,
+        catboost_params=tuned["best_params"] if tuned else None,
     )
     fit_seconds = perf_counter() - started
     threshold = 0.5
@@ -146,6 +156,9 @@ def _evaluate_split(
             "inference_seconds": inference_seconds,
         }
     )
+    if tuned:
+        metrics["tuning_pr_auc"] = tuned["best_mean_pr_auc"]
+        metrics["catboost_params"] = json.dumps(tuned["best_params"], sort_keys=True)
     return metrics
 
 
@@ -234,6 +247,18 @@ def run_benchmark(
         "resource_guard": "not_applied_python_api",
         "artifacts": {path.name: sha256_file(path) for path in artifact_paths},
     }
+    if "catboost_params" in fold_metrics:
+        manifest["catboost_tuning"] = [
+            {
+                "protocol": row.protocol,
+                "fold": int(row.fold),
+                "best_params": json.loads(row.catboost_params),
+                "best_mean_pr_auc": row.tuning_pr_auc,
+                "trials": 20,
+                "inner_folds": 3,
+            }
+            for row in fold_metrics.loc[fold_metrics.model == "catboost"].itertuples()
+        ]
     manifest_path = output / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, default=list), encoding="utf-8")
     return {"fold_metrics": fold_metrics, "summary": summary, "manifest": manifest}

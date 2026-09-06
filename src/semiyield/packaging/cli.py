@@ -7,11 +7,13 @@ from typing import Annotated
 import pandas as pd
 import typer
 
+from semiyield.common.artifacts import sha256_file
+from semiyield.common.catboost import load_params, write_params
 from semiyield.common.cli import friendly_errors
 from semiyield.common.reporting import data_quality_report
 from semiyield.packaging.data import FEATURES, local_data_status, validate_data
 from semiyield.packaging.evaluate import run_benchmark, train_holdout
-from semiyield.packaging.modeling import PackagingArtifact
+from semiyield.packaging.modeling import PackagingArtifact, tune_catboost
 
 app = typer.Typer(help="Low-throughput proxy failure analysis (not physical device failure).")
 
@@ -35,8 +37,16 @@ def train(
     quantile: float | None = None,
     seed: int = 42,
     probability_threshold: float = 0.5,
+    catboost_params: Annotated[Path | None, typer.Option("--catboost-params")] = None,
 ):
     """Train on 80% of rows; derive the proxy threshold only from training data."""
+    params = params_hash = None
+    if catboost_params:
+        if model != "catboost":
+            raise typer.BadParameter("--catboost-params requires --model catboost")
+        params, params_hash = load_params(
+            catboost_params, task="packaging", data_sha256=sha256_file(input_csv)
+        )
     artifact = train_holdout(
         input_csv,
         output,
@@ -45,8 +55,31 @@ def train(
         threshold=threshold,
         quantile=quantile,
         probability_threshold=probability_threshold,
+        catboost_params=params,
+        catboost_params_sha256=params_hash,
     )
     typer.echo(json.dumps(artifact.metadata, indent=2))
+
+
+@app.command("tune")
+@friendly_errors
+def tune_command(
+    input_csv: Annotated[Path, typer.Option("--input-csv")] = ...,
+    output: Path = Path("artifacts/packaging/catboost_params.json"),
+    seed: int = 42,
+    threshold: float | None = None,
+    quantile: float | None = None,
+):
+    """Run a reproducible CatBoost PR-AUC search and save its parameter artifact."""
+    artifact = tune_catboost(
+        pd.read_csv(input_csv),
+        data_sha256=sha256_file(input_csv),
+        seed=seed,
+        threshold=threshold,
+        quantile=quantile,
+    )
+    write_params(artifact, output)
+    typer.echo(f"Saved CatBoost parameters to {output}")
 
 
 @app.command()

@@ -17,6 +17,7 @@ from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
+from semiyield.common.catboost import BASE_PARAMS, catboost_classifier, tune
 from semiyield.constants import DEFAULT_THRESHOLD, RANDOM_STATE, SCHEMA_VERSION
 
 from .preprocessing import build_preprocessor
@@ -46,7 +47,9 @@ class ModelArtifact:
         return artifact
 
 
-def _classifier(name: str, random_state: int) -> tuple[BaseEstimator, bool, int | None]:
+def _classifier(
+    name: str, random_state: int, catboost_params: dict[str, object] | None = None
+) -> tuple[BaseEstimator, bool, int | None]:
     if name == "dummy":
         return DummyClassifier(strategy="prior"), True, None
     if name == "logistic":
@@ -56,23 +59,13 @@ def _classifier(name: str, random_state: int) -> tuple[BaseEstimator, bool, int 
             None,
         )
     if name == "catboost":
-        try:
-            from catboost import CatBoostClassifier
-        except ImportError as exc:
-            raise ImportError("Run `uv sync --locked --extra catboost`") from exc
         return (
-            CatBoostClassifier(
-                iterations=400,
-                depth=6,
-                learning_rate=0.04,
+            catboost_classifier(
+                seed=random_state,
+                params=catboost_params,
                 loss_function="Logloss",
                 eval_metric="PRAUC",
-                auto_class_weights="Balanced",
-                random_seed=random_state,
-                thread_count=4,
                 used_ram_limit="24gb",
-                verbose=False,
-                allow_writing_files=False,
             ),
             False,
             None,
@@ -89,9 +82,13 @@ def _classifier(name: str, random_state: int) -> tuple[BaseEstimator, bool, int 
     raise ValueError(f"Unknown model: {name}")
 
 
-def build_model_pipeline(model_name: str, random_state: int = RANDOM_STATE) -> Pipeline:
+def build_model_pipeline(
+    model_name: str,
+    random_state: int = RANDOM_STATE,
+    catboost_params: dict[str, object] | None = None,
+) -> Pipeline:
     """Build an unfitted model pipeline for leakage-safe cross-fitting."""
-    classifier, scale, max_features = _classifier(model_name, random_state)
+    classifier, scale, max_features = _classifier(model_name, random_state, catboost_params)
     return Pipeline(
         [
             ("preprocess", build_preprocessor(scale=scale, max_features=max_features)),
@@ -109,10 +106,12 @@ def train_model(
     calibration_folds: int = 3,
     threshold: float = DEFAULT_THRESHOLD,
     random_state: int = RANDOM_STATE,
+    catboost_params: dict[str, object] | None = None,
+    catboost_params_sha256: str | None = None,
 ) -> ModelArtifact:
     if len(np.unique(target)) < 2:
         raise ValueError("Training requires both pass and fail samples")
-    pipeline = build_model_pipeline(model_name, random_state)
+    pipeline = build_model_pipeline(model_name, random_state, catboost_params)
     estimator: BaseEstimator = pipeline
     minority = int(pd.Series(target).value_counts().min())
     calibrated = calibrate and model_name != "dummy" and minority >= calibration_folds
@@ -133,10 +132,37 @@ def train_model(
         threshold=float(threshold),
         schema_version=SCHEMA_VERSION,
         created_at=datetime.now(timezone.utc).isoformat(),
-        metadata={"calibrated": calibrated, "fit_seconds": duration, "random_state": random_state},
+        metadata={
+            "calibrated": calibrated,
+            "fit_seconds": duration,
+            "random_state": random_state,
+            **(
+                {
+                    "catboost_params": {**BASE_PARAMS, **(catboost_params or {})},
+                    "catboost_params_sha256": catboost_params_sha256,
+                }
+                if model_name == "catboost"
+                else {}
+            ),
+        },
     )
 
 
 def train_manufacturing(features, target, *, model="logistic", seed=42):
     """Train the manufacturing model used by the three-stage demonstration."""
     return train_model(features, target, model_name=model, random_state=seed, calibrate=False)
+
+
+def tune_catboost(
+    features, target, *, data_sha256: str, seed: int = RANDOM_STATE, trials: int = 20
+):
+    """Tune CatBoost without fitting preprocessing outside an inner fold."""
+    return tune(
+        lambda params: build_model_pipeline("catboost", seed, dict(params)),
+        features,
+        target,
+        task="manufacturing",
+        data_sha256=data_sha256,
+        seed=seed,
+        trials=trials,
+    )

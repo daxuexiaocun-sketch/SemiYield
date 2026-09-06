@@ -8,8 +8,12 @@ import numpy as np
 import pandas as pd
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import average_precision_score
+from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import Pipeline
 
+from semiyield.common.catboost import BASE_PARAMS, TRIALS, catboost_classifier, sample_candidates
+from semiyield.common.catboost import SCHEMA_VERSION as CATBOOST_SCHEMA_VERSION
 from semiyield.packaging.data import (
     CATEGORICAL,
     FEATURES,
@@ -20,25 +24,13 @@ from semiyield.packaging.labeling import proxy_labels, resolve_threshold
 from semiyield.packaging.preprocessing import build_preprocessor
 
 
-def build_pipeline(model="logistic", seed=42):
+def build_pipeline(model="logistic", seed=42, catboost_params=None):
     if model == "dummy":
         classifier = DummyClassifier(strategy="prior")
     elif model == "logistic":
         classifier = LogisticRegression(class_weight="balanced", max_iter=2000, random_state=seed)
     elif model == "catboost":
-        try:
-            from catboost import CatBoostClassifier
-        except ImportError as exc:
-            raise ImportError("Run `uv sync --locked --extra catboost`") from exc
-        classifier = CatBoostClassifier(
-            iterations=200,
-            depth=6,
-            random_seed=seed,
-            thread_count=4,
-            auto_class_weights="Balanced",
-            verbose=False,
-            allow_writing_files=False,
-        )
+        classifier = catboost_classifier(seed=seed, params=catboost_params)
     else:
         raise ValueError(f"Unknown packaging model: {model}")
     return Pipeline(
@@ -89,6 +81,8 @@ def train_model(
     quantile=None,
     probability_threshold=0.5,
     data_sha256=None,
+    catboost_params=None,
+    catboost_params_sha256=None,
 ):
     data = validate_data(frame)
     value, provenance = resolve_threshold(data.Y, threshold=threshold, quantile=quantile)
@@ -97,13 +91,21 @@ def train_model(
         raise ValueError("Training requires both proxy pass and proxy fail samples")
     if not np.isfinite(probability_threshold) or not 0 <= probability_threshold <= 1:
         raise ValueError("probability_threshold must be between 0 and 1")
-    estimator = build_pipeline(model, seed).fit(data[FEATURES], target)
+    estimator = build_pipeline(model, seed, catboost_params).fit(data[FEATURES], target)
     return PackagingArtifact(
         estimator,
         model,
         value,
         {
             "threshold": provenance,
+            **(
+                {
+                    "catboost_params": {**BASE_PARAMS, **(catboost_params or {})},
+                    "catboost_params_sha256": catboost_params_sha256,
+                }
+                if model == "catboost"
+                else {}
+            ),
             "seed": seed,
             "data_sha256": data_sha256,
             "input_schema": {"categorical": CATEGORICAL, "numeric": NUMERIC},
@@ -113,3 +115,53 @@ def train_model(
         },
         probability_threshold,
     )
+
+
+def tune_catboost(
+    frame, *, data_sha256: str, seed: int = 42, trials: int = TRIALS, threshold=None, quantile=None
+):
+    """Tune with proxy labels and quantile thresholds fitted separately in every inner fold."""
+    data = validate_data(frame)
+    # Split on a provisional training-only-equivalent label solely to make stratification possible.
+    value, _ = resolve_threshold(data.Y, threshold=threshold, quantile=quantile)
+    provisional = proxy_labels(data.Y, value)
+    minority = int(np.bincount(provisional).min())
+    folds = min(3, minority)
+    if folds < 2:
+        raise ValueError("CatBoost tuning requires at least two samples in each proxy class")
+    splitter = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
+    rows = []
+    for params in sample_candidates(seed, trials):
+        scores = []
+        for train_idx, valid_idx in splitter.split(data, provisional):
+            train, valid = data.iloc[train_idx], data.iloc[valid_idx]
+            fold_threshold, _ = resolve_threshold(train.Y, threshold=threshold, quantile=quantile)
+            train_y = proxy_labels(train.Y, fold_threshold)
+            valid_y = proxy_labels(valid.Y, fold_threshold)
+            estimator = build_pipeline("catboost", seed, params).fit(train[FEATURES], train_y)
+            scores.append(
+                float(
+                    average_precision_score(valid_y, estimator.predict_proba(valid[FEATURES])[:, 1])
+                )
+            )
+        rows.append(
+            {"params": params, "mean_pr_auc": float(np.mean(scores)), "fold_pr_auc": scores}
+        )
+    rows.sort(
+        key=lambda row: (-row["mean_pr_auc"], row["params"]["iterations"], row["params"]["depth"])
+    )
+    from datetime import datetime, timezone
+
+    return {
+        "schema_version": CATBOOST_SCHEMA_VERSION,
+        "task": "packaging",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "seed": seed,
+        "trials": trials,
+        "folds": folds,
+        "objective": "pr_auc",
+        "data_sha256": data_sha256,
+        "best_params": rows[0]["params"],
+        "best_mean_pr_auc": rows[0]["mean_pr_auc"],
+        "candidates": rows,
+    }

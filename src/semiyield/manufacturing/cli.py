@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
 import typer
 
+from semiyield.common.catboost import load_params, write_params
 from semiyield.common.reporting import data_quality_report
 from semiyield.common.resources import resolve_memory_limits, run_guarded
 from semiyield.constants import DEFAULT_DATA_DIR, DEFAULT_MODEL_PATH
@@ -16,10 +19,16 @@ from .drift import detect_drift
 from .evaluate import BenchmarkConfig, run_benchmark
 from .explain import explain_prediction
 from .metrics import evaluate_model
-from .modeling import ModelArtifact, train_model
+from .modeling import ModelArtifact, train_model, tune_catboost
 from .predict import predict_risk
 
 app = typer.Typer()
+
+
+def _dataset_digest(dataset) -> str:
+    return hashlib.sha256(
+        json.dumps(dataset.metadata["file_sha256"], sort_keys=True).encode()
+    ).hexdigest()
 
 
 @app.command("download")
@@ -41,14 +50,42 @@ def train(
     output: Path = DEFAULT_MODEL_PATH,
     model: str = typer.Option("logistic", help="dummy, logistic, catboost, or tabpfn"),
     no_calibration: bool = False,
+    catboost_params: Annotated[Path | None, typer.Option("--catboost-params")] = None,
 ):
     """Train and persist a leakage-safe model pipeline."""
     dataset = load_secom(data_dir)
+    params = params_hash = None
+    if catboost_params:
+        if model != "catboost":
+            raise typer.BadParameter("--catboost-params requires --model catboost")
+        params, params_hash = load_params(
+            catboost_params, task="manufacturing", data_sha256=_dataset_digest(dataset)
+        )
     artifact = train_model(
-        dataset.features, dataset.target, model_name=model, calibrate=not no_calibration
+        dataset.features,
+        dataset.target,
+        model_name=model,
+        calibrate=not no_calibration,
+        catboost_params=params,
+        catboost_params_sha256=params_hash,
     )
     artifact.save(output)
     typer.echo(f"Saved {model} model to {output}")
+
+
+@app.command("tune")
+def tune_command(
+    data_dir: Path = DEFAULT_DATA_DIR,
+    output: Path = Path("artifacts/yield/catboost_params.json"),
+    seed: int = 42,
+):
+    """Run a reproducible CatBoost PR-AUC search and save its parameter artifact."""
+    dataset = load_secom(data_dir)
+    artifact = tune_catboost(
+        dataset.features, dataset.target, data_sha256=_dataset_digest(dataset), seed=seed
+    )
+    write_params(artifact, output)
+    typer.echo(f"Saved CatBoost parameters to {output}")
 
 
 @app.command("benchmark")

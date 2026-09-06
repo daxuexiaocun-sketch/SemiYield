@@ -11,6 +11,8 @@ SemiYield provides a majority baseline, weighted logistic regression, CatBoost, 
 ## Evaluation
 
 Use the [evaluation protocol](EXPERIMENTS.md): repeated stratified cross-validation for uncertainty and a chronological split for forward generalization. Report PR-AUC, failure recall, MCC, Brier score, and fixed-budget capture.
+CatBoost hyperparameters are governed through explicit, versioned tuning artifacts; published
+CatBoost benchmark results use nested validation rather than parameters selected on their test data.
 
 ## Limitations
 

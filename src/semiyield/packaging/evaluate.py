@@ -1,5 +1,6 @@
 """Holdout training and matched-fold packaging benchmarks."""
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -10,7 +11,7 @@ from semiyield.common.artifacts import sha256_file
 from semiyield.common.metrics import classification_report
 from semiyield.packaging.data import validate_data
 from semiyield.packaging.labeling import proxy_labels
-from semiyield.packaging.modeling import train_model
+from semiyield.packaging.modeling import train_model, tune_catboost
 from semiyield.packaging.reporting import write_benchmark_charts
 
 
@@ -45,6 +46,16 @@ def run_benchmark(
     ):
         train, test = frame.iloc[train_idx], frame.iloc[test_idx]
         for model in models:
+            tuned = None
+            if model == "catboost":
+                fold_digest = hashlib.sha256(train.to_csv(index=False).encode()).hexdigest()
+                tuned = tune_catboost(
+                    train,
+                    data_sha256=fold_digest,
+                    seed=seed,
+                    threshold=threshold,
+                    quantile=quantile,
+                )
             artifact = train_model(
                 train,
                 model=model,
@@ -52,18 +63,28 @@ def run_benchmark(
                 threshold=threshold,
                 quantile=quantile,
                 data_sha256=digest,
+                catboost_params=tuned["best_params"] if tuned else None,
             )
             metrics = classification_report(
                 proxy_labels(test.Y, artifact.throughput_threshold),
                 artifact.predict(test).proxy_failure_probability,
             )
-            details.append({"fold": fold, "model": model, **artifact.metadata, "metrics": metrics})
+            details.append(
+                {
+                    "fold": fold,
+                    "model": model,
+                    **artifact.metadata,
+                    "metrics": metrics,
+                    **({"tuning": tuned} if tuned else {}),
+                }
+            )
             rows.append(
                 {
                     "fold": fold,
                     "model": model,
                     "throughput_threshold": artifact.throughput_threshold,
                     **{k: v for k, v in metrics.items() if k != "undefined_reasons"},
+                    **({"tuning_pr_auc": tuned["best_mean_pr_auc"]} if tuned else {}),
                 }
             )
     output = Path(output_dir)
