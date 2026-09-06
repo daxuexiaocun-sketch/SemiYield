@@ -9,7 +9,7 @@ Define reproducible evaluation for manufacturing yield, packaging proxy failure 
 - Repeated stratified cross-validation measures small-sample variability; a chronological 80/20 split evaluates forward generalization.
 - All models use identical outer splits. Cleaning, imputation, feature selection, calibration, and threshold selection are fitted on training data only.
 - The default operating point reviews the top 10% of training out-of-fold risk scores. Primary metrics are PR-AUC, failure recall, MCC, Brier score, and failure capture at the review budget.
-- CLI benchmarks execute in a monitored process tree. The default local policy warns at 32 GB RSS and terminates at 48 GB RSS.
+- CLI benchmarks execute in a monitored process tree. By default, the warning threshold is 70% of physical memory and the termination threshold is 80%; `--soft-memory-gb` and `--memory-limit-gb` explicitly override them.
 
 Generated manifests record configuration, package versions, dataset metadata, and output hashes.
 

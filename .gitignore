@@ -23,11 +23,11 @@ catboost_info/
 # Reproducible local demo artifacts and derived dependency exports
 reports/demo/
 reports/packaging/
+reports/local/
 requirements-demo-py313.lock
 
 # Verified demo publication keeps aggregate charts and summaries only.
 reports/verified/demo/trace.csv
-reports/verified/demo/example_trace.csv
 reports/verified/demo/packaging_observed.csv
 reports/verified/demo/lifetime_observed.csv
 reports/verified/demo/manufacturing/

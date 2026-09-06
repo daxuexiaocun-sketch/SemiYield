@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 
 import numpy as np
@@ -181,19 +182,25 @@ def benchmark_survival_forest(
     )
     model.fit(x.iloc[train_idx], outcome[train_idx])
     risk = model.predict(x.iloc[test_idx])
-    c_index = concordance_index_censored(
-        outcome[test_idx]["event"], outcome[test_idx]["time"], risk
-    )[0]
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        c_index_value = concordance_index_censored(
+            outcome[test_idx]["event"], outcome[test_idx]["time"], risk
+        )[0]
+    c_index = float(c_index_value) if np.isfinite(c_index_value) else None
+    c_index_note = "" if c_index is not None else "No comparable test-set pairs"
     rng = np.random.default_rng(random_state)
     bootstrap = []
     for _ in range(1000):
         sampled = rng.integers(0, len(test_idx), len(test_idx))
         try:
-            value = concordance_index_censored(
-                outcome[test_idx]["event"][sampled],
-                outcome[test_idx]["time"][sampled],
-                risk[sampled],
-            )[0]
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                value = concordance_index_censored(
+                    outcome[test_idx]["event"][sampled],
+                    outcome[test_idx]["time"][sampled],
+                    risk[sampled],
+                )[0]
             if np.isfinite(value):
                 bootstrap.append(float(value))
         except ValueError:
@@ -246,7 +253,8 @@ def benchmark_survival_forest(
         ibs_reason = str(exc)
     return {
         "status": "completed",
-        "c_index": float(c_index),
+        "c_index": c_index,
+        "c_index_note": c_index_note,
         "c_index_bootstrap_ci95": c_index_ci,
         "integrated_brier_score": ibs,
         "integrated_brier_score_note": ibs_reason,

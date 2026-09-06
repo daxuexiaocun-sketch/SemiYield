@@ -1,5 +1,6 @@
 import json
 import zipfile
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ from semiyield.reliability.nasa import (
     _transient_rows,
     aggregate_signals,
     convert_matlab_directory,
+    convert_nasa_matlab_archive,
     derive_lifetime_table,
     inspect_matlab_file,
     prepare_nasa_features,
@@ -112,6 +114,31 @@ def test_verify_archive(tmp_path):
     assert inventory["file_types"] == {".mat": 1}
 
 
+def test_download_keeps_partial_file_when_content_is_truncated(tmp_path):
+    from io import BytesIO
+
+    from semiyield.reliability.nasa import download_archive
+
+    class Response(BytesIO):
+        headers = {"Content-Length": "10"}
+
+        def getcode(self):
+            return 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            self.close()
+
+    archive = tmp_path / "archive.zip"
+    with patch("urllib.request.urlopen", return_value=Response(b"short")):
+        with pytest.raises(OSError, match="incomplete"):
+            download_archive(archive, url="https://example.invalid/archive.zip")
+    assert not archive.exists()
+    assert archive.with_suffix(".zip.part").read_bytes() == b"short"
+
+
 def test_matlab_mapping_conversion(tmp_path):
     source = tmp_path / "matlab"
     source.mkdir()
@@ -145,3 +172,48 @@ def test_matlab_mapping_conversion(tmp_path):
     assert manifest["files"][0]["device_id"] == "device_007"
     assert len(converted) == 12
     assert not converted.event_observed.any()
+
+
+def test_official_conversion_reads_nested_experiment_zip(tmp_path, monkeypatch):
+    mat_path = tmp_path / "Test_7_run_1.mat"
+    savemat(
+        mat_path,
+        {
+            "measurement": {
+                "transient": [
+                    {
+                        "timeEpoch": 10.0,
+                        "timeDomain": {
+                            "gateSourceVoltage": [10.0],
+                            "drainSourceVoltage": [0.2],
+                            "drainCurrent": [2.0],
+                        },
+                    }
+                ],
+                "steadyState": [{"timeEpoch": 10.0, "timeDomain": {"packageTemperature": 210.0}}],
+            }
+        },
+    )
+    inner = tmp_path / "inner.zip"
+    with zipfile.ZipFile(inner, "w") as zipped:
+        zipped.write(mat_path, "dataset/Test_7_run_1.mat")
+    outer = tmp_path / "outer.zip"
+    with zipfile.ZipFile(outer, "w") as zipped:
+        zipped.write(inner, "dataset/experiments.zip")
+    monkeypatch.setattr(
+        "semiyield.reliability.nasa._transient_rows",
+        lambda *_args, **_kwargs: pd.DataFrame(
+            {
+                "device_id": ["device_007"],
+                "run_id": [1],
+                "time_s": [0.0],
+                "temperature_c": [210.0],
+                "vds_v": [0.2],
+                "id_a": [2.0],
+                "event_observed": [False],
+            }
+        ),
+    )
+    manifest = convert_nasa_matlab_archive(outer, output_dir=tmp_path / "normalized")
+    assert manifest["inner_archive"] == "dataset/experiments.zip"
+    assert manifest["files"][0]["device_id"] == "device_007"

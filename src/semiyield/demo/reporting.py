@@ -26,7 +26,7 @@ def write_charts(output, stages, metrics, packaging, lifetime, threshold, curve)
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    plt.rcParams["svg.hashsalt"] = "semiyield-three-stage-v1"
+    plt.rcParams["svg.hashsalt"] = "semiyield-three-stage-v2"
     paths = []
 
     def save(figure, name, title, description):

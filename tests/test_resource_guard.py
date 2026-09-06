@@ -2,8 +2,30 @@ import json
 import sys
 
 import pandas as pd
+import pytest
 
+from semiyield.common import resources
 from semiyield.common.resources import run_guarded
+
+
+def test_default_limits_follow_physical_memory(monkeypatch):
+    class Memory:
+        total = 100 * 1024**3
+
+    monkeypatch.setattr(resources.psutil, "virtual_memory", lambda: Memory())
+    soft, hard = resources.resolve_memory_limits()
+    assert soft == pytest.approx(70)
+    assert hard == pytest.approx(80)
+
+
+def test_explicit_hard_limit_scales_default_soft_limit(monkeypatch):
+    class Memory:
+        total = 100 * 1024**3
+
+    monkeypatch.setattr(resources.psutil, "virtual_memory", lambda: Memory())
+    soft, hard = resources.resolve_memory_limits(hard_limit_gb=40)
+    assert soft == pytest.approx(35)
+    assert hard == pytest.approx(40)
 
 
 def test_guard_records_completed_process(tmp_path):

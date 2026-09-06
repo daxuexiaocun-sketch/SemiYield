@@ -8,7 +8,7 @@ import pandas as pd
 import typer
 
 from semiyield.common.reporting import data_quality_report
-from semiyield.common.resources import run_guarded
+from semiyield.common.resources import resolve_memory_limits, run_guarded
 from semiyield.constants import DEFAULT_DATA_DIR, DEFAULT_MODEL_PATH
 
 from .data import download_secom, load_secom
@@ -57,8 +57,12 @@ def benchmark(
     output_dir: Path = Path("reports/reference/yield"),
     profile: str = typer.Option("quick", help="quick or full"),
     models: str | None = typer.Option(None, help="Comma-separated model names"),
-    soft_memory_gb: float = typer.Option(32.0, min=0.1),
-    memory_limit_gb: float = typer.Option(48.0, min=0.2),
+    soft_memory_gb: float | None = typer.Option(
+        None, min=0.1, help="RSS warning limit in GiB; defaults to 70% of physical memory"
+    ),
+    memory_limit_gb: float | None = typer.Option(
+        None, min=0.2, help="RSS termination limit in GiB; defaults to 80% of physical memory"
+    ),
     worker: bool = typer.Option(False, "--worker", hidden=True),
 ):
     """Run a memory-guarded benchmark with training-only threshold selection."""
@@ -71,6 +75,7 @@ def benchmark(
     if not model_names:
         raise typer.BadParameter("at least one model is required")
     if not worker:
+        soft_memory_gb, memory_limit_gb = resolve_memory_limits(soft_memory_gb, memory_limit_gb)
         command = [
             sys.executable,
             "-m",
@@ -99,7 +104,9 @@ def benchmark(
             hard_limit_gb=memory_limit_gb,
         )
         typer.echo(
-            f"Resource status: {result.status}; peak RSS {result.peak_rss_bytes / 1024**3:.2f} GB"
+            "Resource status: "
+            f"{result.status}; peak RSS {result.peak_rss_bytes / 1024**3:.2f} GB; "
+            f"guard {soft_memory_gb:.2f}/{memory_limit_gb:.2f} GiB"
         )
         if result.exit_code:
             raise typer.Exit(result.exit_code)

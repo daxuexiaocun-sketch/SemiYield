@@ -84,33 +84,43 @@ def write_reliability_charts(
     plt.close(figure)
     paths.append(survival_path)
     if "temperature_c" in lifetime:
-        figure, axis = plt.subplots(figsize=(8.4, 4.6))
-        for temperature, rows in lifetime.groupby("temperature_c"):
-            events = rows.loc[rows.event_observed.eq(1)]
-            censored = rows.loc[rows.event_observed.eq(0)]
-            axis.scatter(
-                [temperature] * len(events),
-                events["time_to_event"],
-                label=f"{temperature:g} °C event / 事件",
-                alpha=0.8,
-            )
-            axis.scatter(
-                [temperature] * len(censored),
-                censored["time_to_event"],
-                marker="+",
-                color="#172033",
-                label=f"{temperature:g} °C censored / 删失",
-            )
+        figure, axis = plt.subplots(figsize=(9.2, 4.8))
+        events = lifetime.loc[lifetime.event_observed.eq(1)]
+        censored = lifetime.loc[lifetime.event_observed.eq(0)]
+        axis.scatter(
+            events["temperature_c"],
+            events["time_to_event"],
+            color="#4f8f6b",
+            alpha=0.78,
+            s=48,
+            label=f"Events / 事件: {len(events)}",
+        )
+        axis.scatter(
+            censored["temperature_c"],
+            censored["time_to_event"],
+            marker="+",
+            color="#172033",
+            s=54,
+            linewidths=1.6,
+            label=f"Censored / 删失: {len(censored)}",
+        )
+        times = pd.to_numeric(lifetime["time_to_event"], errors="coerce")
+        if times.gt(0).all() and times.max() / times.min() >= 100:
+            axis.set_yscale("log")
+            time_label = "Observed/censored time (log scale)"
+        else:
+            time_label = "Observed/censored time"
         axis.set(
             xlabel="Stress temperature (°C)",
-            ylabel="Observed/censored time",
+            ylabel=time_label,
             title="Accelerated-life observations / 加速寿命观测",
         )
         axis.grid(alpha=0.25)
         axis.axvline(
             55, color="#d47832", linestyle="--", label="55 °C use extrapolation / 使用温度外推"
         )
-        axis.legend(fontsize=8, ncol=2)
+        axis.margins(x=0.04, y=0.12)
+        axis.legend(loc="upper left", fontsize=8)
         accelerated_path = output / "accelerated_life.svg"
         save_svg(
             figure,
@@ -118,7 +128,8 @@ def write_reliability_charts(
             title="Accelerated-life observations",
             description=(
                 "Stress-temperature observations distinguish failed and right-censored units; "
-                "55 C is an extrapolated use condition."
+                "55 C is an extrapolated use condition. The vertical scale is logarithmic "
+                "when the observed times span at least two orders of magnitude."
             ),
         )
         plt.close(figure)

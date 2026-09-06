@@ -17,6 +17,23 @@ import psutil
 
 from semiyield.common.artifacts import sha256_file
 
+DEFAULT_SOFT_MEMORY_FRACTION = 0.70
+DEFAULT_HARD_MEMORY_FRACTION = 0.80
+
+
+def resolve_memory_limits(
+    soft_limit_gb: float | None = None, hard_limit_gb: float | None = None
+) -> tuple[float, float]:
+    """Resolve optional GiB overrides against physical memory capacity."""
+    total_gb = psutil.virtual_memory().total / 1024**3
+    hard = total_gb * DEFAULT_HARD_MEMORY_FRACTION if hard_limit_gb is None else hard_limit_gb
+    soft = min(total_gb * DEFAULT_SOFT_MEMORY_FRACTION, hard * 0.875)
+    if soft_limit_gb is not None:
+        soft = soft_limit_gb
+    if not 0 < soft < hard:
+        raise ValueError("memory limits must satisfy 0 < soft < hard")
+    return float(soft), float(hard)
+
 
 @dataclass(frozen=True)
 class ResourceResult:
@@ -100,13 +117,12 @@ def run_guarded(
     *,
     output_dir: str | Path,
     models: list[str],
-    soft_limit_gb: float = 32.0,
-    hard_limit_gb: float = 48.0,
+    soft_limit_gb: float | None = None,
+    hard_limit_gb: float | None = None,
     poll_seconds: float = 0.25,
 ) -> ResourceResult:
     """Run a command in a process group and stop its tree at the RSS hard limit."""
-    if not 0 < soft_limit_gb < hard_limit_gb:
-        raise ValueError("memory limits must satisfy 0 < soft < hard")
+    soft_limit_gb, hard_limit_gb = resolve_memory_limits(soft_limit_gb, hard_limit_gb)
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
     soft_bytes = int(soft_limit_gb * 1024**3)

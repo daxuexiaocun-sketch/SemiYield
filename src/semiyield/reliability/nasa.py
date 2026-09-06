@@ -46,9 +46,29 @@ def download_archive(
     if destination.exists() and not force:
         return verify_archive(destination)
     partial = destination.with_suffix(destination.suffix + ".part")
-    request = urllib.request.Request(url, headers={"User-Agent": "SemiYield/0.2"})
-    with urllib.request.urlopen(request, timeout=60) as response, partial.open("wb") as handle:
-        shutil.copyfileobj(response, handle, length=8 * 1024 * 1024)
+    if force:
+        partial.unlink(missing_ok=True)
+
+    offset = partial.stat().st_size if partial.exists() else 0
+    headers = {"User-Agent": "SemiYield/0.2"}
+    if offset:
+        headers["Range"] = f"bytes={offset}-"
+    request = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(request, timeout=60) as response:
+        status = response.getcode()
+        if offset and status != 206:
+            offset = 0
+        content_length = response.headers.get("Content-Length")
+        expected_bytes = offset + int(content_length) if content_length else None
+        mode = "ab" if offset else "wb"
+        with partial.open(mode) as handle:
+            shutil.copyfileobj(response, handle, length=8 * 1024 * 1024)
+
+    if expected_bytes is not None and partial.stat().st_size != expected_bytes:
+        raise OSError(
+            f"NASA archive download was incomplete; rerun the command to resume from {partial}"
+        )
+    verify_archive(partial)
     partial.replace(destination)
     return verify_archive(destination)
 
@@ -324,47 +344,58 @@ def convert_nasa_matlab_archive(
     output.mkdir(parents=True, exist_ok=True)
     files, skipped = [], []
     pattern = re.compile(r"Test_(\d+)_run_(\d+)\.mat$", re.IGNORECASE)
-    with (
-        zipfile.ZipFile(source) as zipped,
-        tempfile.TemporaryDirectory(prefix="semiyield-nasa-mat-") as temporary,
-    ):
-        for member in sorted(zipped.infolist(), key=lambda item: item.filename):
-            match = pattern.search(Path(member.filename).name)
-            if member.is_dir() or not match:
-                continue
-            device = f"device_{int(match.group(1)):03d}"
-            run = int(match.group(2))
-            temporary_path = Path(temporary) / Path(member.filename).name
-            digest = hashlib.sha256()
-            with zipped.open(member) as input_handle, temporary_path.open("wb") as handle:
-                while block := input_handle.read(8 * 1024 * 1024):
-                    digest.update(block)
-                    handle.write(block)
-            try:
-                content = loadmat(temporary_path, simplify_cells=True)
-                frame = _transient_rows(content["measurement"], device, run_id=run)
-                destination = output / f"{device}_run_{run:03d}.csv"
-                frame.to_csv(destination, index=False)
-                files.append(
-                    {
-                        "source": member.filename,
-                        "source_sha256": digest.hexdigest(),
-                        "output": destination.name,
-                        "output_sha256": sha256_file(destination),
-                        "rows": len(frame),
-                        "device_id": device,
-                        "run": run,
-                    }
-                )
-            except (KeyError, TypeError, ValueError) as exc:
-                skipped.append({"source": member.filename, "reason": str(exc)})
-            temporary_path.unlink(missing_ok=True)
+    with zipfile.ZipFile(source) as outer:
+        inner_members = [
+            member
+            for member in outer.infolist()
+            if not member.is_dir() and member.filename.lower().endswith(".zip")
+        ]
+        if not inner_members:
+            raise ValueError("Official NASA archive contains no inner experiment ZIP")
+        inner_member = max(inner_members, key=lambda member: member.file_size)
+        with (
+            outer.open(inner_member) as inner_handle,
+            zipfile.ZipFile(inner_handle) as zipped,
+            tempfile.TemporaryDirectory(prefix="semiyield-nasa-mat-") as temporary,
+        ):
+            for member in sorted(zipped.infolist(), key=lambda item: item.filename):
+                match = pattern.search(Path(member.filename).name)
+                if member.is_dir() or not match:
+                    continue
+                device = f"device_{int(match.group(1)):03d}"
+                run = int(match.group(2))
+                temporary_path = Path(temporary) / Path(member.filename).name
+                digest = hashlib.sha256()
+                with zipped.open(member) as input_handle, temporary_path.open("wb") as handle:
+                    while block := input_handle.read(8 * 1024 * 1024):
+                        digest.update(block)
+                        handle.write(block)
+                try:
+                    content = loadmat(temporary_path, simplify_cells=True)
+                    frame = _transient_rows(content["measurement"], device, run_id=run)
+                    destination = output / f"{device}_run_{run:03d}.csv"
+                    frame.to_csv(destination, index=False)
+                    files.append(
+                        {
+                            "source": member.filename,
+                            "source_sha256": digest.hexdigest(),
+                            "output": destination.name,
+                            "output_sha256": sha256_file(destination),
+                            "rows": len(frame),
+                            "device_id": device,
+                            "run": run,
+                        }
+                    )
+                except (KeyError, TypeError, ValueError) as exc:
+                    skipped.append({"source": member.filename, "reason": str(exc)})
+                temporary_path.unlink(missing_ok=True)
     if not files:
         raise ValueError("No identifiable NASA Test_<device>_run_<n>.mat files were converted")
     manifest = {
         "schema_version": "nasa-mosfet-matlab-conversion-v1",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "archive_sha256": sha256_file(source),
+        "inner_archive": inner_member.filename,
         "method": "median on-state VDS/ID per switching transient; nearest package temperature",
         "files": files,
         "skipped": skipped,
