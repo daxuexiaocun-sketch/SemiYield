@@ -11,6 +11,7 @@ from semiyield.common.artifacts import sha256_file
 from semiyield.common.reporting import save_svg
 from semiyield.reliability.lifetime import (
     DEFAULT_USE_TEMPERATURES_C,
+    RSF_BASELINE_FEATURES,
     benchmark_survival_forest,
     fit_arrhenius_weibull,
     fit_weibull,
@@ -229,6 +230,85 @@ def write_arrhenius_lifetime_sweep(sweep: pd.DataFrame, output_dir: str | Path) 
     return path
 
 
+def write_rsf_performance_card(result: dict[str, object], output_dir: str | Path) -> Path | None:
+    """Write an aggregate-only, held-out RSF evaluation card."""
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+    output = Path(output_dir)
+    figure, axis = plt.subplots(figsize=(8.4, 3.7))
+    axis.axis("off")
+    title = "NASA MOSFET RSF · protected held-out evaluation"
+    subtitle = "Baseline features · protected 9-device test set · exploratory benchmark"
+    axis.text(0.03, 0.93, title, transform=axis.transAxes, fontsize=14, weight="bold", va="top")
+    axis.text(0.03, 0.82, subtitle, transform=axis.transAxes, fontsize=9, color="#516174")
+    if result.get("status") != "completed":
+        axis.text(0.03, 0.55, "RSF not run", transform=axis.transAxes, fontsize=13, weight="bold")
+        axis.text(
+            0.03,
+            0.39,
+            str(result.get("reason", "No reason recorded")),
+            transform=axis.transAxes,
+            fontsize=10,
+            color="#516174",
+            wrap=True,
+        )
+        description = "RSF held-out performance card reporting a skipped status and reason."
+    else:
+        c_index = result.get("c_index")
+        interval = result.get("c_index_bootstrap_ci95")
+        interval_text = (
+            f"{interval[0]:.3f}–{interval[1]:.3f}"
+            if isinstance(interval, list) and len(interval) == 2
+            else "not estimable"
+        )
+        rows = [
+            ("Harrell C-index", "—" if c_index is None else f"{c_index:.3f}"),
+            ("Bootstrap 95% CI", interval_text),
+            (
+                "Uno C-index (IPCW)",
+                "—" if result.get("uno_c_index") is None else f"{result['uno_c_index']:.3f}",
+            ),
+            (
+                "Integrated Brier score",
+                "—"
+                if result.get("integrated_brier_score") is None
+                else f"{result['integrated_brier_score']:.3f}",
+            ),
+            (
+                "Observed-failure median lifetime MAE",
+                "—"
+                if result.get("observed_failure_median_lifetime_mae") is None
+                else f"{result['observed_failure_median_lifetime_mae']:,.0f} s",
+            ),
+        ]
+        table = axis.table(
+            cellText=rows,
+            colLabels=["Metric", "Held-out value"],
+            cellLoc="left",
+            colLoc="left",
+            bbox=[0.03, 0.08, 0.94, 0.62],
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(9)
+        for (row, _), cell in table.get_celld().items():
+            if row == 0:
+                cell.set_facecolor("#1d3857")
+                cell.get_text().set_color("white")
+                cell.get_text().set_weight("bold")
+            elif row % 2:
+                cell.set_facecolor("#f3f6f9")
+        description = (
+            "Aggregate random survival forest performance on the protected 9-device NASA test set, "
+            "using baseline temperature and initial RDS(on) features only."
+        )
+    path = output / "rsf_performance.svg"
+    save_svg(figure, path, title=title, description=description)
+    plt.close(figure)
+    return path
+
+
 def write_degradation_chart(features: pd.DataFrame, output: str | Path) -> Path | None:
     try:
         import matplotlib.pyplot as plt
@@ -308,21 +388,8 @@ def write_reliability_report(
                     str(key): int(value) for key, value in failures_by_group.items()
                 },
             }
-    numeric_features = [
-        c
-        for c in frame.select_dtypes(include="number").columns
-        if c
-        not in {
-            "time_to_event",
-            "event_observed",
-            "threshold_ohm",
-            "smoothing_windows",
-            "persistence_windows",
-            "baseline_feature_windows",
-        }
-    ]
     report["survival_forest"] = benchmark_survival_forest(
-        frame, feature_columns=numeric_features[:10]
+        frame, feature_columns=RSF_BASELINE_FEATURES, data_sha256=data_sha256
     )
     curve_time = np.linspace(0, float(frame["time_to_event"].max()) * 1.1, 200)
     curve = pd.DataFrame(
@@ -344,6 +411,9 @@ def write_reliability_report(
         sweep_chart = write_arrhenius_lifetime_sweep(sweep, output)
         if sweep_chart:
             chart_paths.append(sweep_chart)
+    rsf_card = write_rsf_performance_card(report["survival_forest"], output)
+    if rsf_card:
+        chart_paths.append(rsf_card)
     report["artifacts"] = {
         "weibull_curve.csv": sha256_file(output / "weibull_curve.csv"),
         **(

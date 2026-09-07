@@ -21,7 +21,10 @@ the same final hyperparameter values.
 
 - All observations from one device remain in one train, validation, or test partition.
 - Weibull fitting supports right-censored units; Arrhenius–Weibull is reported only when temperature groups support the estimate. Reports provide B10 and characteristic life η at 55, 85, 105, and 125 °C; temperatures outside the failure-supported stress range are explicitly marked as extrapolations.
-- The optional survival forest uses device-level splits and reports concordance index.
+- The optional survival forest uses the fixed device-level split: train plus validation devices fit
+  the fixed-parameter model and the protected test devices report Harrell/Uno concordance, integrated
+  Brier score, and uncertainty. It uses baseline-only features and is an exploratory predictive
+  benchmark, not a replacement for Weibull or Arrhenius–Weibull lifetime inference.
 
 See [model card](MODEL_CARD.md) and [reliability methods](RELIABILITY_METHODS.md) for interpretation limits.
 

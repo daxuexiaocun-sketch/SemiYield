@@ -18,21 +18,12 @@ This is a process-risk screening result, not a causal diagnosis.
 
 ## Packaging process
 
-**Task and label.** Local mixed process data; a low-throughput proxy failure is defined as
-`Y < the training-fold 10th percentile`. It is an operational proxy, not a physical device failure.
-
-**Protocol.** Dummy and Logistic use the same random three-fold splits; every fold derives its label
-threshold from its own training rows only. The primary metric is PR-AUC because the proxy class is
-imbalanced.
-
-**Result and boundary.** CatBoost has the highest measured PR-AUC (**0.967**), followed by Logistic
-(**0.882**) and the Dummy baseline (**0.101**). This is random internal validation only: without
-batch, machine, recipe, or time identifiers, it does not establish generalization to a new
-production setting.
+Local mixed process data: low-throughput proxy failure is defined as `Y` below each training fold's
+10th percentile. Random three-fold internal validation: CatBoost PR-AUC **0.967**, Logistic
+**0.882**, and Dummy **0.101**. This is an operational proxy, not physical device failure, and does
+not establish generalization to new production batches, machines, recipes, or time periods.
 
 ![Packaging proxy-failure PR-AUC by model](packaging/benchmark_summary.svg)
-
-![Packaging proxy-failure metrics table](packaging/benchmark_metrics_table.svg)
 
 [Aggregate metrics](packaging/summary.csv) · [fold metrics](packaging/fold_metrics.csv) · [manifest](packaging/manifest.json)
 
@@ -48,12 +39,17 @@ The NASA curves use real stress-test MOSFET data and are not comparable to the s
 
 ![Arrhenius-Weibull use-temperature lifetime sweep](reliability_0045/arrhenius_lifetime_sweep.svg)
 
+![NASA MOSFET RSF held-out performance](reliability_0045/rsf_performance.svg)
+
 The accelerated-life scatter plot shows observed high-temperature data; the lifetime sweep shows
 declared use-temperature model estimates at 55, 85, 105, and 125 °C. All four are reported using
 a conservative extrapolation policy; 125 °C lies within the fitted stress-temperature range but is
 still not a directly observed 125 °C lifetime.
 Each bar is a Weibull-distribution summary rather than one "true lifetime": **B10 = 10% failure
 time** and **η = 63.2% failure time**. Both quantities are reported in seconds.
+The optional RSF uses baseline temperature and initial RDS(on) features only. Its protected 9-device
+test-set metrics are exploratory predictive evidence within observed stress conditions; they do not
+replace Weibull population summaries, Arrhenius–Weibull extrapolation, or qualification testing.
 
 [Lifetime report](reliability_0045/reliability_report.json) · [Weibull curve data](reliability_0045/weibull_curve.csv) · [temperature sweep data](reliability_0045/arrhenius_lifetime_sweep.csv)
 

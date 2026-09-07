@@ -25,7 +25,12 @@ def render(zh):
         metrics[0].metric("β", f"{weibull['beta']:.3f}")
         metrics[1].metric("η", f"{weibull['eta']:.0f} s")
         metrics[2].metric("B10", f"{weibull['b10']:.0f} s")
-        metrics[3].metric("C-index", f"{report['survival_forest']['c_index']:.3f}")
+        rsf = report.get("survival_forest", {})
+        if rsf.get("status") == "completed" and rsf.get("c_index") is not None:
+            metrics[3].metric("RSF C-index", f"{rsf['c_index']:.3f}")
+        else:
+            metrics[3].metric("RSF", "Skipped")
+            st.caption(rsf.get("reason", "No RSF result recorded"))
         st.warning(report["arrhenius_weibull"].get("extrapolation_warning", ""))
         st.json(report)
         st.stop()

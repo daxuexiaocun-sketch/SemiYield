@@ -84,15 +84,30 @@
   ],
   "survival_forest": {
     "status": "completed",
+    "feature_columns": [
+      "baseline_temperature_c_mean",
+      "baseline_rds_on_ohm_mean",
+      "baseline_rds_on_ohm_slope"
+    ],
+    "model_parameters": {
+      "n_estimators": 200,
+      "min_samples_leaf": 3,
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "data_sha256": "39af82761104e25e6aece32c4078dfa9c69af98b6beb7c8fb1a2521007d899d1",
     "c_index": 0.9047619047619048,
     "c_index_note": "",
     "c_index_bootstrap_ci95": [
       0.5882352941176471,
       1.0
     ],
-    "integrated_brier_score": 0.15001562682880434,
+    "c_index_bootstrap_valid_resamples": 998,
+    "uno_c_index": 0.861957124148788,
+    "uno_c_index_note": "",
+    "integrated_brier_score": 0.149033009914657,
     "integrated_brier_score_note": "",
-    "observed_failure_median_lifetime_mae": 7628.631601184607,
+    "observed_failure_median_lifetime_mae": 5809.897603690624,
     "train_units": 32,
     "test_units": 9,
     "split_source": "input_manifest"
@@ -102,6 +117,7 @@
     "arrhenius_lifetime_sweep.csv": "985055ae392a947d5318857ec307100ea781ff63c19c8db962a9cd9aabb02b60",
     "weibull_survival.svg": "fb58ae38bed0d579ea00e1e7084623827d81d0eba94c94ab130e028dd0aadcf6",
     "accelerated_life.svg": "75218d057c66791af3edf4e3762f21cd1db4f4e02f34605bfb7606de791a5107",
-    "arrhenius_lifetime_sweep.svg": "24b948b70c8c12c854eea2f6ea6637e2fcbcad8aa516e80f232868dcad8af3b4"
+    "arrhenius_lifetime_sweep.svg": "24b948b70c8c12c854eea2f6ea6637e2fcbcad8aa516e80f232868dcad8af3b4",
+    "rsf_performance.svg": "aa402c9f45dd8504c944f1351f5c046da5a2c0aa8e4e50266f40263dc9839ff8"
   }
 }

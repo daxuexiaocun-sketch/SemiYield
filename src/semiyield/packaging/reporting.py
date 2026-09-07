@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from semiyield.common.reporting import save_svg
+from semiyield.common.reporting import save_svg, write_pr_auc_benchmark_chart
 
 PROXY_FAILURE_TERM = "low-throughput proxy failure"
 PROXY_FAILURE_NOTE = (
@@ -19,7 +19,6 @@ def write_benchmark_charts(
     """Write a primary PR-AUC chart and an aggregate metrics table."""
     try:
         import matplotlib.pyplot as plt
-        from matplotlib.patches import Patch
     except ImportError:
         return []
     destination = Path(output_dir)
@@ -33,53 +32,19 @@ def write_benchmark_charts(
     statistics = fold_metrics.groupby("model")[available].agg(["mean", "std"])
     statistics = statistics.reindex(models)
 
-    figure, axis = plt.subplots(figsize=(7.6, 4.8))
-    x = list(range(len(models)))
-    colors = {"dummy": "#9aa9b8", "logistic": "#2878b5", "catboost": "#d47832"}
-    means = statistics[("pr_auc", "mean")].to_numpy(dtype=float)
-    deviations = statistics[("pr_auc", "std")].fillna(0).to_numpy(dtype=float)
-    bars = axis.bar(
-        x,
-        means,
-        yerr=deviations,
-        capsize=4,
-        color=[colors.get(str(model), "#516174") for model in models],
-    )
-    for bar, value, deviation in zip(bars, means, deviations, strict=True):
-        axis.text(
-            bar.get_x() + bar.get_width() / 2,
-            min(1.02, value + deviation + 0.025),
-            f"{value:.3f}",
-            ha="center",
-            va="bottom",
-            fontsize=8,
-        )
-    axis.set_xticks(x, [str(model).title() for model in models])
-    axis.set_ylim(0, 1.08)
-    axis.set_title("Packaging proxy failure · PR-AUC · random three-fold internal validation")
-    axis.set_xlabel("Model")
-    axis.set_ylabel("PR-AUC (mean ± standard deviation)")
-    axis.legend(
-        handles=[
-            Patch(facecolor=colors.get(str(model), "#516174"), label=str(model).title())
-            for model in models
-        ],
-        title="Model",
-        loc="upper left",
-    )
     matrix_path = destination / "benchmark_summary.svg"
-    paths = [
-        save_svg(
-            figure,
-            matrix_path,
-            title="Packaging proxy-failure PR-AUC by model",
-            description=(
-                "PR-AUC means with standard-deviation error bars from three-fold internal "
-                "validation. The label is a throughput proxy, not physical device failure."
-            ),
-        )
-    ]
-    plt.close(figure)
+    chart_summary = statistics[("pr_auc", "mean")].rename("pr_auc_mean").to_frame()
+    chart_summary["pr_auc_std"] = statistics[("pr_auc", "std")]
+    chart = write_pr_auc_benchmark_chart(
+        chart_summary.reset_index(),
+        matrix_path,
+        title="Packaging proxy failure · PR-AUC · random three-fold internal validation",
+        description=(
+            "PR-AUC means with standard-deviation error bars from three-fold internal "
+            "validation. The label is a throughput proxy, not physical device failure."
+        ),
+    )
+    paths = [chart] if chart else []
     figure, axis = plt.subplots(figsize=(11.0, 1.95 + 0.42 * len(models)))
     axis.axis("off")
     values = []

@@ -1470,7 +1470,7 @@
   "artifacts": {
     "summary.csv": "a5d9732464f63b670c5579c7969bfac097728031b04e5f4d0a9115904934177f",
     "fold_metrics.csv": "9e72841b7ed5f20cbfe72a833e247068a39cfa1a61b358e9eae3587bbedd9c9f",
-    "benchmark_summary.svg": "6165eef0b26943e2a8f6b164cb0e425aa5f1f377a184dab3e528232505db270d",
+    "benchmark_summary.svg": "5c59053891d60848196254c91cbb58a8c6cd1ce25634c2aa918078df5a964529",
     "benchmark_metrics_table.svg": "5030b95be67c936356a1411c883ccedfb5dec93260c504fb422ded2ecbb1324b"
   }
 }

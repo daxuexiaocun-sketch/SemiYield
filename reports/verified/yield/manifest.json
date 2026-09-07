@@ -52,7 +52,7 @@
     "fold_metrics.csv": "1cf6bb12fd2bcfe0a4e711adfeaae5c2ff0f97e09f170de2cdfd0fb77d608f65",
     "summary.csv": "405ec76960f38ab479fcd9c9d9c05a9af764f61fac359a1edde66c5402ddcf57",
     "model_status.csv": "8ed2da95a42ceb9956358a0b44d30fce30cb1385e5cba72fe927df50fb972261",
-    "benchmark_pr_auc.svg": "a084e9bda4b06619d89319d52d9e4e1218cd3a44608fd1e82f196ae91d32d892",
+    "benchmark_pr_auc.svg": "ed970cc692eb13508817423a32a52c464547601f473d03d96d4c5dd8575a5750",
     "resource_usage.json": "7a8d32608fcd84c1eb182557e0839b39f1ad94f8514ed9cd0d5b081bf21ac952"
   }
 }

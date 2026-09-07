@@ -13,6 +13,17 @@ from semiyield.reliability.data import validate_lifetime_data
 
 BOLTZMANN_EV_PER_K = 8.617333262145e-5
 DEFAULT_USE_TEMPERATURES_C = (55.0, 85.0, 105.0, 125.0)
+RSF_BASELINE_FEATURES = (
+    "baseline_temperature_c_mean",
+    "baseline_rds_on_ohm_mean",
+    "baseline_rds_on_ohm_slope",
+)
+RSF_PARAMETERS = {
+    "n_estimators": 200,
+    "min_samples_leaf": 3,
+    "random_state": 42,
+    "n_jobs": -1,
+}
 
 
 @dataclass(frozen=True)
@@ -193,24 +204,44 @@ def survival_probability(time, *, beta: float, eta: float) -> np.ndarray:
 def benchmark_survival_forest(
     frame: pd.DataFrame,
     *,
-    feature_columns: list[str],
+    feature_columns: list[str] | tuple[str, ...] = RSF_BASELINE_FEATURES,
     random_state: int = 42,
+    data_sha256: str | None = None,
 ) -> dict[str, object]:
     """Run optional device-level random survival forest, or return an auditable skip."""
     data = validate_lifetime_data(frame)
+    feature_columns = list(feature_columns)
+    context = {
+        "feature_columns": feature_columns,
+        "model_parameters": {**RSF_PARAMETERS, "random_state": random_state},
+        "data_sha256": data_sha256,
+    }
     if len(data) < 30 or int(data["event_observed"].sum()) < 10:
         return {
             "status": "skipped",
             "reason": "At least 30 units and 10 observed failures are required",
+            **context,
         }
     try:
         from sksurv.ensemble import RandomSurvivalForest
-        from sksurv.metrics import concordance_index_censored, integrated_brier_score
+        from sksurv.metrics import (
+            concordance_index_censored,
+            concordance_index_ipcw,
+            integrated_brier_score,
+        )
     except ImportError:
-        return {"status": "skipped", "reason": "Run `uv sync --locked --extra survival`"}
+        return {
+            "status": "skipped",
+            "reason": "Run `uv sync --locked --extra survival`",
+            **context,
+        }
     missing = [column for column in feature_columns if column not in data]
     if missing:
-        raise ValueError(f"Missing survival features: {', '.join(missing)}")
+        return {
+            "status": "skipped",
+            "reason": f"Missing baseline survival features: {', '.join(missing)}",
+            **context,
+        }
     if "split" in data and {"train", "test"}.issubset(set(data["split"])):
         train_idx = np.flatnonzero(data["split"].isin(["train", "validation"]).to_numpy())
         test_idx = np.flatnonzero(data["split"].eq("test").to_numpy())
@@ -222,14 +253,33 @@ def benchmark_survival_forest(
         train_idx, test_idx = order[:boundary], order[boundary:]
         split_source = "deterministic_unit_order"
     if not len(train_idx) or not len(test_idx):
-        return {"status": "skipped", "reason": "Split contains no train or test units"}
-    x = data[feature_columns].apply(pd.to_numeric, errors="raise")
+        return {
+            "status": "skipped",
+            "reason": "Split contains no train or test units",
+            **context,
+        }
+    if int(data.iloc[train_idx]["event_observed"].sum()) < 10:
+        return {
+            "status": "skipped",
+            "reason": "Training split has fewer than 10 observed failures",
+            **context,
+        }
+    try:
+        x = data[feature_columns].apply(pd.to_numeric, errors="raise")
+    except (TypeError, ValueError) as exc:
+        return {"status": "skipped", "reason": str(exc), **context}
+    if not np.isfinite(x.to_numpy(dtype=float)).all():
+        return {
+            "status": "skipped",
+            "reason": "Baseline survival features must be finite",
+            **context,
+        }
     outcome = np.array(
         list(zip(data["event_observed"], data["time_to_event"], strict=True)),
         dtype=[("event", bool), ("time", float)],
     )
     model = RandomSurvivalForest(
-        n_estimators=200, min_samples_leaf=3, random_state=random_state, n_jobs=-1
+        **{**RSF_PARAMETERS, "random_state": random_state}
     )
     model.fit(x.iloc[train_idx], outcome[train_idx])
     risk = model.predict(x.iloc[test_idx])
@@ -261,6 +311,15 @@ def benchmark_survival_forest(
         if bootstrap
         else None
     )
+    uno_c_index: float | None = None
+    uno_c_index_note = ""
+    try:
+        uno_value = concordance_index_ipcw(outcome[train_idx], outcome[test_idx], risk)[0]
+        uno_c_index = float(uno_value) if np.isfinite(uno_value) else None
+        if uno_c_index is None:
+            uno_c_index_note = "No comparable IPCW test-set pairs"
+    except ValueError as exc:
+        uno_c_index_note = str(exc)
     survival_functions = model.predict_survival_function(x.iloc[test_idx])
     predicted_median = []
     for function in survival_functions:
@@ -304,9 +363,13 @@ def benchmark_survival_forest(
         ibs_reason = str(exc)
     return {
         "status": "completed",
+        **context,
         "c_index": c_index,
         "c_index_note": c_index_note,
         "c_index_bootstrap_ci95": c_index_ci,
+        "c_index_bootstrap_valid_resamples": len(bootstrap),
+        "uno_c_index": uno_c_index,
+        "uno_c_index_note": uno_c_index_note,
         "integrated_brier_score": ibs,
         "integrated_brier_score_note": ibs_reason,
         "observed_failure_median_lifetime_mae": lifetime_mae,
