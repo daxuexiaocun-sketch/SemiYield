@@ -13,7 +13,7 @@ RDS(on) is calculated as VDS/ID for selected on-state samples and adjusted to an
 ## Models and outputs
 
 - Weibull maximum likelihood with right censoring: shape β, characteristic life η, B10, likelihood, and parameter intervals.
-- Arrhenius–Weibull accelerated-life model: activation energy and use-condition lifetime when temperature groups are sufficient.
+- Arrhenius–Weibull accelerated-life model: activation energy and use-condition lifetime when temperature groups are sufficient. A fixed-temperature result is a Weibull-distribution summary: B10 is the 10% failure time and η is the 63.2% failure time (characteristic life); both are reported in seconds.
 - Optional random survival forest: device-level concordance index.
 
 ## Limitations and references

@@ -20,7 +20,7 @@ the same final hyperparameter values.
 ## MOSFET reliability analysis
 
 - All observations from one device remain in one train, validation, or test partition.
-- Weibull fitting supports right-censored units; Arrhenius–Weibull is reported only when temperature groups support the estimate.
+- Weibull fitting supports right-censored units; Arrhenius–Weibull is reported only when temperature groups support the estimate. Reports provide B10 and characteristic life η at 55, 85, 105, and 125 °C; temperatures outside the failure-supported stress range are explicitly marked as extrapolations.
 - The optional survival forest uses device-level splits and reports concordance index.
 
 See [model card](MODEL_CARD.md) and [reliability methods](RELIABILITY_METHODS.md) for interpretation limits.

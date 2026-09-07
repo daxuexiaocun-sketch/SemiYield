@@ -10,10 +10,12 @@ import pandas as pd
 from semiyield.common.artifacts import sha256_file
 from semiyield.common.reporting import save_svg
 from semiyield.reliability.lifetime import (
+    DEFAULT_USE_TEMPERATURES_C,
     benchmark_survival_forest,
     fit_arrhenius_weibull,
     fit_weibull,
     survival_probability,
+    sweep_arrhenius_weibull,
 )
 
 
@@ -29,7 +31,11 @@ def _kaplan_meier(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def write_reliability_charts(
-    lifetime: pd.DataFrame, curve: pd.DataFrame, output_dir: str | Path
+    lifetime: pd.DataFrame,
+    curve: pd.DataFrame,
+    output_dir: str | Path,
+    *,
+    use_temperatures_c=DEFAULT_USE_TEMPERATURES_C,
 ) -> list[Path]:
     try:
         import matplotlib.pyplot as plt
@@ -116,9 +122,15 @@ def write_reliability_charts(
             title="NASA MOSFET accelerated-life observations",
         )
         axis.grid(alpha=0.25)
-        axis.axvline(
-            55, color="#d47832", linestyle="--", label="55 °C use-temperature extrapolation"
-        )
+        target_colors = ("#2878b5", "#3b9b8a", "#d47832", "#7252b8")
+        for index, temperature in enumerate(use_temperatures_c):
+            axis.axvline(
+                temperature,
+                color=target_colors[index % len(target_colors)],
+                linestyle=":",
+                linewidth=1.4,
+                label=f"{temperature:g} °C extrapolated use target",
+            )
         axis.margins(x=0.04, y=0.12)
         axis.legend(loc="upper left", fontsize=8)
         accelerated_path = output / "accelerated_life.svg"
@@ -128,13 +140,86 @@ def write_reliability_charts(
             title="Accelerated-life observations",
             description=(
                 "Stress-temperature observations distinguish failed and right-censored units; "
-                "55 C is an extrapolated use condition. The vertical scale is logarithmic "
+                "declared use-temperature targets are reported as extrapolated model estimates. "
+                "The vertical scale is logarithmic "
                 "when the observed times span at least two orders of magnitude."
             ),
         )
         plt.close(figure)
         paths.append(accelerated_path)
     return paths
+
+
+def write_arrhenius_lifetime_sweep(sweep: pd.DataFrame, output_dir: str | Path) -> Path | None:
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+    output = Path(output_dir)
+    figure, axis = plt.subplots(figsize=(8.8, 4.8))
+    positions = np.arange(len(sweep), dtype=float)
+    width = 0.34
+    extrapolated = sweep["support_status"].eq("extrapolated").to_numpy()
+    b10_bars = axis.bar(
+        positions - width / 2,
+        sweep["b10_s"],
+        width,
+        color="#9aa9b8",
+        label="B10",
+    )
+    eta_bars = axis.bar(
+        positions + width / 2,
+        sweep["eta_s"],
+        width,
+        color="#2878b5",
+        label="η",
+    )
+    labels = [
+        f"{value:,.0f} s{'+' if is_extrapolated else ''}"
+        for value, is_extrapolated in zip(sweep["b10_s"], extrapolated, strict=True)
+    ]
+    axis.bar_label(b10_bars, labels=labels, padding=3, fontsize=7)
+    labels = [
+        f"{value:,.0f} s{'+' if is_extrapolated else ''}"
+        for value, is_extrapolated in zip(sweep["eta_s"], extrapolated, strict=True)
+    ]
+    axis.bar_label(eta_bars, labels=labels, padding=3, fontsize=7)
+    axis.set(
+        xlabel="Use junction temperature (°C)",
+        ylabel="Lifetime estimate (seconds, log scale)",
+        title="Arrhenius–Weibull use-temperature lifetime estimates",
+        yscale="log",
+        xticks=positions,
+        xticklabels=[f"{temperature:g}" for temperature in sweep["use_temperature_c"]],
+    )
+    axis.grid(axis="y", alpha=0.25)
+    axis.margins(x=0.08, y=0.26)
+    axis.text(
+        0.02,
+        0.97,
+        "B10 = 10% failure time; η = 63.2% failure time\n"
+        "Gray: B10; blue: η; + = declared use-temperature extrapolation / model estimate\n"
+        "Arrhenius–Weibull model estimates, not direct observations.",
+        transform=axis.transAxes,
+        fontsize=8,
+        color="#516174",
+        va="top",
+        bbox={"facecolor": "white", "alpha": 0.86, "edgecolor": "none", "pad": 2},
+    )
+    path = output / "arrhenius_lifetime_sweep.svg"
+    save_svg(
+        figure,
+        path,
+        title="Arrhenius-Weibull use-temperature lifetime sweep",
+        description=(
+            "Grouped bars show B10, the 10 percent failure time, and eta, the 63.2 percent "
+            "failure time, by use junction temperature. Bar labels with a plus sign identify "
+            "declared use-temperature extrapolations; values are "
+            "Arrhenius-Weibull model estimates, not direct observations."
+        ),
+    )
+    plt.close(figure)
+    return path
 
 
 def write_degradation_chart(features: pd.DataFrame, output: str | Path) -> Path | None:
@@ -182,6 +267,7 @@ def write_reliability_report(
     *,
     output_dir: str | Path = "reports/reference/reliability",
     use_temperature_c: float = 55.0,
+    use_temperatures_c=DEFAULT_USE_TEMPERATURES_C,
     data_sha256: str | None = None,
 ) -> dict[str, object]:
     output = Path(output_dir)
@@ -198,22 +284,23 @@ def write_reliability_report(
             frame.loc[frame["event_observed"].astype(bool)].groupby(stress_group).size()
         )
         eligible_groups = failures_by_group[failures_by_group >= 3]
-        report["arrhenius_weibull"] = (
-            asdict(
-                fit_arrhenius_weibull(
-                    frame.loc[stress_group.isin(eligible_groups.index)],
-                    use_temperature_c=use_temperature_c,
-                )
+        if len(eligible_groups) >= 2:
+            fit_frame = frame.loc[stress_group.isin(eligible_groups.index)]
+            single = fit_arrhenius_weibull(fit_frame, use_temperature_c=use_temperature_c)
+            sweep = pd.DataFrame(
+                sweep_arrhenius_weibull(fit_frame, use_temperatures_c=use_temperatures_c)
             )
-            if len(eligible_groups) >= 2
-            else {
+            report["arrhenius_weibull"] = asdict(single)
+            report["arrhenius_weibull_sweep"] = sweep.to_dict(orient="records")
+            sweep.to_csv(output / "arrhenius_lifetime_sweep.csv", index=False)
+        else:
+            report["arrhenius_weibull"] = {
                 "status": "skipped",
                 "reason": "Need at least two 10 C stress groups with three failures each",
                 "failures_by_rounded_stress_c": {
                     str(key): int(value) for key, value in failures_by_group.items()
                 },
             }
-        )
     numeric_features = [
         c
         for c in frame.select_dtypes(include="number").columns
@@ -240,9 +327,23 @@ def write_reliability_report(
         }
     )
     curve.to_csv(output / "weibull_curve.csv", index=False)
-    chart_paths = write_reliability_charts(frame, curve, output)
+    chart_paths = write_reliability_charts(
+        frame,
+        curve,
+        output,
+        use_temperatures_c=use_temperatures_c,
+    )
+    if "arrhenius_weibull_sweep" in report:
+        sweep_chart = write_arrhenius_lifetime_sweep(sweep, output)
+        if sweep_chart:
+            chart_paths.append(sweep_chart)
     report["artifacts"] = {
         "weibull_curve.csv": sha256_file(output / "weibull_curve.csv"),
+        **(
+            {"arrhenius_lifetime_sweep.csv": sha256_file(output / "arrhenius_lifetime_sweep.csv")}
+            if "arrhenius_weibull_sweep" in report
+            else {}
+        ),
         **{path.name: sha256_file(path) for path in chart_paths},
     }
     (output / "reliability_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")

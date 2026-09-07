@@ -3,7 +3,7 @@
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns:xlink="http://www.w3.org/1999/xlink" width="662.4pt" height="345.6pt" viewBox="0 0 662.4 345.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
 <title>Accelerated-life observations</title>
-<desc>Stress-temperature observations distinguish failed and right-censored units; 55 C is an extrapolated use condition. The vertical scale is logarithmic when the observed times span at least two orders of magnitude.</desc>
+<desc>Stress-temperature observations distinguish failed and right-censored units; declared use-temperature targets are reported as extrapolated model estimates. The vertical scale is logarithmic when the observed times span at least two orders of magnitude.</desc>
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
@@ -1242,7 +1242,22 @@ z
    <g id="line2d_44">
     <path d="M 79.392534 303.8
 L 79.392534 27.12
-" clip-path="url(#p517eed1168)" style="fill: none; stroke-dasharray: 5.55,2.4; stroke-dashoffset: 0; stroke: #d47832; stroke-width: 1.5"/>
+" clip-path="url(#p517eed1168)" style="fill: none; stroke-dasharray: 1.4,2.31; stroke-dashoffset: 0; stroke: #2878b5; stroke-width: 1.4"/>
+   </g>
+   <g id="line2d_45">
+    <path d="M 214.240471 303.8
+L 214.240471 27.12
+" clip-path="url(#p517eed1168)" style="fill: none; stroke-dasharray: 1.4,2.31; stroke-dashoffset: 0; stroke: #3b9b8a; stroke-width: 1.4"/>
+   </g>
+   <g id="line2d_46">
+    <path d="M 304.139096 303.8
+L 304.139096 27.12
+" clip-path="url(#p517eed1168)" style="fill: none; stroke-dasharray: 1.4,2.31; stroke-dashoffset: 0; stroke: #d47832; stroke-width: 1.4"/>
+   </g>
+   <g id="line2d_47">
+    <path d="M 394.037721 303.8
+L 394.037721 27.12
+" clip-path="url(#p517eed1168)" style="fill: none; stroke-dasharray: 1.4,2.31; stroke-dashoffset: 0; stroke: #7252b8; stroke-width: 1.4"/>
    </g>
    <g id="patch_3">
     <path d="M 47.32 303.8
@@ -1426,15 +1441,15 @@ z
    </g>
    <g id="legend_1">
     <g id="patch_7">
-     <path d="M 52.92 69.52
-L 224.65625 69.52
-Q 226.25625 69.52 226.25625 67.92
-L 226.25625 32.72
-Q 226.25625 31.12 224.65625 31.12
+     <path d="M 52.92 105.52
+L 202.145 105.52
+Q 203.745 105.52 203.745 103.92
+L 203.745 32.72
+Q 203.745 31.12 202.145 31.12
 L 52.92 31.12
 Q 51.32 31.12 51.32 32.72
-L 51.32 67.92
-Q 51.32 69.52 52.92 69.52
+L 51.32 103.92
+Q 51.32 105.52 52.92 105.52
 z
 " style="fill: #ffffff; opacity: 0.8; stroke: #cccccc; stroke-linejoin: miter"/>
     </g>
@@ -1560,14 +1575,14 @@ z
       <use xlink:href="#STHeiti-16" transform="translate(842.8125 0)"/>
      </g>
     </g>
-    <g id="line2d_45">
+    <g id="line2d_48">
      <path d="M 54.52 62.4
 L 62.52 62.4
 L 70.52 62.4
-" style="fill: none; stroke-dasharray: 5.55,2.4; stroke-dashoffset: 0; stroke: #d47832; stroke-width: 1.5"/>
+" style="fill: none; stroke-dasharray: 1.4,2.31; stroke-dashoffset: 0; stroke: #2878b5; stroke-width: 1.4"/>
     </g>
     <g id="text_16">
-     <!-- 55 °C use-temperature extrapolation -->
+     <!-- 55 °C extrapolated use target -->
      <g transform="translate(76.92 65.2) scale(0.08 -0.08)">
       <defs>
        <path id="STHeiti-5b" d="M 1530 1805
@@ -1592,35 +1607,151 @@ z
       <use xlink:href="#STHeiti-1be3" transform="translate(135.8125 0)"/>
       <use xlink:href="#STHeiti-26" transform="translate(235.8125 0)"/>
       <use xlink:href="#STHeiti-3" transform="translate(317.109375 0)"/>
-      <use xlink:href="#STHeiti-58" transform="translate(342.109375 0)"/>
-      <use xlink:href="#STHeiti-56" transform="translate(402.90625 0)"/>
-      <use xlink:href="#STHeiti-48" transform="translate(441.703125 0)"/>
-      <use xlink:href="#STHeiti-10" transform="translate(506.703125 0)"/>
-      <use xlink:href="#STHeiti-57" transform="translate(539.90625 0)"/>
-      <use xlink:href="#STHeiti-48" transform="translate(573.8125 0)"/>
-      <use xlink:href="#STHeiti-50" transform="translate(638.8125 0)"/>
-      <use xlink:href="#STHeiti-53" transform="translate(732.609375 0)"/>
-      <use xlink:href="#STHeiti-48" transform="translate(800.8125 0)"/>
-      <use xlink:href="#STHeiti-55" transform="translate(865.8125 0)"/>
-      <use xlink:href="#STHeiti-44" transform="translate(895.90625 0)"/>
-      <use xlink:href="#STHeiti-57" transform="translate(964.203125 0)"/>
-      <use xlink:href="#STHeiti-58" transform="translate(998.109375 0)"/>
-      <use xlink:href="#STHeiti-55" transform="translate(1058.90625 0)"/>
-      <use xlink:href="#STHeiti-48" transform="translate(1089 0)"/>
-      <use xlink:href="#STHeiti-3" transform="translate(1154 0)"/>
-      <use xlink:href="#STHeiti-48" transform="translate(1179 0)"/>
-      <use xlink:href="#STHeiti-5b" transform="translate(1244 0)"/>
-      <use xlink:href="#STHeiti-57" transform="translate(1292 0)"/>
-      <use xlink:href="#STHeiti-55" transform="translate(1325.90625 0)"/>
-      <use xlink:href="#STHeiti-44" transform="translate(1356 0)"/>
-      <use xlink:href="#STHeiti-53" transform="translate(1424.296875 0)"/>
-      <use xlink:href="#STHeiti-52" transform="translate(1492.5 0)"/>
-      <use xlink:href="#STHeiti-4f" transform="translate(1558 0)"/>
-      <use xlink:href="#STHeiti-44" transform="translate(1578 0)"/>
-      <use xlink:href="#STHeiti-57" transform="translate(1646.296875 0)"/>
-      <use xlink:href="#STHeiti-4c" transform="translate(1680.203125 0)"/>
-      <use xlink:href="#STHeiti-52" transform="translate(1700.203125 0)"/>
-      <use xlink:href="#STHeiti-51" transform="translate(1765.703125 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(342.109375 0)"/>
+      <use xlink:href="#STHeiti-5b" transform="translate(407.109375 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(455.109375 0)"/>
+      <use xlink:href="#STHeiti-55" transform="translate(489.015625 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(519.109375 0)"/>
+      <use xlink:href="#STHeiti-53" transform="translate(587.40625 0)"/>
+      <use xlink:href="#STHeiti-52" transform="translate(655.609375 0)"/>
+      <use xlink:href="#STHeiti-4f" transform="translate(721.109375 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(741.109375 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(809.40625 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(843.3125 0)"/>
+      <use xlink:href="#STHeiti-47" transform="translate(908.3125 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(976.8125 0)"/>
+      <use xlink:href="#STHeiti-58" transform="translate(1001.8125 0)"/>
+      <use xlink:href="#STHeiti-56" transform="translate(1062.609375 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(1101.40625 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(1166.40625 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(1191.40625 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(1225.3125 0)"/>
+      <use xlink:href="#STHeiti-55" transform="translate(1293.609375 0)"/>
+      <use xlink:href="#STHeiti-4a" transform="translate(1323.703125 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(1391 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(1456 0)"/>
+     </g>
+    </g>
+    <g id="line2d_49">
+     <path d="M 54.52 74.4
+L 62.52 74.4
+L 70.52 74.4
+" style="fill: none; stroke-dasharray: 1.4,2.31; stroke-dashoffset: 0; stroke: #3b9b8a; stroke-width: 1.4"/>
+    </g>
+    <g id="text_17">
+     <!-- 85 °C extrapolated use target -->
+     <g transform="translate(76.92 77.2) scale(0.08 -0.08)">
+      <use xlink:href="#STHeiti-1b"/>
+      <use xlink:href="#STHeiti-18" transform="translate(55.40625 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(110.8125 0)"/>
+      <use xlink:href="#STHeiti-1be3" transform="translate(135.8125 0)"/>
+      <use xlink:href="#STHeiti-26" transform="translate(235.8125 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(317.109375 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(342.109375 0)"/>
+      <use xlink:href="#STHeiti-5b" transform="translate(407.109375 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(455.109375 0)"/>
+      <use xlink:href="#STHeiti-55" transform="translate(489.015625 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(519.109375 0)"/>
+      <use xlink:href="#STHeiti-53" transform="translate(587.40625 0)"/>
+      <use xlink:href="#STHeiti-52" transform="translate(655.609375 0)"/>
+      <use xlink:href="#STHeiti-4f" transform="translate(721.109375 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(741.109375 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(809.40625 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(843.3125 0)"/>
+      <use xlink:href="#STHeiti-47" transform="translate(908.3125 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(976.8125 0)"/>
+      <use xlink:href="#STHeiti-58" transform="translate(1001.8125 0)"/>
+      <use xlink:href="#STHeiti-56" transform="translate(1062.609375 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(1101.40625 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(1166.40625 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(1191.40625 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(1225.3125 0)"/>
+      <use xlink:href="#STHeiti-55" transform="translate(1293.609375 0)"/>
+      <use xlink:href="#STHeiti-4a" transform="translate(1323.703125 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(1391 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(1456 0)"/>
+     </g>
+    </g>
+    <g id="line2d_50">
+     <path d="M 54.52 86.4
+L 62.52 86.4
+L 70.52 86.4
+" style="fill: none; stroke-dasharray: 1.4,2.31; stroke-dashoffset: 0; stroke: #d47832; stroke-width: 1.4"/>
+    </g>
+    <g id="text_18">
+     <!-- 105 °C extrapolated use target -->
+     <g transform="translate(76.92 89.2) scale(0.08 -0.08)">
+      <use xlink:href="#STHeiti-14"/>
+      <use xlink:href="#STHeiti-13" transform="translate(55.40625 0)"/>
+      <use xlink:href="#STHeiti-18" transform="translate(110.8125 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(166.21875 0)"/>
+      <use xlink:href="#STHeiti-1be3" transform="translate(191.21875 0)"/>
+      <use xlink:href="#STHeiti-26" transform="translate(291.21875 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(372.515625 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(397.515625 0)"/>
+      <use xlink:href="#STHeiti-5b" transform="translate(462.515625 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(510.515625 0)"/>
+      <use xlink:href="#STHeiti-55" transform="translate(544.421875 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(574.515625 0)"/>
+      <use xlink:href="#STHeiti-53" transform="translate(642.8125 0)"/>
+      <use xlink:href="#STHeiti-52" transform="translate(711.015625 0)"/>
+      <use xlink:href="#STHeiti-4f" transform="translate(776.515625 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(796.515625 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(864.8125 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(898.71875 0)"/>
+      <use xlink:href="#STHeiti-47" transform="translate(963.71875 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(1032.21875 0)"/>
+      <use xlink:href="#STHeiti-58" transform="translate(1057.21875 0)"/>
+      <use xlink:href="#STHeiti-56" transform="translate(1118.015625 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(1156.8125 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(1221.8125 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(1246.8125 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(1280.71875 0)"/>
+      <use xlink:href="#STHeiti-55" transform="translate(1349.015625 0)"/>
+      <use xlink:href="#STHeiti-4a" transform="translate(1379.109375 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(1446.40625 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(1511.40625 0)"/>
+     </g>
+    </g>
+    <g id="line2d_51">
+     <path d="M 54.52 98.4
+L 62.52 98.4
+L 70.52 98.4
+" style="fill: none; stroke-dasharray: 1.4,2.31; stroke-dashoffset: 0; stroke: #7252b8; stroke-width: 1.4"/>
+    </g>
+    <g id="text_19">
+     <!-- 125 °C extrapolated use target -->
+     <g transform="translate(76.92 101.2) scale(0.08 -0.08)">
+      <use xlink:href="#STHeiti-14"/>
+      <use xlink:href="#STHeiti-15" transform="translate(55.40625 0)"/>
+      <use xlink:href="#STHeiti-18" transform="translate(110.8125 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(166.21875 0)"/>
+      <use xlink:href="#STHeiti-1be3" transform="translate(191.21875 0)"/>
+      <use xlink:href="#STHeiti-26" transform="translate(291.21875 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(372.515625 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(397.515625 0)"/>
+      <use xlink:href="#STHeiti-5b" transform="translate(462.515625 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(510.515625 0)"/>
+      <use xlink:href="#STHeiti-55" transform="translate(544.421875 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(574.515625 0)"/>
+      <use xlink:href="#STHeiti-53" transform="translate(642.8125 0)"/>
+      <use xlink:href="#STHeiti-52" transform="translate(711.015625 0)"/>
+      <use xlink:href="#STHeiti-4f" transform="translate(776.515625 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(796.515625 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(864.8125 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(898.71875 0)"/>
+      <use xlink:href="#STHeiti-47" transform="translate(963.71875 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(1032.21875 0)"/>
+      <use xlink:href="#STHeiti-58" transform="translate(1057.21875 0)"/>
+      <use xlink:href="#STHeiti-56" transform="translate(1118.015625 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(1156.8125 0)"/>
+      <use xlink:href="#STHeiti-3" transform="translate(1221.8125 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(1246.8125 0)"/>
+      <use xlink:href="#STHeiti-44" transform="translate(1280.71875 0)"/>
+      <use xlink:href="#STHeiti-55" transform="translate(1349.015625 0)"/>
+      <use xlink:href="#STHeiti-4a" transform="translate(1379.109375 0)"/>
+      <use xlink:href="#STHeiti-48" transform="translate(1446.40625 0)"/>
+      <use xlink:href="#STHeiti-57" transform="translate(1511.40625 0)"/>
      </g>
     </g>
    </g>

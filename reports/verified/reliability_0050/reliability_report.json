@@ -32,6 +32,56 @@
     ],
     "extrapolation_warning": "Use temperature is outside the observed stress range; lifetime is an extrapolation that requires mechanism validation."
   },
+  "arrhenius_weibull_sweep": [
+    {
+      "use_temperature_c": 55.0,
+      "b10_s": 22906.10045393973,
+      "eta_s": 271660.49182807154,
+      "support_status": "extrapolated",
+      "fitted_temperature_range_status": "outside_fitted_range",
+      "extrapolation_warning": "Use temperature is outside the observed stress range; lifetime is an extrapolation that requires mechanism validation.",
+      "beta": 0.9099195305980163,
+      "activation_energy_ev": 0.43086413348519303,
+      "supported_temperature_min_c": 107.0302852779082,
+      "supported_temperature_max_c": 153.56308734203589
+    },
+    {
+      "use_temperature_c": 85.0,
+      "b10_s": 6392.385109690383,
+      "eta_s": 75812.05217993582,
+      "support_status": "extrapolated",
+      "fitted_temperature_range_status": "outside_fitted_range",
+      "extrapolation_warning": "Use temperature is outside the observed stress range; lifetime is an extrapolation that requires mechanism validation.",
+      "beta": 0.9099195305980163,
+      "activation_energy_ev": 0.43086413348519303,
+      "supported_temperature_min_c": 107.0302852779082,
+      "supported_temperature_max_c": 153.56308734203589
+    },
+    {
+      "use_temperature_c": 105.0,
+      "b10_s": 3054.9006334412843,
+      "eta_s": 36230.340045671495,
+      "support_status": "extrapolated",
+      "fitted_temperature_range_status": "outside_fitted_range",
+      "extrapolation_warning": "Use temperature is outside the observed stress range; lifetime is an extrapolation that requires mechanism validation.",
+      "beta": 0.9099195305980163,
+      "activation_energy_ev": 0.43086413348519303,
+      "supported_temperature_min_c": 107.0302852779082,
+      "supported_temperature_max_c": 153.56308734203589
+    },
+    {
+      "use_temperature_c": 125.0,
+      "b10_s": 1572.341318888817,
+      "eta_s": 18647.565825088677,
+      "support_status": "extrapolated",
+      "fitted_temperature_range_status": "within_fitted_range",
+      "extrapolation_warning": "Use temperature lies within the fitted stress range but is reported as a declared use-temperature extrapolation; lifetime is a model estimate, not a direct observation.",
+      "beta": 0.9099195305980163,
+      "activation_energy_ev": 0.43086413348519303,
+      "supported_temperature_min_c": 107.0302852779082,
+      "supported_temperature_max_c": 153.56308734203589
+    }
+  ],
   "survival_forest": {
     "status": "completed",
     "c_index": 0.9047619047619048,
@@ -49,7 +99,9 @@
   },
   "artifacts": {
     "weibull_curve.csv": "b68d27d1a546ac6c82bd86812fbdf2ecd64a341d7e40fda39fdbd9020c93e34c",
+    "arrhenius_lifetime_sweep.csv": "a6512259947840b0207adcb3dc88e90518bfb3d9866cbb21822ee2c7653ab3f6",
     "weibull_survival.svg": "2bd98d54aa9d52c21a352498eb525ab41f479d9bc44c69d97719b5c6101aed78",
-    "accelerated_life.svg": "84390c71e567f2b5a602574cba6385ae453a66b03eddc67bb4c6665007e551df"
+    "accelerated_life.svg": "38360501bdc73c6686054e6b53d92532ab98780b7081134968c7146ffb1d6d52",
+    "arrhenius_lifetime_sweep.svg": "457a6ad0eafd8a3e606573deeb7f0d78dca5223c7c37eab9d8d0f970925a484a"
   }
 }

@@ -33,7 +33,7 @@ mixed process settings, whereas Manufacturing screens SECOM failure labels from 
 
 ## Device lifetime
 
-NASA MOSFET data at ΔRDS(on)=0.045 Ω: Weibull β **0.832**, η **10,553 s**, B10 **706 s**.
+NASA MOSFET data at ΔRDS(on)=0.045 Ω: Weibull β **0.880**, η **13,897 s**, B10 **1,079 s**.
 The 55 °C result is an accelerated-life extrapolation and needs mechanism validation.
 The NASA curves use real stress-test MOSFET data and are not comparable to the synthetic Demo survival curve.
 
@@ -41,7 +41,16 @@ The NASA curves use real stress-test MOSFET data and are not comparable to the s
 
 ![NASA MOSFET Weibull and Kaplan-Meier survival](reliability_0045/weibull_survival.svg)
 
-[Lifetime report](reliability_0045/reliability_report.json) · [curve data](reliability_0045/weibull_curve.csv)
+![Arrhenius-Weibull use-temperature lifetime sweep](reliability_0045/arrhenius_lifetime_sweep.svg)
+
+The accelerated-life scatter plot shows observed high-temperature data; the lifetime sweep shows
+declared use-temperature model estimates at 55, 85, 105, and 125 °C. All four are reported using
+a conservative extrapolation policy; 125 °C lies within the fitted stress-temperature range but is
+still not a directly observed 125 °C lifetime.
+Each bar is a Weibull-distribution summary rather than one "true lifetime": **B10 = 10% failure
+time** and **η = 63.2% failure time**. Both quantities are reported in seconds.
+
+[Lifetime report](reliability_0045/reliability_report.json) · [Weibull curve data](reliability_0045/weibull_curve.csv) · [temperature sweep data](reliability_0045/arrhenius_lifetime_sweep.csv)
 
 ## Three-stage synthetic demonstration
 

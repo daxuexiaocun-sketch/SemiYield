@@ -143,6 +143,7 @@ def reliability_report(
     output_dir: Path = Path("reports/reference/reliability"),
     profile: str = "quick",
     use_temperature_c: float = 55.0,
+    use_temperatures_c: str = "55,85,105,125",
 ):
     """Generate Weibull, Arrhenius, and optional survival-model reports."""
     if profile not in {"quick", "full"}:
@@ -152,10 +153,17 @@ def reliability_report(
             "Input is missing; run `semiyield reliability example install` first"
         )
     frame = pd.read_csv(input_csv)
+    try:
+        use_temperatures = tuple(float(value.strip()) for value in use_temperatures_c.split(","))
+    except ValueError as exc:
+        raise typer.BadParameter("--use-temperatures-c must be comma-separated numbers") from exc
+    if not use_temperatures:
+        raise typer.BadParameter("--use-temperatures-c must contain at least one temperature")
     report = write_reliability_report(
         frame,
         output_dir=output_dir,
         use_temperature_c=use_temperature_c,
+        use_temperatures_c=use_temperatures,
         data_sha256=sha256_file(input_csv),
     )
     if "dataset_role" in frame and frame["dataset_role"].eq("ci_smoke_only").any():

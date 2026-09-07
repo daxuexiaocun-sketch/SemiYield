@@ -12,6 +12,7 @@ from scipy.optimize import minimize
 from semiyield.reliability.data import validate_lifetime_data
 
 BOLTZMANN_EV_PER_K = 8.617333262145e-5
+DEFAULT_USE_TEMPERATURES_C = (55.0, 85.0, 105.0, 125.0)
 
 
 @dataclass(frozen=True)
@@ -94,6 +95,13 @@ def _arrhenius_negative_log_likelihood(parameters, time, event, inverse_kelvin) 
 def fit_arrhenius_weibull(
     frame: pd.DataFrame, *, use_temperature_c: float = 55.0
 ) -> ArrheniusWeibullResult:
+    beta, intercept, coefficient, data = _fit_arrhenius_parameters(frame)
+    return _arrhenius_result(
+        beta, intercept, coefficient, data, use_temperature_c=use_temperature_c
+    )
+
+
+def _fit_arrhenius_parameters(frame: pd.DataFrame):
     data = validate_lifetime_data(frame, require_temperature=True)
     time = data["time_to_event"].to_numpy(dtype=float)
     event = data["event_observed"].to_numpy(dtype=bool)
@@ -110,6 +118,12 @@ def fit_arrhenius_weibull(
         raise RuntimeError(f"Arrhenius-Weibull fit failed: {optimized.message}")
     beta = float(np.exp(optimized.x[0]))
     intercept, coefficient = map(float, optimized.x[1:])
+    return beta, intercept, coefficient, data
+
+
+def _arrhenius_result(beta, intercept, coefficient, data, *, use_temperature_c: float):
+    temperatures = data["temperature_c"].to_numpy(dtype=float)
+    event = data["event_observed"].to_numpy(dtype=bool)
     inverse_use = 1 / (use_temperature_c + 273.15)
     eta_use = float(np.exp(intercept + coefficient * inverse_use))
     b10_use = float(eta_use * (-np.log(0.9)) ** (1 / beta))
@@ -132,6 +146,43 @@ def fit_arrhenius_weibull(
         observed_temperature_range_c=observed_range,
         extrapolation_warning=warning,
     )
+
+
+def sweep_arrhenius_weibull(
+    frame: pd.DataFrame, *, use_temperatures_c=DEFAULT_USE_TEMPERATURES_C
+) -> list[dict[str, object]]:
+    """Evaluate one Arrhenius-Weibull fit at several declared use temperatures."""
+    temperatures = tuple(float(value) for value in use_temperatures_c)
+    if not temperatures or not all(np.isfinite(temperatures)):
+        raise ValueError("use_temperatures_c must contain finite temperatures")
+    beta, intercept, coefficient, data = _fit_arrhenius_parameters(frame)
+    rows = []
+    for temperature in temperatures:
+        result = _arrhenius_result(
+            beta, intercept, coefficient, data, use_temperature_c=temperature
+        )
+        within_fitted_range = not result.extrapolation_warning
+        conservative_warning = result.extrapolation_warning or (
+            "Use temperature lies within the fitted stress range but is reported as a declared "
+            "use-temperature extrapolation; lifetime is a model estimate, not a direct observation."
+        )
+        rows.append(
+            {
+                "use_temperature_c": result.use_temperature_c,
+                "b10_s": result.b10_at_use,
+                "eta_s": result.eta_at_use,
+                "support_status": "extrapolated",
+                "fitted_temperature_range_status": (
+                    "within_fitted_range" if within_fitted_range else "outside_fitted_range"
+                ),
+                "extrapolation_warning": conservative_warning,
+                "beta": result.beta,
+                "activation_energy_ev": result.activation_energy_ev,
+                "supported_temperature_min_c": result.observed_temperature_range_c[0],
+                "supported_temperature_max_c": result.observed_temperature_range_c[1],
+            }
+        )
+    return rows
 
 
 def survival_probability(time, *, beta: float, eta: float) -> np.ndarray:
