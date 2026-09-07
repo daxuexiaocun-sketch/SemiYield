@@ -76,6 +76,7 @@ def test_report_artifacts(lifetime_data, tmp_path):
     assert "63.2% failure time" in svg
     assert "+ = declared use-temperature extrapolation" in svg
     assert "Grouped bars show B10" in svg
+    assert "Lifetime metric" in svg
     accelerated_svg = (tmp_path / "accelerated_life.svg").read_text(encoding="utf-8")
     assert "Failure-supported temperature range" not in accelerated_svg
     for color in ("#2878b5", "#3b9b8a", "#d47832", "#7252b8"):

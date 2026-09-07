@@ -99,6 +99,13 @@ def test_benchmark_matched_training_thresholds(process_frame, tmp_path):
                 process_frame.iloc[train].Y.quantile(0.1)
             )
     assert len(pd.read_csv(output / "fold_metrics.csv")) == 6
+    assert (output / "benchmark_summary.svg").exists()
+    table = output / "benchmark_metrics_table.svg"
+    assert table.exists()
+    table_svg = table.read_text(encoding="utf-8")
+    assert "Random three-fold internal validation" in table_svg
+    assert "Mean plus standard deviation" in table_svg
+    assert not (output / "thresholds.svg").exists()
 
 
 def test_cli_rejects_conflicting_thresholds(process_frame, tmp_path):

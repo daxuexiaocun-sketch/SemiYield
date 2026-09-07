@@ -194,11 +194,18 @@ def write_arrhenius_lifetime_sweep(sweep: pd.DataFrame, output_dir: str | Path) 
     )
     axis.grid(axis="y", alpha=0.25)
     axis.margins(x=0.08, y=0.26)
+    axis.legend(
+        title="Lifetime metric",
+        loc="upper left",
+        bbox_to_anchor=(0.02, 0.78),
+        fontsize=8,
+        title_fontsize=8,
+    )
     axis.text(
         0.02,
         0.97,
         "B10 = 10% failure time; η = 63.2% failure time\n"
-        "Gray: B10; blue: η; + = declared use-temperature extrapolation / model estimate\n"
+        "+ = declared use-temperature extrapolation / model estimate\n"
         "Arrhenius–Weibull model estimates, not direct observations.",
         transform=axis.transAxes,
         fontsize=8,

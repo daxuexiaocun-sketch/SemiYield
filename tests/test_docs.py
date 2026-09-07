@@ -64,6 +64,7 @@ def test_four_route_reference_assets_are_linked_and_aggregate_only():
         "docs/assets/results-overview.svg",
         "reports/verified/yield/benchmark_pr_auc.svg",
         "reports/verified/packaging/benchmark_summary.svg",
+        "reports/verified/packaging/benchmark_metrics_table.svg",
         "reports/verified/nasa/degradation_trends.svg",
     ):
         assert (ROOT / asset).is_file()

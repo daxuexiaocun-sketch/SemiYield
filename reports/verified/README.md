@@ -18,16 +18,21 @@ This is a process-risk screening result, not a causal diagnosis.
 
 ## Packaging process
 
-Local mixed process data, with low throughput defined from each training fold. Logistic PR-AUC is
-**0.882**, ROC-AUC **0.979**, recall **0.943**, F1 **0.773**, and MCC **0.759**. This is a
-random three-fold internal-validation result for a throughput proxy label; it does not establish
-new-batch, machine, recipe, or time-period performance.
-Packaging is a different task from Manufacturing: it predicts a low-throughput operational proxy from
-mixed process settings, whereas Manufacturing screens SECOM failure labels from sensor measurements.
+**Task and label.** Local mixed process data; a low-throughput proxy failure is defined as
+`Y < the training-fold 10th percentile`. It is an operational proxy, not a physical device failure.
 
-![Packaging proxy-failure metrics by model](packaging/benchmark_summary.svg)
+**Protocol.** Dummy and Logistic use the same random three-fold splits; every fold derives its label
+threshold from its own training rows only. The primary metric is PR-AUC because the proxy class is
+imbalanced.
 
-![Packaging proxy-label threshold provenance](packaging/thresholds.svg)
+**Result and boundary.** CatBoost has the highest measured PR-AUC (**0.967**), followed by Logistic
+(**0.882**) and the Dummy baseline (**0.101**). This is random internal validation only: without
+batch, machine, recipe, or time identifiers, it does not establish generalization to a new
+production setting.
+
+![Packaging proxy-failure PR-AUC by model](packaging/benchmark_summary.svg)
+
+![Packaging proxy-failure metrics table](packaging/benchmark_metrics_table.svg)
 
 [Aggregate metrics](packaging/summary.csv) · [fold metrics](packaging/fold_metrics.csv) · [manifest](packaging/manifest.json)
 
