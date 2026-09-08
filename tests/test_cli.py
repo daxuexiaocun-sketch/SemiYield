@@ -11,14 +11,14 @@ def test_cli_help_lists_business_commands():
     assert "yield" in result.stdout
     assert "packaging" in result.stdout
     assert "reliability" in result.stdout
-    assert "demo" in result.stdout
+    assert "demo" not in result.stdout
     assert "quickstart" not in result.stdout
 
 
-def test_demo_and_reliability_cli(tmp_path):
-    demo = tmp_path / "smoke.csv"
+def test_reliability_smoke_cli(tmp_path):
+    smoke = tmp_path / "smoke.csv"
     report = tmp_path / "report"
-    downloaded = runner.invoke(app, ["reliability", "example", "install", "--output", str(demo)])
+    downloaded = runner.invoke(app, ["reliability", "example", "install", "--output", str(smoke)])
     assert downloaded.exit_code == 0
     assert "synthetic example" in downloaded.stdout
     generated = runner.invoke(
@@ -27,7 +27,7 @@ def test_demo_and_reliability_cli(tmp_path):
             "reliability",
             "report",
             "--input-csv",
-            str(demo),
+            str(smoke),
             "--output-dir",
             str(report),
         ],

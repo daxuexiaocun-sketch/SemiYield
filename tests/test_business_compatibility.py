@@ -31,7 +31,6 @@ def test_business_command_help_has_no_legacy_routes():
         ["reliability", "example", "install"],
         ["reliability", "report"],
         ["packaging", "train"],
-        ["demo", "run"],
     ]:
         result = CliRunner().invoke(app, [*args, "--help"])
         assert result.exit_code == 0, result.output

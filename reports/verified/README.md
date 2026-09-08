@@ -2,10 +2,10 @@
 
 ## Scope
 
-This directory contains aggregate reference results for all four SemiYield routes: UCI SECOM
-manufacturing screening, local packaging proxy-failure screening, NASA Power MOSFET reliability,
-and the linked synthetic three-stage demonstration. Machine-readable manifests retain the applicable
-configuration, input identity, split protocol, and artifact hashes.
+This directory contains aggregate reference results for the three SemiYield routes: UCI SECOM
+manufacturing screening, local packaging proxy-failure screening, and NASA Power MOSFET reliability.
+Machine-readable manifests retain the applicable configuration, input identity, split protocol, and
+artifact hashes.
 
 ## Manufacturing yield
 
@@ -31,7 +31,6 @@ not establish generalization to new production batches, machines, recipes, or ti
 
 NASA MOSFET data at ΔRDS(on)=0.045 Ω: Weibull β **0.880**, η **13,897 s**, B10 **1,079 s**.
 The 55 °C result is an accelerated-life extrapolation and needs mechanism validation.
-The NASA curves use real stress-test MOSFET data and are not comparable to the synthetic Demo survival curve.
 
 ![NASA MOSFET degradation trajectories](nasa/degradation_trends.svg)
 
@@ -59,19 +58,6 @@ prediction exception, but they do not establish new-device generalization or a p
 
 [Lifetime report and RSF metrics](reliability_0045/reliability_report.json) · [Weibull curve data](reliability_0045/weibull_curve.csv) · [temperature sweep data](reliability_0045/arrhenius_lifetime_sweep.csv)
 
-## Three-stage synthetic demonstration
-
-Synthetic, batch-isolated manufacturing → packaging → lifetime routing: **80.73%** overall process
-pass fraction. It is not real SECOM, packaging, or NASA evidence.
-
-![Synthetic stage flow](demo/stage_flow.svg)
-
-![Synthetic model matrix](demo/model_metrics.svg)
-
-![Synthetic survival and censoring](demo/survival.svg)
-
-[Demo report](demo/README.md) · [stage counts](demo/stages.csv) · [metrics](demo/metrics.csv) · [manifest](demo/manifest.json)
-
 ## Reproducibility
 
 - `yield/` contains benchmark metrics, resource summaries, and output manifests.
@@ -82,8 +68,6 @@ pass fraction. It is not real SECOM, packaging, or NASA evidence.
 - `reliability_0045/` and `reliability_0050/` contain lifetime reports and curves, including the
   explicitly authorized protected-test device labels and RSF model-predicted curves; they do not
   contain feature values, observed device outcomes, raw rows, or downloadable predictions.
-- `demo/` contains only synthetic aggregate metrics, charts, curves, and provenance; model files
-  and individual device records are intentionally excluded.
 - `experiment_manifest.json` indexes the published artifacts.
 
 NASA row-level derived data is not included, except for the explicitly published protected-test

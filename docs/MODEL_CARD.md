@@ -23,5 +23,3 @@ Predictions require revalidation for each fab, product, toolset, process node, p
 The packaging models use a separate mixed-type pipeline and throughput proxy labels; see the
 [packaging data and methods card](PACKAGING_DATA_CARD.md). Their probabilities are not calibrated
 physical failure probabilities. Lifetime analysis is described in [reliability methods](RELIABILITY_METHODS.md).
-The [synthetic demo](DEMO.md) reports independent batch-held-out scores and must not be cited as
-SECOM, NASA or measured packaging performance.

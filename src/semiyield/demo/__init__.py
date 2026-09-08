@@ -1,1 +1,0 @@
-"""SemiYield demo business interfaces."""

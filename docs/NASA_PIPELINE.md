@@ -4,8 +4,7 @@
 
 Prepare the external NASA Power MOSFET thermal-overstress archive for device-level reliability analysis.
 
-The synthetic demo does not use this archive. Install the local smoke table with
-`semiyield reliability example install` when needed.
+Install the local smoke table with `semiyield reliability example install` when needed.
 
 ## Inspect and convert
 

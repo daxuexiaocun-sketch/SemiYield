@@ -38,11 +38,3 @@ splits across models and derive each low-throughput threshold only from that fol
 Feature processing is fitted only on training rows; target Y is excluded. A fixed engineering
 threshold can replace the default training 10th percentile. The probability decision cutoff is 0.5.
 See [packaging methods](PACKAGING_DATA_CARD.md) for undefined metrics and source limitations.
-
-## Linked synthetic demonstration
-
-Run `uv run semiyield demo quickstart`. Assign train/test by batch before generating stage outcomes,
-then propagate IDs and split assignments through observed manufacturing and packaging gates.
-Evaluate classifiers on held-out batches; fit lifetime statistics only on training survivors.
-These reports have a synthetic role and their own output directory, independently of reference
-SECOM and NASA results. See the [demo data contract and guide](DEMO.md).

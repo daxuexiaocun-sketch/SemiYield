@@ -26,8 +26,7 @@ def test_readmes_have_matching_content_structure():
     chinese = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
     assert english.count("\n## ") == chinese.count("\n## ") == 6
     for command in (
-        "uv sync --locked --extra demo --extra dev",
-        "semiyield demo quickstart",
+        "uv sync --locked --extra charts --extra app --extra dev",
         "semiyield packaging benchmark",
         "--input-csv",
         "semiyield reliability example install",
@@ -56,7 +55,7 @@ def test_documentation_svgs_are_portable():
         assert "<desc" in content
 
 
-def test_four_route_reference_assets_are_linked_and_aggregate_only():
+def test_three_route_reference_assets_are_linked_and_aggregate_only():
     for readme in (ROOT / "README.md", ROOT / "README.zh-CN.md"):
         content = readme.read_text(encoding="utf-8")
         assert "docs/assets/results-overview.svg" in content
@@ -69,8 +68,6 @@ def test_four_route_reference_assets_are_linked_and_aggregate_only():
         "reports/verified/reliability_0045/rsf_individual_predicted_survival.svg",
     ):
         assert (ROOT / asset).is_file()
-    public_demo = ROOT / "reports" / "verified" / "demo" / "README.md"
-    assert "example_trace.csv" not in public_demo.read_text(encoding="utf-8")
     report = (ROOT / "reports" / "verified" / "README.md").read_text(encoding="utf-8")
     assert "benchmark_metrics_table.svg" not in report
     assert "rsf_performance.svg" not in report
@@ -86,3 +83,17 @@ def test_four_route_reference_assets_are_linked_and_aggregate_only():
         "protected 9-device test set",
     ):
         assert text in report
+
+
+def test_no_synthetic_demo_route_remains():
+    for path in (
+        ROOT / "src" / "semiyield" / "demo",
+        ROOT / "src" / "semiyield" / "simulation",
+        ROOT / "tests" / "test_demo.py",
+        ROOT / "docs" / "DEMO.md",
+        ROOT / "data" / "demo" / "three_stage",
+        ROOT / "reports" / "demo" / "three_stage",
+        ROOT / "reports" / "verified" / "demo",
+    ):
+        assert not path.exists()
+    assert (ROOT / "data" / "demo" / "mosfet_lifetime_smoke.csv").is_file()

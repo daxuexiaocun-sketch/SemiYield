@@ -21,26 +21,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
-      - run: uv sync --locked --extra dev --extra demo --extra survival
+      - run: uv sync --locked --extra dev --extra charts --extra survival
       - run: uv run --locked ruff check src tests scripts
       - run: uv run --locked pytest --cov=semiyield --cov-report=term-missing
       - run: uv build
       - run: uv run --locked python -I scripts/update_star_history.py --help
-
-  demo:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-        with:
-          python-version: "3.13"
-          enable-cache: true
-      - run: uv sync --locked --extra demo
-      - run: uv run --locked semiyield demo quickstart
-      - uses: actions/upload-artifact@v4
-        with:
-          name: semiyield-three-stage-demo
-          path: reports/demo/three_stage
 
   reference-smoke:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -51,7 +36,7 @@ jobs:
         with:
           python-version: "3.13"
           enable-cache: true
-      - run: uv sync --locked --extra demo --extra survival
+      - run: uv sync --locked --extra charts --extra survival
       - run: uv run --locked semiyield reliability example install
       - run: uv run --locked semiyield reliability report --profile quick
       - uses: actions/upload-artifact@v4

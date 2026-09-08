@@ -1,8 +1,8 @@
 SEMIYIELD ?= uv run --locked semiyield
 
-.PHONY: install test lint build app demo report export-requirements
+.PHONY: install test lint build app report export-requirements
 install:
-	uv sync --locked --extra demo --extra dev
+	uv sync --locked --extra charts --extra dev
 test:
 	uv run --locked pytest --cov=semiyield
 lint:
@@ -11,10 +11,8 @@ build:
 	uv run --locked python -m build
 app:
 	$(SEMIYIELD) app
-demo:
-	$(SEMIYIELD) demo quickstart
 report:
 	$(SEMIYIELD) yield download
 	$(SEMIYIELD) yield benchmark --profile quick --models dummy,logistic,catboost --output-dir reports/verified/yield
 export-requirements:
-	uv export --locked --extra demo --no-dev --no-emit-project --format requirements-txt --output-file requirements-demo-py313.lock
+	uv export --locked --extra charts --no-dev --no-emit-project --format requirements-txt --output-file requirements-charts-py313.lock

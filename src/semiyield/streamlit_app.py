@@ -26,10 +26,7 @@ else:
     )
     st.markdown(
         "SECOM 用于良率风险筛查；封测以低吞吐率作为代理失效；MOSFET 用于寿命分析。"
-        "三环节合成演示由 CLI 生成静态报告，独立于真实参考实验。"
         if zh
         else "SECOM screens yield risk; packaging uses low throughput as a proxy failure; "
-        "MOSFET supports lifetime analysis. The CLI produces a separate synthetic "
-        "three-stage demonstration and static reports."
+        "MOSFET supports lifetime analysis."
     )
-    st.code("uv run semiyield demo quickstart")

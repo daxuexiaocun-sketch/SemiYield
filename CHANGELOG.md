@@ -3,23 +3,20 @@
 ## 1.1.0
 
 - Rename the public manufacturing Python package to `semiyield.manufacturing` while retaining the `semiyield yield` CLI.
-- Publish aggregate-only packaging and synthetic-demo reference artifacts and a four-route README overview.
-- Generate lifetime observations only after the observed packaging gate and atomically replace managed demo outputs.
+- Publish aggregate-only packaging reference artifacts and a results overview.
 
 ## 1.0.0
 
 - Separate manufacturing yield, packaging process and device lifetime into pure business packages.
-- Move raw synthetic generation into `simulation`; only `demo.workflow` may join business lines.
 - Remove legacy top-level CLI commands, Python import aliases, `workflows.py`, and old joblib loading paths.
-- Preserve the existing SECOM, packaging, NASA/MOSFET, and demo analysis rules under the new command paths.
+- Preserve the existing SECOM, packaging, and NASA/MOSFET analysis rules under the new command paths.
 - Add training-only low-throughput proxy labels, mixed-type packaging models and matched-fold evaluation.
-- Add reproducible linked synthetic data, offline three-stage CLI demonstration and static reports.
 - Standardize development and CI on uv.lock; repair clean-runner star-history updates and calendar spacing.
 
 
 ## 0.3.0
 
-- Added Python 3.13/CatBoost reference experiment results and a locked demo environment.
+- Added Python 3.13/CatBoost reference experiment results and a locked development environment.
 - Added explicit NASA download and embedded-notice inspection commands.
 - Added right-censored 0.045/0.05 ohm RDS(on) lifetime sensitivity outputs.
 - Added manifest-driven survival splits and a hashed experiment manifest.

@@ -149,7 +149,7 @@ def train_model(
 
 
 def train_manufacturing(features, target, *, model="logistic", seed=42):
-    """Train the manufacturing model used by the three-stage demonstration."""
+    """Train a manufacturing risk-screening model."""
     return train_model(features, target, model_name=model, random_state=seed, calibrate=False)
 
 

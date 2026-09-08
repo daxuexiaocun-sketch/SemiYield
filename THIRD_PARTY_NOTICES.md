@@ -27,4 +27,4 @@ The bundled `mosfet_lifetime_smoke.csv` is synthetic and is covered by the SemiY
 The optional files under `docs/Dataset_from_semiconductor_processes` are user-supplied local inputs.
 Their readme distinguishes raw and encoded CSVs and R models but does not specify reuse terms,
 feature semantics or throughput units. SemiYield does not bundle them in the wheel or use the R
-models. The new three-stage demo is generated synthetically and does not copy their records.
+models.

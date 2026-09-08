@@ -11,7 +11,7 @@ The bundled R models and pre-encoded CSV are not used by the Python workflow.
 The project uses `Y` as throughput according to the supplied task context. The local source readme
 does not specify throughput units, feature meanings, batch/time identifiers or reuse terms.
 Do not assign physical units or detailed machine semantics to these anonymous source fields.
-The files remain local inputs rather than wheel assets; the synthetic demo does not depend on them.
+The files remain local inputs rather than wheel assets.
 
 ## Outcome definition
 
