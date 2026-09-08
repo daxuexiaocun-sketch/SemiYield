@@ -14,7 +14,7 @@
 
 SemiYield 按 SECOM 制造良率、低吞吐封测代理失效与 MOSFET 寿命三个业务组织代码。
 
-![SemiYield 技术路线图](docs/assets/technical-route.jpg)
+![SemiYield 图形摘要](docs/assets/graphical-abstract-zh-CN.svg)
 
 ## 快速开始
 

@@ -14,7 +14,7 @@
 
 SemiYield separates three business workflows: SECOM manufacturing yield, low-throughput packaging proxy failure, and MOSFET lifetime analysis.
 
-![SemiYield technical route](docs/assets/technical-route.jpg)
+![SemiYield graphical abstract](docs/assets/graphical-abstract-en.svg)
 
 ## Quick start
 
