@@ -24,4 +24,6 @@ catboost_info/
 reports/packaging/
 reports/local/
 requirements-charts-py313.lock
+reports/.chart-variants/
+reports/.chart-variants-v2/
 docs/Dataset_from_semiconductor_processes/
