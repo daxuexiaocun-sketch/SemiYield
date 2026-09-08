@@ -39,27 +39,16 @@ The NASA curves use real stress-test MOSFET data and are not comparable to the s
 
 ![Arrhenius-Weibull use-temperature lifetime sweep](reliability_0045/arrhenius_lifetime_sweep.svg)
 
-The accelerated-life scatter plot shows observed high-temperature data; the lifetime sweep shows
-declared use-temperature model estimates at 55, 85, 105, and 125 °C. All four are reported using
-a conservative extrapolation policy; 125 °C lies within the fitted stress-temperature range but is
-still not a directly observed 125 °C lifetime.
-Each bar is a Weibull-distribution summary rather than one "true lifetime": **B10 = 10% failure
-time** and **η = 63.2% failure time**. Both quantities are reported in seconds.
-Every reliability report attempts the required RSF predictive module using baseline temperature,
-initial RDS(on) level, and initial RDS(on) slope only. Its protected 9-device test-set metrics are
-exploratory evidence within observed stress conditions; an unavailable dependency or data condition
-is reported explicitly rather than hidden. RSF does not replace Weibull population summaries,
-Arrhenius–Weibull extrapolation, or qualification testing.
+NASA MOSFET reliability combines observed high-temperature data with Arrhenius–Weibull use-temperature
+estimates. At 55, 85, 105, and 125 °C, B10 and η are model-derived Weibull lifetime summaries in
+seconds, not directly observed lifetimes; all use conditions are reported conservatively as
+extrapolations.
 
-For the fixed 24/8/9 NASA device split, RSF reports a **Harrell C-index of 0.905** (bootstrap 95% CI
-**0.588–1.000**) on the protected 9-device test set. This measures risk-ranking discrimination, for
-which 0.5 is approximately random; the wide interval reflects the small protected test sample.
-The right-censoring-adjusted **Uno C-index is 0.862**, providing a complementary discrimination
-check. The **integrated Brier score is 0.149**; it summarizes survival-probability prediction error
-over time, where lower values are better. The observed-failure median-lifetime **MAE is 5,810 s**;
-it is calculated only for test devices with observed failures and therefore excludes censored test
-devices. These are exploratory, within-observed-stress predictive measurements, not a comparison
-against Weibull or Arrhenius–Weibull population inference.
+On the protected 9-device test set, the baseline-feature RSF achieved Harrell C-index **0.905**
+(bootstrap 95% CI **0.588–1.000**), Uno C-index **0.862**, integrated Brier score **0.149**, and
+observed-failure median-lifetime MAE **5,810 s**. These small-sample, within-observed-stress
+predictions are exploratory and do not establish qualification, new-device generalization, or
+superiority over Weibull / Arrhenius–Weibull population inference.
 
 ![NASA MOSFET RSF individual predicted survival](reliability_0045/rsf_individual_predicted_survival.svg)
 

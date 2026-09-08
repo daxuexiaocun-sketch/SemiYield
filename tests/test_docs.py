@@ -76,11 +76,13 @@ def test_four_route_reference_assets_are_linked_and_aggregate_only():
     assert "rsf_performance.svg" not in report
     assert "rsf_individual_predicted_survival.svg" in report
     for text in (
-        "Harrell C-index of 0.905",
+        "NASA MOSFET reliability combines observed high-temperature data",
+        "reported conservatively as",
+        "baseline-feature RSF achieved Harrell C-index **0.905**",
         "bootstrap 95% CI",
-        "Uno C-index is 0.862",
-        "integrated Brier score is 0.149",
-        "MAE is 5,810 s",
+        "Uno C-index **0.862**",
+        "integrated Brier score **0.149**",
+        "MAE **5,810 s**",
         "protected 9-device test set",
     ):
         assert text in report
