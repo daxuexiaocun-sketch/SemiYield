@@ -10,7 +10,7 @@
   "limitations": [
     "Anonymous SECOM variables cannot establish physical root cause.",
     "NASA results are research evidence, not production qualification.",
-    "NASA row-level derivatives are not redistributed without explicit permission."
+    "NASA raw row-level derivatives are not redistributed; the verified report publishes only authorized protected-test device labels and SVG-only RSF predictions."
   ],
   "yield_rows": [
     {
@@ -1751,7 +1751,7 @@
     "degradation_chart_sha256": "af4157f4cafc02c01b8f9599fccc71e45de6be25d9669c4a6f7a8bf75807d929"
   },
   "artifacts": {
-    "README.md": "c63155be0deb79486674914209176ebeaac3cde5db3edd369fdeb876bc6fc2d5",
+    "README.md": "2b5aa60ef149bcf9131f135ad62a87be9eb5232c0eecf959be19b0429533a3b8",
     "tabpfn/summary.csv": "6c447d87c81a7db27a612a57351e0775471a3727dc1c5560ad7502a25cbc8bf4",
     "tabpfn/manifest.json": "df74b3d4312f3e207e23f2a934fa51ed2c1c208645b643f088d496339ee1a96c",
     "tabpfn/fold_metrics.csv": "5851b91c88d6c970d47b1c8b528cc5462693010371102c818d196b310956d98d",
@@ -1763,11 +1763,11 @@
     "yield/fold_metrics.csv": "2e23d062b531148ced99a08cf1734aed64334032a230a5bbf9c30043db652cab",
     "yield/model_status.csv": "8ed2da95a42ceb9956358a0b44d30fce30cb1385e5cba72fe927df50fb972261",
     "reliability_0045/accelerated_life.svg": "15bbadc311a598de7221a08b0a898ac4bec270ffc5c5b0c23d0778b58b78e5fe",
-    "reliability_0045/reliability_report.json": "d772b3cf63d04710decf8968bfec0145387e3d45a117a9b1341c3bb5cb8878cf",
+    "reliability_0045/reliability_report.json": "b25b76ff9ffb16bdfec85de8af226af1d81019d01e5b25d5dcd989ffb6b74848",
     "reliability_0045/weibull_survival.svg": "a7947684b9de078ed080ffdd23524d67e9b714b6ce0009dc43089b93d449b989",
     "reliability_0045/weibull_curve.csv": "e22d1dfa3f928ee79b6d4f0c84f17998ba9eb1edaee5207c3e19deef8576de78",
     "reliability_0050/accelerated_life.svg": "d07da0fb16c8e57e2958a10d7abf07aa865cdb6fc56a15e90258df168c6bfcbc",
-    "reliability_0050/reliability_report.json": "ac33f6946ad4eb252c87ee801e585595058332d442fdf46552210cd41f2c43c1",
+    "reliability_0050/reliability_report.json": "1bb9b6ffdb8bb562b888250667e274d795b2b6dac0bd399107dcbe2730536ee6",
     "reliability_0050/weibull_survival.svg": "8658b5fcd5fe95b24685fbe7d0daa758a9a3b81c5383a010296ce72c5cafe111",
     "reliability_0050/weibull_curve.csv": "b2d2f66fd7904155c4658e7202eeb3741a6b7abaf4d323044207a89cbde44bbb",
     "nasa/provenance.json": "380ef12c6288f1ec127a4984e93de93710e510cdecdf7d55029d6e232d3fae14",
@@ -1776,7 +1776,7 @@
     "nasa/degradation_trends.svg": "af4157f4cafc02c01b8f9599fccc71e45de6be25d9669c4a6f7a8bf75807d929",
     "packaging/benchmark_summary.svg": "5c59053891d60848196254c91cbb58a8c6cd1ce25634c2aa918078df5a964529",
     "packaging/manifest.json": "1c9ce0bf3be1b7e0c61b4a43575d8349c6b0a3784324f4b7f27b7c7b64fe02f9",
-    "reliability_0045/rsf_performance.svg": "aa402c9f45dd8504c944f1351f5c046da5a2c0aa8e4e50266f40263dc9839ff8",
-    "reliability_0050/rsf_performance.svg": "a9d8ae3c96bf6cdf83c2501c29d591a7ed0d601984d507b4393d60e236f3470e"
+    "reliability_0045/rsf_individual_predicted_survival.svg": "fd58c9bd6e7902143e6fa7a68f5ee59e56620c5d0173d377e639a61c664a7fe9",
+    "reliability_0050/rsf_individual_predicted_survival.svg": "abc7aa7c9c8e13120d3b91b60d8c20fea4054f449354bceeade9232fb3261d93"
   }
 }

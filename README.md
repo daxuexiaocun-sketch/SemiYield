@@ -65,7 +65,9 @@ The packaging route is a **low-throughput proxy failure** result, not proof of p
 - **UCI SECOM:** anonymous process variables for rare-failure screening; the source data is downloaded at runtime.
 - **Packaging process:** mixed categorical/numerical local inputs; throughput below a training-only threshold is a proxy failure, not a physical device-failure label. See the [data card](docs/PACKAGING_DATA_CARD.md).
 - **Synthetic three-stage demo:** linked batch/device records, clearly separated from real reference results.
-- **NASA Power MOSFET:** the upstream archive remains external. This repository publishes code, aggregate results, and provenance—not row-level NASA-derived data.
+- **NASA Power MOSFET:** the upstream archive remains external. This repository publishes code,
+  aggregate results, provenance, and an explicitly authorized SVG-only RSF prediction for each
+  protected test-device label—not raw row-level NASA-derived data.
 - Outputs support engineering review and reliability research. They do not replace process engineering, failure analysis, qualification, or causal root-cause investigation.
 
 ## Documentation

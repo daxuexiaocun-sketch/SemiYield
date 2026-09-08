@@ -84,11 +84,17 @@
   ],
   "survival_forest": {
     "status": "completed",
+    "required": true,
     "feature_columns": [
       "baseline_temperature_c_mean",
       "baseline_rds_on_ohm_mean",
       "baseline_rds_on_ohm_slope"
     ],
+    "feature_source_columns": {
+      "baseline_temperature_c_mean": "baseline_temperature_c_mean",
+      "baseline_rds_on_ohm_mean": "baseline_rds_on_ohm_mean",
+      "baseline_rds_on_ohm_slope": "baseline_rds_on_ohm_slope"
+    },
     "model_parameters": {
       "n_estimators": 200,
       "min_samples_leaf": 3,
@@ -110,7 +116,12 @@
     "observed_failure_median_lifetime_mae": 5258.749402239919,
     "train_units": 32,
     "test_units": 9,
-    "split_source": "input_manifest"
+    "split_source": "input_device_manifest",
+    "individual_predicted_survival": {
+      "status": "completed",
+      "test_units": 9,
+      "artifact_sha256": "abc7aa7c9c8e13120d3b91b60d8c20fea4054f449354bceeade9232fb3261d93"
+    }
   },
   "artifacts": {
     "weibull_curve.csv": "b68d27d1a546ac6c82bd86812fbdf2ecd64a341d7e40fda39fdbd9020c93e34c",
@@ -118,6 +129,6 @@
     "weibull_survival.svg": "2bd98d54aa9d52c21a352498eb525ab41f479d9bc44c69d97719b5c6101aed78",
     "accelerated_life.svg": "38360501bdc73c6686054e6b53d92532ab98780b7081134968c7146ffb1d6d52",
     "arrhenius_lifetime_sweep.svg": "25233691f431d96afcec9e26165aaa38a669b46140f1b9352c48a53b3358079a",
-    "rsf_performance.svg": "a9d8ae3c96bf6cdf83c2501c29d591a7ed0d601984d507b4393d60e236f3470e"
+    "rsf_individual_predicted_survival.svg": "abc7aa7c9c8e13120d3b91b60d8c20fea4054f449354bceeade9232fb3261d93"
   }
 }

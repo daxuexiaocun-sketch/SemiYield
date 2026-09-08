@@ -7,7 +7,7 @@ inside one installable Python package. It remains a single uv project, not three
 |---|---|---|
 | `manufacturing` | SECOM acquisition, preprocessing, models, evaluation, review pages | `semiyield yield …` |
 | `packaging` | Mixed-type process schema, throughput proxy labels, training, evaluation, review page | `semiyield packaging …` |
-| `reliability` | NASA ingestion, lifetime/Arrhenius/optional survival analysis, review page | `semiyield reliability …` |
+| `reliability` | NASA ingestion, Weibull/Arrhenius/required-RSF analysis, review page | `semiyield reliability …` |
 | `simulation` | Raw synthetic contracts, scenarios, generation and integrity validation | Internal generator interface |
 | `common` | Hashes, generic reporting, metrics, validation and resource protection | Shared infrastructure |
 | `demo` | Cross-stage orchestration and static reports | `semiyield demo …` |
@@ -51,5 +51,6 @@ uv run python -m build
 Python 3.13 is the default demonstration environment. The supported CI matrix remains
 3.10/3.12/3.13. Existing extras are retained; `demo` adds plotting, app and CatBoost dependencies,
 while the demo's default models require neither CatBoost nor survival forests at runtime.
-Use `--extra survival`, `--extra explain` or `--extra tabpfn` only when needed.
+Use `--extra survival` for reliability reports (or install `--extra all`); use `--extra explain` or
+`--extra tabpfn` only when those optional routes are needed.
 `uv.lock` is authoritative; exported requirements are generated via `make export-requirements`.

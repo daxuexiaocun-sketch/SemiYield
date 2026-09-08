@@ -18,6 +18,21 @@ RSF_BASELINE_FEATURES = (
     "baseline_rds_on_ohm_mean",
     "baseline_rds_on_ohm_slope",
 )
+RSF_FEATURE_ALIASES = {
+    "baseline_temperature_c_mean": (
+        "baseline_temperature_c_mean",
+        "temperature_c",
+    ),
+    "baseline_rds_on_ohm_mean": (
+        "baseline_rds_on_ohm_mean",
+        "initial_rds_on_ohm",
+    ),
+    "baseline_rds_on_ohm_slope": (
+        "baseline_rds_on_ohm_slope",
+        "rds_on_slope",
+    ),
+}
+RSF_UNAVAILABLE_STATUS = "required_but_unavailable"
 RSF_PARAMETERS = {
     "n_estimators": 200,
     "min_samples_leaf": 3,
@@ -201,27 +216,67 @@ def survival_probability(time, *, beta: float, eta: float) -> np.ndarray:
     return np.exp(-((values / eta) ** beta))
 
 
+def resolve_rsf_baseline_features(
+    frame: pd.DataFrame,
+) -> tuple[dict[str, str], list[str]]:
+    """Resolve only documented baseline-feature aliases for the RSF contract."""
+    mapping: dict[str, str] = {}
+    missing: list[str] = []
+    for canonical, aliases in RSF_FEATURE_ALIASES.items():
+        source = next((column for column in aliases if column in frame), None)
+        if source is None:
+            missing.append(canonical)
+        else:
+            mapping[canonical] = source
+    return mapping, missing
+
+
+def _rsf_unavailable(reason: str, context: dict[str, object]) -> dict[str, object]:
+    return {"status": RSF_UNAVAILABLE_STATUS, "reason": reason, **context}
+
+
+def _individual_prediction(survival_functions, unit_ids: pd.Series) -> dict[str, object]:
+    """Keep held-out RSF survival predictions in memory for the public device plot."""
+    curves = []
+    for unit_id, function in zip(unit_ids.astype(str), survival_functions, strict=True):
+        time = function.x
+        time = np.insert(time, 0, 0.0) if time[0] > 0 else time
+        curves.append(
+            {
+                "unit_id": unit_id,
+                "_time_s": time.tolist(),
+                "_survival_probability": function(time).tolist(),
+            }
+        )
+    return {
+        "status": "completed",
+        "test_units": int(len(curves)),
+        "curves": curves,
+    }
+
+
 def benchmark_survival_forest(
     frame: pd.DataFrame,
     *,
-    feature_columns: list[str] | tuple[str, ...] = RSF_BASELINE_FEATURES,
     random_state: int = 42,
     data_sha256: str | None = None,
 ) -> dict[str, object]:
-    """Run optional device-level random survival forest, or return an auditable skip."""
+    """Attempt the required device-level RSF using the baseline-feature contract."""
     data = validate_lifetime_data(frame)
-    feature_columns = list(feature_columns)
+    feature_mapping, missing = resolve_rsf_baseline_features(data)
     context = {
-        "feature_columns": feature_columns,
+        "required": True,
+        "feature_columns": list(RSF_BASELINE_FEATURES),
+        "feature_source_columns": feature_mapping,
         "model_parameters": {**RSF_PARAMETERS, "random_state": random_state},
         "data_sha256": data_sha256,
     }
+    if missing:
+        return _rsf_unavailable(
+            "Missing baseline survival features for required RSF: " + ", ".join(missing), context
+        )
     if len(data) < 30 or int(data["event_observed"].sum()) < 10:
-        return {
-            "status": "skipped",
-            "reason": "At least 30 units and 10 observed failures are required",
-            **context,
-        }
+        return _rsf_unavailable("At least 30 units and 10 observed failures are required", context)
     try:
         from sksurv.ensemble import RandomSurvivalForest
         from sksurv.metrics import (
@@ -230,22 +285,18 @@ def benchmark_survival_forest(
             integrated_brier_score,
         )
     except ImportError:
-        return {
-            "status": "skipped",
-            "reason": "Run `uv sync --locked --extra survival`",
-            **context,
-        }
-    missing = [column for column in feature_columns if column not in data]
-    if missing:
-        return {
-            "status": "skipped",
-            "reason": f"Missing baseline survival features: {', '.join(missing)}",
-            **context,
-        }
-    if "split" in data and {"train", "test"}.issubset(set(data["split"])):
+        return _rsf_unavailable(
+            "scikit-survival is required; run `uv sync --locked --extra survival`", context
+        )
+    if "split" in data:
+        split_values = set(data["split"].dropna())
+        if not {"train", "test"}.issubset(split_values):
+            return _rsf_unavailable(
+                "Input split must include both train and test devices", context
+            )
         train_idx = np.flatnonzero(data["split"].isin(["train", "validation"]).to_numpy())
         test_idx = np.flatnonzero(data["split"].eq("test").to_numpy())
-        split_source = "input_manifest"
+        split_source = "input_device_manifest"
     else:
         devices = data["unit_id"].astype(str).to_numpy()
         order = np.argsort(devices)
@@ -253,27 +304,18 @@ def benchmark_survival_forest(
         train_idx, test_idx = order[:boundary], order[boundary:]
         split_source = "deterministic_unit_order"
     if not len(train_idx) or not len(test_idx):
-        return {
-            "status": "skipped",
-            "reason": "Split contains no train or test units",
-            **context,
-        }
+        return _rsf_unavailable("Split contains no train or test units", context)
     if int(data.iloc[train_idx]["event_observed"].sum()) < 10:
-        return {
-            "status": "skipped",
-            "reason": "Training split has fewer than 10 observed failures",
-            **context,
-        }
+        return _rsf_unavailable("Training split has fewer than 10 observed failures", context)
     try:
-        x = data[feature_columns].apply(pd.to_numeric, errors="raise")
+        x = data[[feature_mapping[column] for column in RSF_BASELINE_FEATURES]].apply(
+            pd.to_numeric, errors="raise"
+        )
+        x.columns = RSF_BASELINE_FEATURES
     except (TypeError, ValueError) as exc:
-        return {"status": "skipped", "reason": str(exc), **context}
+        return _rsf_unavailable(str(exc), context)
     if not np.isfinite(x.to_numpy(dtype=float)).all():
-        return {
-            "status": "skipped",
-            "reason": "Baseline survival features must be finite",
-            **context,
-        }
+        return _rsf_unavailable("Baseline survival features must be finite", context)
     outcome = np.array(
         list(zip(data["event_observed"], data["time_to_event"], strict=True)),
         dtype=[("event", bool), ("time", float)],
@@ -321,6 +363,9 @@ def benchmark_survival_forest(
     except ValueError as exc:
         uno_c_index_note = str(exc)
     survival_functions = model.predict_survival_function(x.iloc[test_idx])
+    individual_prediction = _individual_prediction(
+        survival_functions, data.iloc[test_idx]["unit_id"]
+    )
     predicted_median = []
     for function in survival_functions:
         values = function(function.x)
@@ -376,4 +421,5 @@ def benchmark_survival_forest(
         "train_units": len(train_idx),
         "test_units": len(test_idx),
         "split_source": split_source,
+        "_individual_prediction": individual_prediction,
     }

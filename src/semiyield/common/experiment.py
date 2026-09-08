@@ -32,7 +32,8 @@ def build_experiment_manifest(
         "limitations": [
             "Anonymous SECOM variables cannot establish physical root cause.",
             "NASA results are research evidence, not production qualification.",
-            "NASA row-level derivatives are not redistributed without explicit permission.",
+            "NASA raw row-level derivatives are not redistributed; the verified report publishes "
+            "only authorized protected-test device labels and SVG-only RSF predictions.",
         ],
     }
     if yield_summary.exists():

@@ -66,10 +66,21 @@ def test_four_route_reference_assets_are_linked_and_aggregate_only():
         "reports/verified/packaging/benchmark_summary.svg",
         "reports/verified/packaging/benchmark_metrics_table.svg",
         "reports/verified/nasa/degradation_trends.svg",
-        "reports/verified/reliability_0045/rsf_performance.svg",
+        "reports/verified/reliability_0045/rsf_individual_predicted_survival.svg",
     ):
         assert (ROOT / asset).is_file()
     public_demo = ROOT / "reports" / "verified" / "demo" / "README.md"
     assert "example_trace.csv" not in public_demo.read_text(encoding="utf-8")
     report = (ROOT / "reports" / "verified" / "README.md").read_text(encoding="utf-8")
     assert "benchmark_metrics_table.svg" not in report
+    assert "rsf_performance.svg" not in report
+    assert "rsf_individual_predicted_survival.svg" in report
+    for text in (
+        "Harrell C-index of 0.905",
+        "bootstrap 95% CI",
+        "Uno C-index is 0.862",
+        "integrated Brier score is 0.149",
+        "MAE is 5,810 s",
+        "protected 9-device test set",
+    ):
+        assert text in report

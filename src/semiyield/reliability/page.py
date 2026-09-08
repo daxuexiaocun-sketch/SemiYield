@@ -29,8 +29,8 @@ def render(zh):
         if rsf.get("status") == "completed" and rsf.get("c_index") is not None:
             metrics[3].metric("RSF C-index", f"{rsf['c_index']:.3f}")
         else:
-            metrics[3].metric("RSF", "Skipped")
-            st.caption(rsf.get("reason", "No RSF result recorded"))
+            metrics[3].metric("RSF", "Required unavailable")
+            st.error(rsf.get("reason", "Required RSF result is unavailable"))
         st.warning(report["arrhenius_weibull"].get("extrapolation_warning", ""))
         st.json(report)
         st.stop()

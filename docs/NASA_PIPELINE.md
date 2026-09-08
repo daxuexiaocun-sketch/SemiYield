@@ -30,4 +30,7 @@ The normalized input schema requires `device_id`, `time_s`, `temperature_c`, `vd
 
 ## Data handling
 
-The converter records accepted and excluded inputs in a manifest. The source archive and row-level derived tables remain outside Git until dataset-specific redistribution rights are confirmed.
+The converter records accepted and excluded inputs in a manifest. The source archive and row-level
+derived tables remain outside Git until dataset-specific redistribution rights are confirmed. The
+verified reliability report may publish protected-test device labels and SVG-only RSF model-predicted
+survival curves; it does not publish raw rows, baseline features, or observed device outcomes.

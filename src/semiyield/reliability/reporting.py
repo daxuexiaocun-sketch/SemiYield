@@ -230,81 +230,65 @@ def write_arrhenius_lifetime_sweep(sweep: pd.DataFrame, output_dir: str | Path) 
     return path
 
 
-def write_rsf_performance_card(result: dict[str, object], output_dir: str | Path) -> Path | None:
-    """Write an aggregate-only, held-out RSF evaluation card."""
+def write_rsf_individual_predicted_survival(
+    prediction: dict[str, object], output_dir: str | Path, *, report_label: str = "Reliability"
+) -> Path | None:
+    """Write public held-out RSF survival predictions for individual test devices."""
     try:
         import matplotlib.pyplot as plt
     except ImportError:
         return None
+    if prediction.get("status") != "completed":
+        return None
     output = Path(output_dir)
-    figure, axis = plt.subplots(figsize=(8.4, 3.7))
-    axis.axis("off")
-    title = "NASA MOSFET RSF · protected held-out evaluation"
-    subtitle = "Baseline features · protected 9-device test set · exploratory benchmark"
-    axis.text(0.03, 0.93, title, transform=axis.transAxes, fontsize=14, weight="bold", va="top")
-    axis.text(0.03, 0.82, subtitle, transform=axis.transAxes, fontsize=9, color="#516174")
-    if result.get("status") != "completed":
-        axis.text(0.03, 0.55, "RSF not run", transform=axis.transAxes, fontsize=13, weight="bold")
-        axis.text(
-            0.03,
-            0.39,
-            str(result.get("reason", "No reason recorded")),
-            transform=axis.transAxes,
-            fontsize=10,
-            color="#516174",
-            wrap=True,
+    figure, axis = plt.subplots(figsize=(9.2, 5.0))
+    colors = (
+        "#2878b5",
+        "#d47832",
+        "#4f8f6b",
+        "#7252b8",
+        "#c9564a",
+        "#3b9b8a",
+        "#9a6b2f",
+        "#596f8f",
+        "#bf5b8a",
+    )
+    for index, curve in enumerate(prediction["curves"]):
+        axis.step(
+            curve["_time_s"],
+            curve["_survival_probability"],
+            where="post",
+            color=colors[index % len(colors)],
+            linewidth=1.7,
+            label=str(curve["unit_id"]),
         )
-        description = "RSF held-out performance card reporting a skipped status and reason."
-    else:
-        c_index = result.get("c_index")
-        interval = result.get("c_index_bootstrap_ci95")
-        interval_text = (
-            f"{interval[0]:.3f}–{interval[1]:.3f}"
-            if isinstance(interval, list) and len(interval) == 2
-            else "not estimable"
-        )
-        rows = [
-            ("Harrell C-index", "—" if c_index is None else f"{c_index:.3f}"),
-            ("Bootstrap 95% CI", interval_text),
-            (
-                "Uno C-index (IPCW)",
-                "—" if result.get("uno_c_index") is None else f"{result['uno_c_index']:.3f}",
-            ),
-            (
-                "Integrated Brier score",
-                "—"
-                if result.get("integrated_brier_score") is None
-                else f"{result['integrated_brier_score']:.3f}",
-            ),
-            (
-                "Observed-failure median lifetime MAE",
-                "—"
-                if result.get("observed_failure_median_lifetime_mae") is None
-                else f"{result['observed_failure_median_lifetime_mae']:,.0f} s",
-            ),
-        ]
-        table = axis.table(
-            cellText=rows,
-            colLabels=["Metric", "Held-out value"],
-            cellLoc="left",
-            colLoc="left",
-            bbox=[0.03, 0.08, 0.94, 0.62],
-        )
-        table.auto_set_font_size(False)
-        table.set_fontsize(9)
-        for (row, _), cell in table.get_celld().items():
-            if row == 0:
-                cell.set_facecolor("#1d3857")
-                cell.get_text().set_color("white")
-                cell.get_text().set_weight("bold")
-            elif row % 2:
-                cell.set_facecolor("#f3f6f9")
-        description = (
-            "Aggregate random survival forest performance on the protected 9-device NASA test set, "
-            "using baseline temperature and initial RDS(on) features only."
-        )
-    path = output / "rsf_performance.svg"
-    save_svg(figure, path, title=title, description=description)
+    test_units = int(prediction["test_units"])
+    axis.set(
+        xlabel="Time (s)",
+        ylabel="Predicted survival probability (not KM)",
+        title=f"{report_label} RSF individual predicted survival · protected test set",
+        ylim=(0, 1.02),
+    )
+    axis.grid(alpha=0.25)
+    axis.margins(x=0.03)
+    axis.legend(
+        title=f"Test devices (n={test_units})",
+        loc="upper right",
+        bbox_to_anchor=(0.75, 0.98),
+        fontsize=8,
+        title_fontsize=8,
+    )
+    path = output / "rsf_individual_predicted_survival.svg"
+    save_svg(
+        figure,
+        path,
+        title="RSF individual predicted survival for held-out test devices",
+        description=(
+            "Random survival forest predicted survival curves for individual protected test "
+            "devices. This is a model prediction, not Kaplan-Meier data; observed failure "
+            "and censoring outcomes are not plotted."
+        ),
+    )
     plt.close(figure)
     return path
 
@@ -388,9 +372,8 @@ def write_reliability_report(
                     str(key): int(value) for key, value in failures_by_group.items()
                 },
             }
-    report["survival_forest"] = benchmark_survival_forest(
-        frame, feature_columns=RSF_BASELINE_FEATURES, data_sha256=data_sha256
-    )
+    report["survival_forest"] = benchmark_survival_forest(frame, data_sha256=data_sha256)
+    individual_prediction = report["survival_forest"].pop("_individual_prediction", None)
     curve_time = np.linspace(0, float(frame["time_to_event"].max()) * 1.1, 200)
     curve = pd.DataFrame(
         {
@@ -411,9 +394,32 @@ def write_reliability_report(
         sweep_chart = write_arrhenius_lifetime_sweep(sweep, output)
         if sweep_chart:
             chart_paths.append(sweep_chart)
-    rsf_card = write_rsf_performance_card(report["survival_forest"], output)
-    if rsf_card:
-        chart_paths.append(rsf_card)
+    report_label = (
+        "NASA MOSFET" if set(RSF_BASELINE_FEATURES).issubset(frame.columns) else "Reliability"
+    )
+    individual_chart = (
+        write_rsf_individual_predicted_survival(
+            individual_prediction, output, report_label=report_label
+        )
+        if individual_prediction is not None
+        else None
+    )
+    if individual_chart:
+        chart_paths.append(individual_chart)
+        report["survival_forest"]["individual_predicted_survival"] = {
+            "status": "completed",
+            "test_units": individual_prediction["test_units"],
+            "artifact_sha256": sha256_file(individual_chart),
+        }
+    else:
+        report["survival_forest"]["individual_predicted_survival"] = {
+            "status": "not_generated",
+            "reason": (
+                str(individual_prediction.get("reason"))
+                if individual_prediction is not None
+                else str(report["survival_forest"].get("reason", "RSF did not complete"))
+            ),
+        }
     report["artifacts"] = {
         "weibull_curve.csv": sha256_file(output / "weibull_curve.csv"),
         **(

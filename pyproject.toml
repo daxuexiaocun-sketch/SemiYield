@@ -42,6 +42,7 @@ all = [
   "pyarrow>=15",
   "streamlit>=1.36",
   "plotly>=5.22",
+  "scikit-survival>=0.23; python_version < '3.14'",
 ]
 
 [project.scripts]

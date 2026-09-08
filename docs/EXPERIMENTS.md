@@ -21,10 +21,13 @@ the same final hyperparameter values.
 
 - All observations from one device remain in one train, validation, or test partition.
 - Weibull fitting supports right-censored units; Arrhenius–Weibull is reported only when temperature groups support the estimate. Reports provide B10 and characteristic life η at 55, 85, 105, and 125 °C; temperatures outside the failure-supported stress range are explicitly marked as extrapolations.
-- The optional survival forest uses the fixed device-level split: train plus validation devices fit
-  the fixed-parameter model and the protected test devices report Harrell/Uno concordance, integrated
-  Brier score, and uncertainty. It uses baseline-only features and is an exploratory predictive
-  benchmark, not a replacement for Weibull or Arrhenius–Weibull lifetime inference.
+- Every reliability report attempts the fixed-parameter survival forest. For NASA inputs, train plus
+  validation devices fit the model and protected test devices report Harrell/Uno concordance,
+  integrated Brier score, and uncertainty. Inputs without an explicit split use a deterministic
+  device-level 80/20 split. Missing dependencies, baseline features, finite values, failures, or a
+  valid split produce a `required_but_unavailable` result card without suppressing Weibull or
+  Arrhenius–Weibull outputs. RSF is an exploratory baseline-feature predictive benchmark, not a
+  replacement for Weibull or Arrhenius–Weibull lifetime inference.
 
 See [model card](MODEL_CARD.md) and [reliability methods](RELIABILITY_METHODS.md) for interpretation limits.
 

@@ -145,7 +145,7 @@ def reliability_report(
     use_temperature_c: float = 55.0,
     use_temperatures_c: str = "55,85,105,125",
 ):
-    """Generate Weibull, Arrhenius, and optional survival-model reports."""
+    """Generate Weibull, Arrhenius-Weibull, and required RSF reports."""
     if profile not in {"quick", "full"}:
         raise typer.BadParameter("profile must be quick or full")
     if not input_csv.exists():
@@ -168,4 +168,7 @@ def reliability_report(
     )
     if "dataset_role" in frame and frame["dataset_role"].eq("ci_smoke_only").any():
         typer.echo("NOTE: synthetic example data is not a NASA experimental result")
+    rsf = report["survival_forest"]
+    if rsf.get("status") != "completed":
+        typer.echo(f"RSF REQUIRED BUT UNAVAILABLE: {rsf.get('reason')}", err=True)
     typer.echo(json.dumps(report, indent=2))
