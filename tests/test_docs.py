@@ -56,9 +56,14 @@ def test_documentation_svgs_are_portable():
 
 
 def test_three_route_reference_assets_are_linked_and_aggregate_only():
-    for readme in (ROOT / "README.md", ROOT / "README.zh-CN.md"):
+    expected_workflows = {
+        ROOT / "README.md": "docs/assets/graphical-abstract-en.svg",
+        ROOT / "README.zh-CN.md": "docs/assets/graphical-abstract-zh-CN.svg",
+    }
+    for readme, workflow in expected_workflows.items():
         content = readme.read_text(encoding="utf-8")
-        assert "docs/assets/results-overview.svg" in content
+        assert workflow in content
+        assert "docs/assets/results-overview.svg" not in content
     for asset in (
         "docs/assets/results-overview.svg",
         "reports/verified/yield/benchmark_pr_auc.svg",

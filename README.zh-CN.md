@@ -40,9 +40,7 @@ uv run semiyield reliability report --profile quick
 NASA 数据准备详见 [NASA 数据流水线](docs/NASA_PIPELINE.md)。
 依赖统一以 `uv.lock` 为准，extras 需要显式选择，详见[业务架构与环境说明](docs/ARCHITECTURE.md)。
 
-## 三线路结果仪表盘
-
-![三线路结果总览](docs/assets/results-overview.svg)
+## 三线路结果
 
 | 线路 | 主要结果 | 证据边界 | 复现与详情 |
 |---|---|---|---|

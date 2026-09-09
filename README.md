@@ -41,9 +41,7 @@ from earlier releases must be re-trained or their old exported results retained.
 documented in the [NASA data pipeline](docs/NASA_PIPELINE.md). `uv.lock` is the dependency source of truth; extras must
 be explicitly selected. See [architecture and environments](docs/ARCHITECTURE.md).
 
-## Three-route results dashboard
-
-![Three-route results overview](docs/assets/results-overview.svg)
+## Three-route results
 
 | Route | Main result | Evidence boundary | Reproduce and details |
 |---|---|---|---|
